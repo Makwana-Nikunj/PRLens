@@ -4,7 +4,7 @@ import { ApiResponse } from "../utils/ApiResponse.js";
 import { sql } from "../db/index.js";
 import { generateUniqueUsername } from "../utils/username.util.js";
 import { invalidateUserCache } from "../middlewares/auth.middleware.js";
-import { verifyGitHubToken } from "../utils/oauth.util.js";
+import { verifyGitHubToken } from "../services/oauth.service.js";
 import jwt from "jsonwebtoken";
 
 const accessCookieOptions = {
@@ -114,7 +114,7 @@ const oauthLogin = asyncHandler(async (req, res) => {
   }
 
   // Verify OAuth token with GitHub
-  const { github_id, email, name, picture } = await verifyGitHubToken({
+  const { github_id, email, name, picture, github_token } = await verifyGitHubToken({
     code,
     codeVerifier,
     redirectUri,
@@ -130,6 +130,8 @@ const oauthLogin = asyncHandler(async (req, res) => {
   if (existingUsers.length > 0) {
     const user = existingUsers[0];
     const { accessToken, refreshToken } = await generateAndSaveTokens(user.id);
+
+    await sql`UPDATE users SET github_token = ${github_token} WHERE id = ${user.id}`;
 
     const userWithoutSensitiveData = {
       id: user.id,
@@ -150,8 +152,8 @@ const oauthLogin = asyncHandler(async (req, res) => {
   const uniqueUsername = await generateUniqueUsername(name, sql);
 
   const newUser = await sql`
-    INSERT INTO users (username, email, github_id, avatar_url)
-    VALUES (${uniqueUsername}, ${email}, ${github_id}, ${picture || null})
+    INSERT INTO users (username, email, github_id, avatar_url, github_token)
+    VALUES (${uniqueUsername}, ${email}, ${github_id}, ${picture || null}, ${github_token})
     RETURNING id, username, email, avatar_url, created_at
   `;
 

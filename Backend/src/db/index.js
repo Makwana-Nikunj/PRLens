@@ -4,19 +4,19 @@ let sql;
 
 export const connectDB = async () => {
 
-    try {
-        sql = postgres(process.env.DATABASE_URL, {
-            ssl: 'require',
-            max: 10,
-            prepare: true,
-            idle_timeout: 30,        // close idle connections after 30s
-            connect_timeout: 10,     // fail if connection takes >10s
-        });
+  try {
+    sql = postgres(process.env.DATABASE_URL, {
+      ssl: 'require',
+      max: 10,
+      prepare: true,
+      idle_timeout: 30,        // close idle connections after 30s
+      connect_timeout: 10,     // fail if connection takes >10s
+    });
 
-        // ===============================
-        // USERS TABLE
-        // ===============================
-await sql`
+    // ===============================
+    // USERS TABLE
+    // ===============================
+    await sql`
 CREATE TABLE IF NOT EXISTS users (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   github_id TEXT UNIQUE NOT NULL,
@@ -24,16 +24,22 @@ CREATE TABLE IF NOT EXISTS users (
   email TEXT UNIQUE NOT NULL,
   avatar_url TEXT,
   refresh_token TEXT,
+  github_token TEXT,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 `;
 
-        // ===============================
-        // Pull Requests TABLE
-        // ===============================
+    // Ensure github_token column exists for existing tables
+    await sql`
+            ALTER TABLE users ADD COLUMN IF NOT EXISTS github_token TEXT;
+        `;
 
-await sql`
+    // ===============================
+    // Pull Requests TABLE
+    // ===============================
+
+    await sql`
 CREATE TABLE IF NOT EXISTS pull_requests (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   url TEXT UNIQUE NOT NULL,
@@ -54,11 +60,11 @@ CREATE TABLE IF NOT EXISTS pull_requests (
 )
 `;
 
-        // ===============================
-        // Analyses TABLE
-        // ===============================
+    // ===============================
+    // Analyses TABLE
+    // ===============================
 
-await sql`
+    await sql`
 CREATE TABLE IF NOT EXISTS analyses (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
@@ -74,11 +80,11 @@ CREATE TABLE IF NOT EXISTS analyses (
 )
 `;
 
-        // ===============================
-        // Analyses TABLE
-        // ===============================
+    // ===============================
+    // Analyses TABLE
+    // ===============================
 
-await sql`
+    await sql`
 CREATE TABLE IF NOT EXISTS chat_messages (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
@@ -90,37 +96,37 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 )
 `;
 
-        // ===============================
-        // PERFORMANCE INDEXES
-        // ===============================
+    // ===============================
+    // PERFORMANCE INDEXES
+    // ===============================
 
-        await sql`
+    await sql`
             CREATE INDEX IF NOT EXISTS
              idx_pr_url ON pull_requests(url);
         `;
 
-        await sql`
+    await sql`
             CREATE INDEX IF NOT EXISTS
              idx_analysis_pr_id ON analyses
              (pr_id);
         `;
 
-        await sql`
+    await sql`
             CREATE INDEX IF NOT EXISTS 
              idx_chat_pr_id_time ON chat_messages
              (pr_id, created_at ASC);
         `;
 
-        await sql`
+    await sql`
             CREATE INDEX IF NOT EXISTS 
              idx_users_github_id ON users(github_id);
         `;
 
-        console.log("✅ Database connected and tables created (if they didn't exist)");
+    console.log("✅ Database connected and tables created (if they didn't exist)");
 
-    } catch (error) {
-        console.error("❌ Error connecting to the database:", error);
-    }
+  } catch (error) {
+    console.error("❌ Error connecting to the database:", error);
+  }
 }
 
 export { sql };
