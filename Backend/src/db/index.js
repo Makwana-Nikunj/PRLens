@@ -16,79 +16,79 @@ export const connectDB = async () => {
         // ===============================
         // USERS TABLE
         // ===============================
-        await sql`
-            CREATE TABLE users (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                github_id TEXT UNIQUE NOT NULL,
-                username TEXT NOT NULL,
-                email TEXT UNIQUE NOT NULL,
-                avatar_url TEXT,
-                refresh_token TEXT,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-                updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `;
+await sql`
+CREATE TABLE IF NOT EXISTS users (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  github_id TEXT UNIQUE NOT NULL,
+  username TEXT NOT NULL,
+  email TEXT UNIQUE NOT NULL,
+  avatar_url TEXT,
+  refresh_token TEXT,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+`;
 
         // ===============================
         // Pull Requests TABLE
         // ===============================
 
-        await sql`
-            CREATE TABLE pull_requests (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                url TEXT UNIQUE NOT NULL,
-                owner TEXT NOT NULL,
-                repo TEXT NOT NULL,
-                pr_number INTEGER NOT NULL,
-                title TEXT,
-                author TEXT,
-                description TEXT,
-                base_branch TEXT,
-                head_branch TEXT,
-                total_files INTEGER DEFAULT 0,
-                total_additions INTEGER DEFAULT 0,
-                total_deletions INTEGER DEFAULT 0,
-                is_private BOOLEAN DEFAULT FALSE,
-                raw_diff JSONB,
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `;
+await sql`
+CREATE TABLE IF NOT EXISTS pull_requests (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  url TEXT UNIQUE NOT NULL,
+  owner TEXT NOT NULL,
+  repo TEXT NOT NULL,
+  pr_number INTEGER NOT NULL,
+  title TEXT,
+  author TEXT,
+  description TEXT,
+  base_branch TEXT,
+  head_branch TEXT,
+  total_files INTEGER DEFAULT 0,
+  total_additions INTEGER DEFAULT 0,
+  total_deletions INTEGER DEFAULT 0,
+  is_private BOOLEAN DEFAULT FALSE,
+  raw_diff JSONB,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+`;
 
         // ===============================
         // Analyses TABLE
         // ===============================
 
-        await sql`
-            CREATE TABLE analyses (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
-                summary TEXT,
-                key_changes TEXT,
-                tradeoffs TEXT,
-                risks TEXT,
-                reviewer_checklist TEXT,
-                file_explanations JSONB,
-                raw_response TEXT,
-                model_used TEXT DEFAULT 'claude-sonnet-4-5',
-                created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-            )
-        `;
+await sql`
+CREATE TABLE IF NOT EXISTS analyses (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
+  summary TEXT,
+  key_changes TEXT,
+  tradeoffs TEXT,
+  risks TEXT,
+  reviewer_checklist TEXT,
+  file_explanations JSONB,
+  raw_response TEXT,
+  model_used TEXT DEFAULT 'claude-sonnet-4-5',
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+)
+`;
 
         // ===============================
         // Analyses TABLE
         // ===============================
 
-        await sql`
-            CREATE TABLE chat_messages (
-                id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-                pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
-                user_id UUID REFERENCES users(id) ON DELETE SET NULL,
-                role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
-                content TEXT NOT NULL,
-                tokens_used INTEGER,
-                created_at TIMESTAMP DEFAULT NOW()
-            )
-        `;
+await sql`
+CREATE TABLE IF NOT EXISTS chat_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
+  role TEXT NOT NULL CHECK (role IN ('user', 'assistant')),
+  content TEXT NOT NULL,
+  tokens_used INTEGER,
+  created_at TIMESTAMP DEFAULT NOW()
+)
+`;
 
         // ===============================
         // PERFORMANCE INDEXES
@@ -123,4 +123,4 @@ export const connectDB = async () => {
     }
 }
 
-export { connectDB, sql };
+export { sql };
