@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { getAuthenticatedUser, getUserEmails } from "./github.service.js";
+import { GitHubService } from "./github.service.js";
 
 const GITHUB_TOKEN_URL = "https://github.com/login/oauth/access_token";
 const GITHUB_TIMEOUT = 10000;
@@ -51,13 +51,15 @@ export const verifyGitHubToken = async ({ code, codeVerifier, redirectUri }) => 
             throw new ApiError(401, "No access token returned from GitHub");
         }
 
+        const githubService = new GitHubService(access_token);
+
         // Use Octokit from github.service.js to fetch user info
-        const userInfo = await getAuthenticatedUser(access_token);
+        const userInfo = await githubService.getAuthenticatedUser();
 
         // Fetch email if not public
         let email = userInfo.email;
         if (!email) {
-            const emails = await getUserEmails(access_token);
+            const emails = await githubService.getUserEmails();
             const primary = emails.find((e) => e.primary && e.verified);
             email = primary ? primary.email : null;
         }
