@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { analyzePRController, getPRController, getAllPRs, deletePR } from "../controllers/pr.controller.js";
+import { analyzePR, getPR, getAllPRs, deletePR } from "../controllers/pr.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 
 const router = Router();
@@ -7,9 +7,9 @@ const router = Router();
 // Protected PR routes
 router.use(verifyJwt);
 
-router.route("/analyze").post(analyzePRController);
+router.route("/analyze").post(analyzePR);
 router.route("/").get(getAllPRs);
 
-router.route("/:id").get(getPRController).delete(deletePR);
+router.route("/:id").get(getPR).delete(deletePR);
 
 export default router;

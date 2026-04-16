@@ -114,7 +114,7 @@ const analyzePR = asyncHandler(async (req, res) => {
     }, "PR analyzed successfully"));
 });
 
-const getPRs = asyncHandler(async (req, res) => {
+const getPR = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const result = await sql`
@@ -198,4 +198,4 @@ const deletePR = asyncHandler(async (req, res) => {
     }
 });
 
-export { analyzePRController, getPRController, getAllPRs, deletePR };
+export { analyzePR, getPR, getAllPRs, deletePR };
