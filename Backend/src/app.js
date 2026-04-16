@@ -9,6 +9,8 @@ import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 
 // all routes
 import authRouter from "./routes/auth.routes.js";
+import prRouter from "./routes/pr.routes.js";
+import chatRouter from "./routes/chat.routes.js";
 
 
 import { keepAlive } from "./utils/keepAlive.js";
@@ -66,6 +68,8 @@ app.use(requestLogger);
 
 // Routes
 app.use("/api/auth", authRouter);
+app.use("/api/pr", prRouter);
+app.use("/api/chat", chatRouter);
 
 
 
