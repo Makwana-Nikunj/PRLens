@@ -62,7 +62,7 @@ export class GitHubService {
             });
             return data;
         } catch (error) {
-            this._handleGitHubError(error, "Failed to fetch pull request");
+            return this._handleGitHubError(error, "Failed to fetch pull request");
         }
     }
 
@@ -77,7 +77,7 @@ export class GitHubService {
             });
             return data;
         } catch (error) {
-            this._handleGitHubError(error, "Failed to fetch PR files");
+            return this._handleGitHubError(error, "Failed to fetch PR files");
         }
     }
 
@@ -92,7 +92,7 @@ export class GitHubService {
             });
             return data;
         } catch (error) {
-            this._handleGitHubError(error, "Failed to fetch PR commits");
+            return this._handleGitHubError(error, "Failed to fetch PR commits");
         }
     }
 
@@ -104,7 +104,7 @@ export class GitHubService {
             });
             return data;
         } catch (error) {
-            this._handleGitHubError(error, "Failed to fetch repository details");
+            return this._handleGitHubError(error, "Failed to fetch repository details");
         }
     }
 
@@ -113,7 +113,7 @@ export class GitHubService {
             const { data } = await this.client.users.getAuthenticated();
             return data;
         } catch (error) {
-            this._handleGitHubError(error, "Failed to fetch authenticated user");
+            return this._handleGitHubError(error, "Failed to fetch authenticated user");
         }
     }
 
@@ -122,7 +122,7 @@ export class GitHubService {
             const { data } = await this.client.users.listEmailsForAuthenticatedUser();
             return data;
         } catch (error) {
-            this._handleGitHubError(error, "Failed to fetch user emails");
+            return this._handleGitHubError(error, "Failed to fetch user emails");
         }
     }
 }

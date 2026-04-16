@@ -7,7 +7,7 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { sql } from "../db/index.js";
 import { getCachedAnalysis, savePR, saveAnalysis } from "../services/cache.service.js";
 
-const analyzePRController = asyncHandler(async (req, res) => {
+const analyzePR = asyncHandler(async (req, res) => {
     const { url } = req.body;
 
     if (!url || typeof url !== "string") {
@@ -90,7 +90,8 @@ const analyzePRController = asyncHandler(async (req, res) => {
         is_private: prDetails.base?.repo?.private || false,
         owner,
         repo,
-        pr_number: pull_number
+        pr_number: pull_number,
+        user_id: req.user.id
     };
 
     const insertedPRId = await savePR(normalizedUrl, prData, JSON.stringify(files));
@@ -113,7 +114,7 @@ const analyzePRController = asyncHandler(async (req, res) => {
     }, "PR analyzed successfully"));
 });
 
-const getPRController = asyncHandler(async (req, res) => {
+const getPRs = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const result = await sql`
@@ -146,4 +147,55 @@ const getPRController = asyncHandler(async (req, res) => {
     });
 });
 
-export { analyzePRController, getPRController };
+const getAllPRs = asyncHandler(async (req, res) => {
+    const result = await sql`
+        SELECT pr.id as pr_id, pr.url as github_pr_url,
+               a.summary, a.key_changes, a.tradeoffs, a.risks, a.reviewer_checklist as checklist, a.file_explanations,
+               a.created_at as analyzed_at
+        FROM pull_requests pr
+        JOIN analyses a ON a.pr_id = pr.id
+        WHERE pr.user_id = ${req.user.id}
+        ORDER BY a.created_at DESC
+    `;
+
+    res.json(result.map(row => ({
+        pr_id: row.pr_id,
+        github_pr_url: row.github_pr_url,
+        analyzed_at: row.analyzed_at,
+        analysis: {
+            summary: row.summary,
+            key_changes: row.key_changes,
+            tradeoffs: row.tradeoffs,
+            risks: row.risks,
+            checklist: row.checklist,
+            file_explanations: row.file_explanations,
+        },
+    })));
+});
+
+const deletePR = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+
+    await sql`BEGIN`;
+    try {
+        const pr = await sql`SELECT id FROM pull_requests WHERE id = ${id} AND user_id = ${req.user.id}`;
+        if (!pr || pr.length === 0) throw new ApiError(403, "Not authorized to delete this PR or PR not found");
+
+        await sql`DELETE FROM chat_messages WHERE pr_id = ${id}`;
+        await sql`DELETE FROM analyses WHERE pr_id = ${id}`;
+
+        const result = await sql`
+            DELETE FROM pull_requests
+            WHERE id = ${id} AND user_id = ${req.user.id}
+            RETURNING id
+        `;
+
+        await sql`COMMIT`;
+        res.json(new ApiResponse(200, null, "PR and analysis deleted successfully"));
+    } catch (e) {
+        await sql`ROLLBACK`;
+        throw e;
+    }
+});
+
+export { analyzePRController, getPRController, getAllPRs, deletePR };

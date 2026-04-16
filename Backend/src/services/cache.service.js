@@ -17,11 +17,11 @@ export async function getCachedAnalysis(githubPrUrl) {
 
 export async function savePR(githubPrUrl, prData, rawDiff) {
 
-    const { title, author, description, base_branch, head_branch, head_sha, total_files, total_additions, total_deletions, is_private, owner, repo, pr_number } = prData;
+    const { title, author, description, base_branch, head_branch, head_sha, total_files, total_additions, total_deletions, is_private, owner, repo, pr_number, user_id } = prData;
 
     const result = await sql`
-        INSERT INTO pull_requests (url, owner, repo, pr_number, title, author, description, base_branch, head_branch, head_sha, total_files, total_additions, total_deletions, is_private, raw_diff)
-        VALUES (${githubPrUrl}, ${owner}, ${repo}, ${pr_number}, ${title}, ${author}, ${description}, ${base_branch}, ${head_branch}, ${head_sha}, ${total_files}, ${total_additions}, ${total_deletions}, ${is_private}, ${rawDiff})
+        INSERT INTO pull_requests (url, owner, repo, pr_number, title, author, description, base_branch, head_branch, head_sha, total_files, total_additions, total_deletions, is_private, user_id, raw_diff)
+        VALUES (${githubPrUrl}, ${owner}, ${repo}, ${pr_number}, ${title}, ${author}, ${description}, ${base_branch}, ${head_branch}, ${head_sha}, ${total_files}, ${total_additions}, ${total_deletions}, ${is_private}, ${user_id}, ${rawDiff})
         ON CONFLICT (url) DO UPDATE
         SET raw_diff = EXCLUDED.raw_diff, 
             author = EXCLUDED.author, 
@@ -33,7 +33,8 @@ export async function savePR(githubPrUrl, prData, rawDiff) {
             total_files = EXCLUDED.total_files,
             total_additions = EXCLUDED.total_additions,
             total_deletions = EXCLUDED.total_deletions,
-            is_private = EXCLUDED.is_private
+            is_private = EXCLUDED.is_private,
+            user_id = EXCLUDED.user_id
         RETURNING id
     `;
 
