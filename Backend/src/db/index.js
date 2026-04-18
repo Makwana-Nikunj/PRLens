@@ -9,7 +9,7 @@ export const connectDB = async () => {
       ssl: 'require',
       max: 10,
       prepare: true,
-      idle_timeout: 120,       // close idle connections after 120s
+      idle_timeout: 30,        // close idle connections after 30s
       connect_timeout: 10,     // fail if connection takes >10s
     });
 
@@ -66,7 +66,7 @@ CREATE TABLE IF NOT EXISTS pull_requests (
     await sql`
             ALTER TABLE pull_requests ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
         `;
-    
+
     // Ensure head_sha column exists for existing tables
     await sql`
             ALTER TABLE pull_requests ADD COLUMN IF NOT EXISTS head_sha TEXT;
