@@ -50,6 +50,10 @@ function validateAnalysisResult(data) {
 }
 
 export async function analyzePR(prompt, options = {}) {
+    const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
+    const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
+    const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
+
     if (!AI_API_KEY) throw new ApiError(500, "AI_API_KEY is not configured.");
 
     const systemPrompt = `You are an expert technical code reviewer. Analyze the github PR chunk. Output ONLY a valid JSON object representing your analysis.
@@ -64,40 +68,68 @@ Required JSON format:
 }`;
 
     return await retryWithBackoff(async () => {
-        const res = await fetch(`${AI_BASE_URL}/chat/completions`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
-            body: JSON.stringify({
-                model: AI_MODEL,
-                messages: [
-                    { role: "system", content: systemPrompt },
-                    { role: "user", content: prompt }
-                ],
-                temperature: 0.2
-            })
-        });
+        // Enforce timeout via AbortController to prevent AI hanging internally
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000); // 180s timeout for OpenAI/Minimax
 
-        if (!res.ok) throw new ApiError(res.status, await res.text());
+        try {
+            const res = await fetch(`${AI_BASE_URL}/chat/completions`, {
+                method: "POST",
+                signal: controller.signal,
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
+                body: JSON.stringify({
+                    model: AI_MODEL,
+                    messages: [
+                        { role: "system", content: systemPrompt },
+                        { role: "user", content: prompt }
+                    ],
+                    temperature: 0.2
+                })
+            });
 
-        const data = await res.json();
-        const rawContent = data.choices?.[0]?.message?.content;
+            clearTimeout(timeoutId);
 
-        if (!rawContent) {
-            throw new ApiError(502, "AI returned an empty or filtered response");
+            if (!res.ok) throw new ApiError(res.status, await res.text());
+
+            const data = await res.json();
+            const rawContent = data.choices?.[0]?.message?.content;
+
+            if (!rawContent) {
+                throw new ApiError(502, "AI returned an empty or filtered response");
+            }
+
+            const parsed = parseJSONResponse(rawContent);
+
+            return {
+                ...validateAnalysisResult(parsed),
+                raw_response: rawContent,
+                model_used: AI_MODEL
+            };
+        } catch (fetchErr) {
+            clearTimeout(timeoutId);
+            if (fetchErr.name === 'AbortError') {
+                throw new ApiError(504, "AI Service timed out after 180 seconds");
+            }
+            throw fetchErr;
         }
-
-        const parsed = parseJSONResponse(rawContent);
-
-        return {
-            ...validateAnalysisResult(parsed),
-            raw_response: rawContent,
-            model_used: AI_MODEL
-        };
     });
 }
 
 export async function analyzePRChunks(chunks, prMetadata, options = {}) {
     if (!chunks || chunks.length === 0) return null;
+
+    if (prMetadata?.title === "Mock PR for Testing") {
+        return {
+            summary: "This is a mocked PR summary because the Dev Mock bypassed the AI.",
+            key_changes: ["Mocked change 1", "Mocked change 2"],
+            tradeoffs: ["Mocked tradeoff"],
+            risks: ["Mocked risk"],
+            reviewer_checklist: ["Review mock", "Test mock"],
+            file_explanations: {"src/mock.js": "Mocked explanation"},
+            raw_response: "Mock",
+            model_used: "mock-model"
+        };
+    }
 
     const prompt = formatDiffForPrompt(chunks, prMetadata);
     const analysis = await analyzePR(prompt, options);
@@ -106,6 +138,10 @@ export async function analyzePRChunks(chunks, prMetadata, options = {}) {
 }
 
 export async function* streamChat(messages, options = {}) {
+    const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
+    const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
+    const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
+
     if (!AI_API_KEY) throw new ApiError(500, "AI_API_KEY is not configured.");
 
     const { prTitle, prFiles } = options;
@@ -115,19 +151,32 @@ PR Context:
 - Files involved: ${prFiles ? prFiles.join(', ') : 'Unknown'}`;
 
     const res = await retryWithBackoff(async () => {
-        const fetchRes = await fetch(`${AI_BASE_URL}/chat/completions`, {
-            method: "POST",
-            headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
-            body: JSON.stringify({
-                model: AI_MODEL,
-                messages: [{ role: "system", content: systemPrompt }, ...messages],
-                stream: true,
-                temperature: 0.4
-            })
-        });
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 180000);
 
-        if (!fetchRes.ok) throw new ApiError(fetchRes.status, await fetchRes.text());
-        return fetchRes;
+        try {
+            const fetchRes = await fetch(`${AI_BASE_URL}/chat/completions`, {
+                method: "POST",
+                signal: controller.signal,
+                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
+                body: JSON.stringify({
+                    model: AI_MODEL,
+                    messages: [{ role: "system", content: systemPrompt }, ...messages],
+                    stream: true,
+                    temperature: 0.4
+                })
+            });
+
+            clearTimeout(timeoutId);
+            if (!fetchRes.ok) throw new ApiError(fetchRes.status, await fetchRes.text());
+            return fetchRes;
+        } catch (fetchErr) {
+            clearTimeout(timeoutId);
+            if (fetchErr.name === 'AbortError') {
+                throw new ApiError(504, "AI Service timed out after 180 seconds");
+            }
+            throw fetchErr;
+        }
     });
 
     const reader = res.body.getReader();

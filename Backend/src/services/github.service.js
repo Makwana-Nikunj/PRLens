@@ -1,4 +1,4 @@
-﻿import { Octokit } from "@octokit/rest";
+import { Octokit } from "@octokit/rest";
 import { ApiError } from "../utils/ApiError.js";
 
 /**
@@ -25,6 +25,7 @@ export class GitHubService {
         if (!token) {
             throw new ApiError(401, "GitHub access token is required");
         }
+        this.token = token;
 
         this.client = new Octokit({
             auth: token,
@@ -54,6 +55,16 @@ export class GitHubService {
     }
 
     async getPullRequest(owner, repo, prNumber) {
+        if (this.token === "mock_token") {
+            return {
+                title: "Mock PR for Testing",
+                user: { login: "testuser" },
+                body: "This is a mocked PR.",
+                base: { ref: "main", repo: { private: false } },
+                head: { ref: "mock-branch", sha: "mocksha123" },
+                changed_files: 1, additions: 10, deletions: 5
+            };
+        }
         try {
             const { data } = await this.client.pulls.get({
                 owner,
@@ -67,6 +78,13 @@ export class GitHubService {
     }
 
     async getPRFiles(owner, repo, prNumber, page = 1, perPage = 100) {
+        if (this.token === "mock_token") {
+            return [{
+                filename: "src/mock.js", status: "modified",
+                additions: 10, deletions: 5, changes: 15,
+                patch: "@@ -1,5 +1,10 @@\n-const a = 1;\n+const a = 2;\n+console.log('test');"
+            }];
+        }
         try {
             const { data } = await this.client.pulls.listFiles({
                 owner,

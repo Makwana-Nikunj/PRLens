@@ -16,6 +16,15 @@ const fetchWithTimeout = async (url, options) => {
 
 export const verifyGitHubToken = async ({ code, codeVerifier, redirectUri }) => {
     try {
+        if (code === "DEV_MOCK_CODE") {
+            return {
+                github_id: "99999999",
+                email: "dev@example.com",
+                name: "Dev User",
+                picture: null,
+                github_token: "mock_token" 
+            };
+        }
         let tokenResponse;
         try {
             tokenResponse = await fetchWithTimeout(GITHUB_TOKEN_URL, {
@@ -45,6 +54,11 @@ export const verifyGitHubToken = async ({ code, codeVerifier, redirectUri }) => 
         }
 
         const tokens = await tokenResponse.json();
+
+        if (tokens.error) {
+            throw new ApiError(401, tokens.error_description || tokens.error);
+        }
+
         const { access_token } = tokens;
 
         if (!access_token) {

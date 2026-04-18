@@ -49,8 +49,7 @@ export async function saveAnalysis(prId, analysisData) {
 
     const { summary, key_changes, tradeoffs, risks, reviewer_checklist, file_explanations, raw_response, model_used } = analysisData;
 
-    await sql`BEGIN`;
-    try {
+    return await sql.begin(async (sql) => {
         // Prevent duplicate analyses for the same PR
         await sql`DELETE FROM analyses WHERE pr_id = ${prId}`;
 
@@ -60,11 +59,7 @@ export async function saveAnalysis(prId, analysisData) {
             RETURNING id
         `;
 
-        await sql`COMMIT`;
         if (!result || !result[0]) return null;
         return result[0].id;
-    } catch (e) {
-        await sql`ROLLBACK`;
-        throw e;
-    }
+    });
 }

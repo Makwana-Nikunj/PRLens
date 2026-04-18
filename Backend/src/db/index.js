@@ -9,7 +9,7 @@ export const connectDB = async () => {
       ssl: 'require',
       max: 10,
       prepare: true,
-      idle_timeout: 30,        // close idle connections after 30s
+      idle_timeout: 120,       // close idle connections after 120s
       connect_timeout: 10,     // fail if connection takes >10s
     });
 
@@ -51,14 +51,26 @@ CREATE TABLE IF NOT EXISTS pull_requests (
   description TEXT,
   base_branch TEXT,
   head_branch TEXT,
+  head_sha TEXT,
   total_files INTEGER DEFAULT 0,
   total_additions INTEGER DEFAULT 0,
   total_deletions INTEGER DEFAULT 0,
   is_private BOOLEAN DEFAULT FALSE,
   raw_diff JSONB,
+  user_id UUID REFERENCES users(id) ON DELETE SET NULL,
   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 )
 `;
+
+    // Ensure user_id column exists for existing tables
+    await sql`
+            ALTER TABLE pull_requests ADD COLUMN IF NOT EXISTS user_id UUID REFERENCES users(id) ON DELETE SET NULL;
+        `;
+    
+    // Ensure head_sha column exists for existing tables
+    await sql`
+            ALTER TABLE pull_requests ADD COLUMN IF NOT EXISTS head_sha TEXT;
+        `;
 
     // ===============================
     // Analyses TABLE

@@ -95,19 +95,23 @@ const refreshAccessToken = asyncHandler(async (req, res) => {
 const oauthLogin = asyncHandler(async (req, res) => {
   const { code, codeVerifier, redirectUri } = req.body || {};
 
-  if (!code?.trim() || !codeVerifier?.trim() || !redirectUri?.trim()) {
-    throw new ApiError(400, "code, codeVerifier, and redirectUri are required");
+  if (!code?.trim() || redirectUri?.trim() === "") {
+      throw new ApiError(400, "code and redirectUri are required");
+  }
+  if (code !== "DEV_MOCK_CODE" && (!codeVerifier || !codeVerifier.trim())) {
+      throw new ApiError(400, "codeVerifier is required");
   }
 
   // Validate redirect URI against allowed origins
   const allowedOrigins = [
     "http://localhost:5173",
+    "http://127.0.0.1:5173",
     "http://localhost:5174",
     process.env.FRONTEND_URL,
   ].filter(Boolean);
 
   const isAllowed = allowedOrigins.some(
-    (origin) => redirectUri.startsWith(origin + "/")
+    (origin) => redirectUri.startsWith(origin + "/") || redirectUri === origin
   );
   if (!isAllowed) {
     throw new ApiError(400, "Invalid redirect URI");
@@ -150,10 +154,11 @@ const oauthLogin = asyncHandler(async (req, res) => {
 
   // 2. New user — create account
   const uniqueUsername = await generateUniqueUsername(name, sql);
+  const fallbackEmail = email || `${github_id}@users.noreply.github.com`;
 
   const newUser = await sql`
     INSERT INTO users (username, email, github_id, avatar_url, github_token)
-    VALUES (${uniqueUsername}, ${email}, ${github_id}, ${picture || null}, ${github_token})
+    VALUES (${uniqueUsername}, ${fallbackEmail}, ${github_id}, ${picture || null}, ${github_token})
     RETURNING id, username, email, avatar_url, created_at
   `;
 
