@@ -146,7 +146,7 @@ const getPR = asyncHandler(async (req, res) => {
     const { id } = req.params;
 
     const result = await sql`
-        SELECT pr.id as pr_id, pr.url as github_pr_url,
+        SELECT pr.id as pr_id, pr.url as github_pr_url, pr.title, pr.author,
                a.summary, a.key_changes, a.tradeoffs, a.risks, a.reviewer_checklist as checklist, a.file_explanations,
                a.created_at as analyzed_at
         FROM pull_requests pr
@@ -166,6 +166,8 @@ const getPR = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, {
         pr_id: row.pr_id,
         github_pr_url: row.github_pr_url,
+        title: row.title,
+        author: row.author,
         analyzed_at: row.analyzed_at,
         analysis: {
             summary: row.summary,
@@ -184,7 +186,7 @@ const getAllPRs = asyncHandler(async (req, res) => {
     }
 
     const result = await sql`
-        SELECT pr.id as pr_id, pr.url as github_pr_url,
+        SELECT pr.id as pr_id, pr.url as github_pr_url, pr.title, pr.author,
                a.summary, a.key_changes, a.tradeoffs, a.risks, a.reviewer_checklist as checklist, a.file_explanations,
                a.created_at as analyzed_at
         FROM pull_requests pr
@@ -197,6 +199,8 @@ const getAllPRs = asyncHandler(async (req, res) => {
         result.map(row => ({
             pr_id: row.pr_id,
             github_pr_url: row.github_pr_url,
+            title: row.title,
+            author: row.author,
             analyzed_at: row.analyzed_at,
             analysis: {
                 summary: row.summary,
