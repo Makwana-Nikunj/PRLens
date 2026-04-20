@@ -51,7 +51,7 @@ const verifyJwt = asyncHandler(async (req, _, next) => {
         let user = getCachedUser(decodedToken.id);
 
         if (!user) {
-            const users = await sql`SELECT id, username, avatar_url FROM users WHERE id = ${decodedToken.id}`;
+            const users = await sql`SELECT id, username, avatar_url, github_token FROM users WHERE id = ${decodedToken.id}`;
 
             if (!users || users.length === 0) {
                 throw new ApiError(401, "Invalid Access Token");

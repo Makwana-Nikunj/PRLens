@@ -28,15 +28,8 @@ const analyzePR = asyncHandler(async (req, res) => {
 
     // 2. Fetch User Token
     let isUserToken = true;
-    let accessToken = req.session?.githubAccessToken || req.user?.githubAccessToken;
+    let accessToken = req.session?.githubAccessToken || req.user?.github_token;
     const userId = req.user?.id || req.session?.userId;
-
-    if (!accessToken && userId) {
-        const dbUserResult = await sql`SELECT github_token FROM users WHERE id = ${userId}`;
-        if (dbUserResult.length > 0) {
-            accessToken = dbUserResult[0].github_token;
-        }
-    }
 
     if (!accessToken) {
         accessToken = process.env.GITHUB_TOKEN;

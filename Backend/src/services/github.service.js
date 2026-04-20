@@ -1,5 +1,9 @@
 import { Octokit } from "@octokit/rest";
 import { ApiError } from "../utils/ApiError.js";
+import NodeCache from "node-cache";
+
+// Cache GitHub responses for 5 minutes to reduce API quota consumption
+const githubCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
 
 /**
  * Parses a GitHub PR URL into owner, repo, and prNumber
@@ -30,7 +34,7 @@ export class GitHubService {
         this.client = new Octokit({
             auth: token,
             request: {
-                timeout: 10000, // 10 seconds timeout
+                timeout: 15000, // Increased to 15 seconds for heavy PRs
                 retries: 3
             }
         });
@@ -55,6 +59,10 @@ export class GitHubService {
     }
 
     async getPullRequest(owner, repo, prNumber) {
+        const cacheKey = `pr_${owner}_${repo}_${prNumber}`;
+        const cached = githubCache.get(cacheKey);
+        if (cached) return cached;
+
         if (this.token === "mock_token") {
             return {
                 title: "Mock PR for Testing",
@@ -71,6 +79,7 @@ export class GitHubService {
                 repo,
                 pull_number: prNumber
             });
+            githubCache.set(cacheKey, data);
             return data;
         } catch (error) {
             return this._handleGitHubError(error, "Failed to fetch pull request");
@@ -78,6 +87,10 @@ export class GitHubService {
     }
 
     async getPRFiles(owner, repo, prNumber, page = 1, perPage = 100) {
+        const cacheKey = `files_${owner}_${repo}_${prNumber}_${page}`;
+        const cached = githubCache.get(cacheKey);
+        if (cached) return cached;
+
         if (this.token === "mock_token") {
             return [{
                 filename: "src/mock.js", status: "modified",
@@ -93,6 +106,7 @@ export class GitHubService {
                 page,
                 per_page: perPage
             });
+            githubCache.set(cacheKey, data);
             return data;
         } catch (error) {
             return this._handleGitHubError(error, "Failed to fetch PR files");

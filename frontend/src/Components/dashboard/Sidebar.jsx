@@ -1,8 +1,8 @@
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import useAuthStore from '../../store/authStore';
 import apiClient from '../../lib/apiClient';
 
-const Sidebar = ({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick }) => {
+const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick }) => {
   const { user, logout } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -30,11 +30,13 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleH
     };
   }, []);
 
-  const filteredHistory = historyList ? historyList.filter(item => {
-    if (!searchTerm) return true;
-    const url = item.github_pr_url || '';
-    return url.toLowerCase().includes(searchTerm.toLowerCase());
-  }) : [];
+  const filteredHistory = useMemo(() => {
+    return historyList ? historyList.filter(item => {
+      if (!searchTerm) return true;
+      const url = item.github_pr_url || '';
+      return url.toLowerCase().includes(searchTerm.toLowerCase());
+    }) : [];
+  }, [historyList, searchTerm]);
 
   return (
     <>
@@ -167,5 +169,5 @@ const Sidebar = ({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleH
       </aside>
     </>
   );
-};
+});
 export default Sidebar;

@@ -10,6 +10,7 @@ export async function getCachedAnalysis(githubPrUrl) {
         FROM pull_requests pr
         JOIN analyses a ON a.pr_id = pr.id
         WHERE pr.url = ${githubPrUrl}
+        ORDER BY a.created_at DESC
         LIMIT 1
     `;
     return result[0] || null;
@@ -49,13 +50,19 @@ export async function saveAnalysis(prId, analysisData) {
 
     const { summary, key_changes, tradeoffs, risks, reviewer_checklist, file_explanations, raw_response, model_used } = analysisData;
 
+    const keyChangesJson = JSON.stringify(key_changes);
+    const tradeoffsJson = JSON.stringify(tradeoffs);
+    const risksJson = JSON.stringify(risks);
+    const reviewerChecklistJson = JSON.stringify(reviewer_checklist);
+    const fileExplanationsJson = JSON.stringify(file_explanations);
+
     return await sql.begin(async (sql) => {
         // Prevent duplicate analyses for the same PR
         await sql`DELETE FROM analyses WHERE pr_id = ${prId}`;
 
         const result = await sql`
             INSERT INTO analyses (pr_id, summary, key_changes, tradeoffs, risks, reviewer_checklist, file_explanations, raw_response, model_used)
-            VALUES (${prId}, ${summary}, ${JSON.stringify(key_changes)}, ${JSON.stringify(tradeoffs)}, ${JSON.stringify(risks)}, ${JSON.stringify(reviewer_checklist)}, ${JSON.stringify(file_explanations)}, ${raw_response || null}, ${model_used || null})
+            VALUES (${prId}, ${summary}, ${keyChangesJson}, ${tradeoffsJson}, ${risksJson}, ${reviewerChecklistJson}, ${fileExplanationsJson}, ${raw_response || null}, ${model_used || null})
             RETURNING id
         `;
 
