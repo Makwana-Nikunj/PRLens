@@ -125,7 +125,7 @@ export async function analyzePRChunks(chunks, prMetadata, options = {}) {
             tradeoffs: ["Mocked tradeoff"],
             risks: ["Mocked risk"],
             reviewer_checklist: ["Review mock", "Test mock"],
-            file_explanations: {"src/mock.js": "Mocked explanation"},
+            file_explanations: { "src/mock.js": "Mocked explanation" },
             raw_response: "Mock",
             model_used: "mock-model"
         };
@@ -144,11 +144,16 @@ export async function* streamChat(messages, options = {}) {
 
     if (!AI_API_KEY) throw new ApiError(500, "AI_API_KEY is not configured.");
 
-    const { prTitle, prFiles } = options;
+    const { prTitle, prFiles, diffContext } = options;
+    const croppedDiff = diffContext ? diffContext.substring(0, 10000) + (diffContext.length > 10000 ? '\n... (diff truncated due to length)' : '') : 'No diff available';
+
     const systemPrompt = `You are a conversational AI dev bot tracking an analyzed pull request. Talk concisely to the user regarding the analysis.
 PR Context:
 - Title: ${prTitle || 'Unknown'}
-- Files involved: ${prFiles ? prFiles.join(', ') : 'Unknown'}`;
+- Files involved: ${prFiles ? prFiles.join(', ') : 'Unknown'}
+
+Code Changes / Diff:
+${croppedDiff}`;
 
     const res = await retryWithBackoff(async () => {
         const controller = new AbortController();
@@ -162,7 +167,7 @@ PR Context:
                 body: JSON.stringify({
                     model: AI_MODEL,
                     messages: [{ role: "system", content: systemPrompt }, ...messages],
-                    stream: true,
+                    stream: false,
                     temperature: 0.4
                 })
             });
@@ -179,23 +184,8 @@ PR Context:
         }
     });
 
-    const reader = res.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-        const { done, value } = await reader.read();
-        if (done) break;
-
-        const lines = decoder.decode(value, { stream: true }).split("\n");
-        for (const line of lines) {
-            if (line.startsWith("data: ") && line !== "data: [DONE]") {
-                try {
-                    const chunk = JSON.parse(line.slice(6));
-                    if (chunk.choices[0]?.delta?.content) {
-                        yield chunk.choices[0].delta.content;
-                    }
-                } catch { /* ignore chunk boundary failures */ }
-            }
-        }
+    const data = await res.json();
+    if (data.choices && data.choices[0] && data.choices[0].message?.content) {
+        yield data.choices[0].message.content;
     }
 }
