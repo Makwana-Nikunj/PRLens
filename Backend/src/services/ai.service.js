@@ -73,7 +73,7 @@ Required JSON format:
         const timeoutId = setTimeout(() => controller.abort(), 180000); // 180s timeout for OpenAI/Minimax
 
         try {
-            const res = await fetch(`${AI_BASE_URL}/chat/completions`, {
+            const res = await fetch(`${AI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
                 method: "POST",
                 signal: controller.signal,
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
@@ -137,7 +137,7 @@ export async function analyzePRChunks(chunks, prMetadata, options = {}) {
     return analysis;
 }
 
-export async function* streamChat(messages, options = {}) {
+export async function streamChat(messages, options = {}) {
     const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
     const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
     const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
@@ -160,7 +160,7 @@ ${croppedDiff}`;
         const timeoutId = setTimeout(() => controller.abort(), 180000);
 
         try {
-            const fetchRes = await fetch(`${AI_BASE_URL}/chat/completions`, {
+            const fetchRes = await fetch(`${AI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
                 method: "POST",
                 signal: controller.signal,
                 headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
@@ -186,6 +186,7 @@ ${croppedDiff}`;
 
     const data = await res.json();
     if (data.choices && data.choices[0] && data.choices[0].message?.content) {
-        yield data.choices[0].message.content;
+        return data.choices[0].message.content;
     }
+    return "";
 }

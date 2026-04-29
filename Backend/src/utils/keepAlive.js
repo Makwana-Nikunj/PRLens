@@ -3,6 +3,10 @@
 
 const BACKEND_URL = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || 'http://localhost:3000'
 
+if (process.env.NODE_ENV === 'production' && !process.env.RENDER_EXTERNAL_URL && !process.env.BACKEND_URL) {
+    console.warn('[Keep-Alive] Warning: Running in production but neither RENDER_EXTERNAL_URL nor BACKEND_URL is natively set.');
+}
+
 export const keepAlive = () => {
     if (process.env.NODE_ENV !== 'production') {
         console.log('[Keep-Alive] Disabled in development')

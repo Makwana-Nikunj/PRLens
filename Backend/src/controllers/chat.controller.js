@@ -94,18 +94,13 @@ export const chatController = asyncHandler(async (req, res) => {
 
   let fullResponse = "";
   try {
-    const stream = await streamChat(aiMessages, {
+    const responseText = await streamChat(aiMessages, {
       prTitle: prResult[0].title,
       prFiles: prFilesList,
       diffContext: diffContext
     });
 
-    // Optimize string concatenation with array join
-    const chunks = [];
-    for await (const chunk of stream) {
-      chunks.push(chunk);
-    }
-    fullResponse = chunks.join("");
+    fullResponse = responseText || "";
   } catch (err) {
     console.error("Chat generation failed:", err);
     throw new ApiError(500, "Failed to generate chat response from AI");
