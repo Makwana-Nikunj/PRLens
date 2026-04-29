@@ -96,10 +96,10 @@ const oauthLogin = asyncHandler(async (req, res) => {
   const { code, codeVerifier, redirectUri } = req.body || {};
 
   if (!code?.trim() || !redirectUri?.trim()) {
-      throw new ApiError(400, "code and redirectUri are required");
+    throw new ApiError(400, "code and redirectUri are required");
   }
   if (code !== "DEV_MOCK_CODE" && (!codeVerifier || !codeVerifier.trim())) {
-      throw new ApiError(400, "codeVerifier is required");
+    throw new ApiError(400, "codeVerifier is required");
   }
 
   // Validate redirect URI against allowed origins
