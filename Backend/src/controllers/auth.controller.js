@@ -10,15 +10,17 @@ import jwt from "jsonwebtoken";
 const accessCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-  maxAge: 15 * 60 * 60 * 1000 // 15 hours
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
+  maxAge: 15 * 60 * 60 * 1000
 };
 
 const refreshCookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === "production",
-  sameSite: process.env.NODE_ENV === "production" ? "none" : "strict",
-  maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
+  sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+  path: "/",
+  maxAge: 7 * 24 * 60 * 60 * 1000
 };
 
 const generateAccessToken = (userId) => {
@@ -52,7 +54,26 @@ const generateAndSaveTokens = async (userId) => {
 
 const logoutUser = asyncHandler(async (req, res) => {
   invalidateUserCache(req.user.id);
-  await sql`UPDATE users SET refresh_token = NULL WHERE id = ${req.user.id}`;
+
+  // Revoke GitHub OAuth grant (authorization) so consent screen shows on next login
+  if (req.user.github_token) {
+    try {
+      const credentials = Buffer.from(`${process.env.GITHUB_CLIENT_ID}:${process.env.GITHUB_CLIENT_SECRET}`).toString("base64");
+      // Delete the grant — this removes the entire authorization, forcing re-consent
+      await fetch(`https://api.github.com/applications/${process.env.GITHUB_CLIENT_ID}/grant`, {
+        method: "DELETE",
+        headers: {
+          "Authorization": `Basic ${credentials}`,
+          "Accept": "application/vnd.github+json"
+        },
+        body: JSON.stringify({ access_token: req.user.github_token })
+      });
+    } catch (err) {
+      console.error("Failed to revoke GitHub grant:", err.message);
+    }
+  }
+
+  await sql`UPDATE users SET refresh_token = NULL, github_token = NULL WHERE id = ${req.user.id}`;
 
   return res
     .status(200)

@@ -6,7 +6,7 @@ const TabChanges = ({ activePR }) => {
   if (typeof parsedChanges === 'string') {
     try {
       parsedChanges = JSON.parse(parsedChanges);
-    } catch (e) {
+    } catch {
       // Not a JSON array string
     }
   }
@@ -35,7 +35,7 @@ const TabChanges = ({ activePR }) => {
             {changesList.map((change, idx) => (
               <li key={idx} className="flex gap-3.5 p-4 sm:p-5 bg-[#0f0f13]/50 border border-white/5 rounded-xl hover:border-blue-500/30 hover:bg-[#1a1a24] transition-all group">
                 <CheckCircle2 className="w-5 h-5 text-blue-400/70 shrink-0 mt-0.5 group-hover:text-blue-400 group-hover:scale-110 transition-all duration-300" />
-                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{typeof change === 'string' ? change.replace(/^[•\-\*]\s*/, '') : JSON.stringify(change)}</span>
+                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{typeof change === 'string' ? change.replace(/^[•\-*]\s*/, '') : JSON.stringify(change)}</span>
               </li>
             ))}
           </ul>

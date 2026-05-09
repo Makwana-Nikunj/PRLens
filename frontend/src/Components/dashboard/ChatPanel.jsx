@@ -1,8 +1,7 @@
 import React, { memo } from 'react';
 import ReactMarkdown from 'react-markdown';
 
-// Memoize individual messages to prevent expensive markdown re-parsing on every keystroke
-const ChatMessage = memo(({ msg }) => (
+const ChatMessage = memo(({ msg, isStreaming }) => (
   <div className={`flex gap-2 sm:gap-3 max-w-[95%] sm:max-w-[90%] ${msg.who === 'user' ? 'self-end flex-row-reverse' : ''}`}>
     <div className={`w-[28px] h-[28px] shrink-0 rounded-lg flex items-center justify-center text-[11px] font-bold ${msg.who === 'ai' ? 'bg-gradient-to-br from-violet-600/20 to-purple-500/20 text-violet-400 border border-violet-600/30' : 'bg-gradient-to-br from-[#0f0f13] to-[#1a1a1f] text-white border border-[#1a1a1f]'}`}>
       {msg.who === 'ai' ? (
@@ -11,11 +10,14 @@ const ChatMessage = memo(({ msg }) => (
     </div>
     <div className={`p-3 rounded-xl text-[14px] leading-relaxed break-words min-w-0 prose prose-invert max-w-none ${msg.who === 'ai' ? 'bg-[#1a1a1f] text-white rounded-tl-sm border border-white/5' : 'bg-violet-600 text-white rounded-tr-sm'}`}>
       <ReactMarkdown>{msg.text}</ReactMarkdown>
+      {isStreaming && (
+        <span className="inline-block w-[2px] h-[16px] bg-violet-400 ml-[1px] align-middle animate-pulse" />
+      )}
     </div>
   </div>
 ));
 
-const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRef, toggleChat, messages, isTyping, messagesEndRef, chatInputRef, inputValue, autoResizeInput, handleSendMessage }) => (
+const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRef, toggleChat, messages, isTyping, streamingMsgId, messagesEndRef, chatInputRef, inputValue, autoResizeInput, handleSendMessage }) => (
   <aside
     className={`flex flex-col bg-[#161618] border-l border-[#1a1a1f] absolute lg:static top-0 right-0 h-full z-20 transition-transform duration-300 ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full md:translate-x-0 w-[100vw] sm:w-[380px] lg:w-[360px]'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
     style={{ width: window.innerWidth >= 1024 && !chatCollapsed ? chatWidth + 'px' : undefined }}
@@ -37,7 +39,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
     </div>
     <div className="flex-1 overflow-y-auto p-4 flex flex-col gap-5 scrollbar-hide">
       {messages.map(msg => (
-        <ChatMessage key={msg.id} msg={msg} />
+        <ChatMessage key={msg.id} msg={msg} isStreaming={msg.id === streamingMsgId} />
       ))}
       {isTyping && (
         <div className="flex gap-2 sm:gap-3 max-w-[90%]">

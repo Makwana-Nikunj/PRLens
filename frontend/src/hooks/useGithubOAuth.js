@@ -57,7 +57,7 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
             const codeVerifier = sessionStorage.getItem(VERIFIER_KEY);
             let isMounted = true;
 
-            const handleOAuthCallback = async () => {
+        const handleOAuthCallback = async () => {
                 try {
                     if (isMounted) setIsGithubLoading(true);
                     const response = await apiClient.post("/auth/oauth", {

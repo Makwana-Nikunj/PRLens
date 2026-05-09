@@ -25,16 +25,21 @@ const Dashboard = () => {
     { id: 2, who: 'user', text: "Will this break existing API routes?" }
   ]);
   const [isTyping, setIsTyping] = useState(false);
+  const [streamingMsgId, setStreamingMsgId] = useState(null);
   const [inputValue, setInputValue] = useState('');
 
   const chatInputRef = useRef(null);
   const messagesEndRef = useRef(null);
   const isResizingRef = useRef(false);
+  const msgIdRef = useRef(3);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
+  /**
+   * Handle chat panel resizing on desktop by dragging the left edge
+   */
   useEffect(() => {
     const handleMouseMove = (e) => {
       if (!isResizingRef.current || window.innerWidth < 1024) return;
@@ -67,19 +72,24 @@ const Dashboard = () => {
     };
   }, []);
 
+
+  /**
+    * Load chat history when a PR is selected from the sidebar. If there is no history, start with a default message.
+    * This runs every time activePRId changes, which happens when user clicks on a different PR in the sidebar.
+    */
   useEffect(() => {
     if (activePRId) {
       chatService.getHistory(activePRId)
         .then(res => {
           if (res.success && res.data?.length > 0) {
             const loadedMessages = res.data.map(m => ({
-              id: m.id || Date.now() + Math.random(),
+              id: m.id || ++msgIdRef.current,
               who: m.role === 'user' ? 'user' : 'ai',
               text: m.content
             }));
             setMessages(loadedMessages);
           } else {
-            setMessages([{ id: Date.now(), who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
+            setMessages([{ id: ++msgIdRef.current, who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
           }
         })
         .catch(err => {
@@ -89,15 +99,30 @@ const Dashboard = () => {
     }
   }, [activePRId]);
 
+
+  /**
+    * When user clicks on a PR in the sidebar, we set that PR as active, which triggers loading its details and chat history.
+    * We also close the sidebar on mobile for better UX.
+    */
+   
   const handleHistoryClick = (id) => {
     setActivePRId(id);
     setTimeout(() => { setSidebarOpen(false); }, 400);
   };
 
+
+  /**
+    * On initial load, we fetch the list of PRs that have been analyzed before and show them in the sidebar.
+    * This runs only once when the component mounts.
+    */
   useEffect(() => {
     fetchPRs();
   }, []);
 
+  /**
+    * This function is used to fetch the list of analyzed PRs from the backend and update the sidebar history.
+    * We call this after analyzing a new PR to refresh the list, and also on initial load.
+    */
   const fetchPRs = async () => {
     try {
       const data = await prService.getPrList();
@@ -109,6 +134,10 @@ const Dashboard = () => {
     }
   };
 
+  /**
+    * This effect checks if there is a pending PR URL to analyze (e.g. from the landing page) and triggers analysis if found.
+    * It also performs a cleanup of the URL parameters after processing to prevent re-analysis on page refresh.
+    */
   useEffect(() => {
     // Check if there is a pending PR to analyze from the landing page
     const pendingPr = sessionStorage.getItem('pending_pr_analyze');
@@ -140,6 +169,10 @@ const Dashboard = () => {
     }
   }, []);
 
+  /**
+    * This function is called when the user submits a new PR URL for analysis. It sends the URL to the backend, triggers analysis, and updates the UI accordingly.
+    * It also handles loading state and error feedback for better UX.
+    */
   const handleNewPR = async () => {
     if (!newPrUrl) return;
     setIsAnalyzing(true);
@@ -160,23 +193,57 @@ const Dashboard = () => {
     }
   };
 
+  /**
+    * This function handles sending a new message in the chat interface. It optimistically adds the user's message to the chat, then calls the backend to get the AI response as a stream.
+    * As chunks of the AI response come in, it updates the last message in the chat to create a live typing effect. It also handles errors gracefully.
+    */
   const handleSendMessage = async () => {
     const text = inputValue.trim();
     if (!text || !activePRId) return;
-    setMessages(prev => [...prev, { id: Date.now(), who: 'user', text }]);
+
+    // Add user message
+    setMessages(prev => [...prev, { id: ++msgIdRef.current, who: 'user', text }]);
     setInputValue('');
     if (chatInputRef.current) chatInputRef.current.style.height = 'auto';
 
     setIsTyping(true);
+
+    const aiMessageId = ++msgIdRef.current;
+    let placeholderAdded = false;
+
     try {
-      const resp = await chatService.sendMessage(activePRId, text);
-      const reply = resp?.data?.reply || resp?.reply || "Error generating response.";
-      setMessages(prev => [...prev, { id: Date.now(), who: 'ai', text: reply }]);
+      await chatService.sendMessage(activePRId, text, (chunk) => {
+        if (!placeholderAdded) {
+          placeholderAdded = true;
+          setIsTyping(false);
+          setStreamingMsgId(aiMessageId);
+          setMessages(prev => [...prev, { id: aiMessageId, who: 'ai', text: chunk }]);
+        } else {
+          setMessages(prev =>
+            prev.map(msg =>
+              msg.id === aiMessageId
+                ? { ...msg, text: msg.text + chunk }
+                : msg
+            )
+          );
+        }
+      });
     } catch (err) {
       console.error(err);
-      setMessages(prev => [...prev, { id: Date.now(), who: 'ai', text: "Sorry, I encountered an error." }]);
+      if (!placeholderAdded) {
+        setMessages(prev => [...prev, { id: aiMessageId, who: 'ai', text: "Sorry, I encountered an error." }]);
+      } else {
+        setMessages(prev =>
+          prev.map(msg =>
+            msg.id === aiMessageId
+              ? { ...msg, text: msg.text + "\n\n*(Error generating full response)*" }
+              : msg
+          )
+        );
+      }
     } finally {
       setIsTyping(false);
+      setStreamingMsgId(null);
     }
   };
 
@@ -262,6 +329,7 @@ const Dashboard = () => {
           chatCollapsed={chatCollapsed} chatOpenMobile={chatOpenMobile}
           chatWidth={chatWidth} isResizingRef={isResizingRef}
           toggleChat={toggleChat} messages={messages} isTyping={isTyping}
+          streamingMsgId={streamingMsgId}
           messagesEndRef={messagesEndRef} chatInputRef={chatInputRef}
           inputValue={inputValue} autoResizeInput={autoResizeInput}
           handleSendMessage={handleSendMessage}

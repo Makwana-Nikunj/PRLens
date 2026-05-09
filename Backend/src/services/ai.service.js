@@ -139,54 +139,107 @@ export async function analyzePRChunks(chunks, prMetadata, options = {}) {
 
 export async function streamChat(messages, options = {}) {
     const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
-    const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
     const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
+    const SECONDARY_AI_MODEL = process.env.SECONDARY_AI_MODEL || 'gpt-3.5-turbo';
 
-    if (!AI_API_KEY) throw new ApiError(500, "AI_API_KEY is not configured.");
+    // Provider pool
+    const apiKeys = [
+        process.env.AI_API_KEY || process.env.CLAUDE_API_KEY,
+        process.env.PROVIDER_2_API_KEY,
+        process.env.PROVIDER_3_API_KEY,
+        process.env.PROVIDER_4_API_KEY,
+        process.env.PROVIDER_5_API_KEY
+    ].filter(Boolean); // Only keep configured keys
 
-    const { prTitle, prFiles, diffContext } = options;
-    const croppedDiff = diffContext ? diffContext.substring(0, 10000) + (diffContext.length > 10000 ? '\n... (diff truncated due to length)' : '') : 'No diff available';
+    if (apiKeys.length === 0) throw new ApiError(500, "No API keys configured. Set AI_API_KEY or PROVIDER_X_API_KEY variables.");
 
-    const systemPrompt = `You are a conversational AI dev bot tracking an analyzed pull request. Talk concisely to the user regarding the analysis.
+    const { prTitle, prFiles, diffContext, res } = options;
+
+    const systemPrompt = `You are a conversational AI dev bot tracking an analyzed pull request. Talk concisely to the user regarding the analysis. Use proper markdown for code, lists, and highlighting. If the user asks about specific files, refer to the provided diff.
+    
 PR Context:
 - Title: ${prTitle || 'Unknown'}
 - Files involved: ${prFiles ? prFiles.join(', ') : 'Unknown'}
 
 Code Changes / Diff:
-${croppedDiff}`;
+${diffContext || 'No diff available'}`;
 
-    const res = await retryWithBackoff(async () => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 180000);
+    let fullResponse = "";
 
+    // Import SDK once
+    const { default: OpenAI } = await import('openai');
+
+    // Waterfall try/catch loop through keys
+    for (let i = 0; i < apiKeys.length; i++) {
+        const apiKey = apiKeys[i];
         try {
-            const fetchRes = await fetch(`${AI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
-                method: "POST",
-                signal: controller.signal,
-                headers: { "Content-Type": "application/json", "Authorization": `Bearer ${AI_API_KEY}` },
-                body: JSON.stringify({
-                    model: AI_MODEL,
-                    messages: [{ role: "system", content: systemPrompt }, ...messages],
-                    stream: false,
-                    temperature: 0.4
-                })
+            const openai = new OpenAI({
+                apiKey: apiKey,
+                baseURL: AI_BASE_URL.replace(/\/$/, '')
             });
 
-            clearTimeout(timeoutId);
-            if (!fetchRes.ok) throw new ApiError(fetchRes.status, await fetchRes.text());
-            return fetchRes;
-        } catch (fetchErr) {
-            clearTimeout(timeoutId);
-            if (fetchErr.name === 'AbortError') {
-                throw new ApiError(504, "AI Service timed out after 180 seconds");
-            }
-            throw fetchErr;
-        }
-    });
+            try {
+                const stream = await openai.chat.completions.create({
+                    model: AI_MODEL,
+                    messages: [{ role: "system", content: systemPrompt }, ...messages],
+                    stream: true,
+                    temperature: 0.4
+                });
 
-    const data = await res.json();
-    if (data.choices && data.choices[0] && data.choices[0].message?.content) {
-        return data.choices[0].message.content;
+                for await (const chunk of stream) {
+                    const content = chunk.choices[0]?.delta?.content || "";
+                    if (content) {
+                        fullResponse += content;
+                        if (res) {
+                            res.write(`data: ${JSON.stringify({ text: content })}\n\n`);
+                            if (typeof res.flush === 'function') res.flush();
+                        }
+                    }
+                }
+                return fullResponse;
+            } catch (primaryModelError) {
+                // If it's a 429, don't fallback to the secondary model on the same key, move to next key
+                if (primaryModelError?.status === 429) {
+                    throw primaryModelError;
+                }
+
+                console.warn(`[AI Service] Primary model (${AI_MODEL}) failed, trying fallback model (${SECONDARY_AI_MODEL}):`, primaryModelError.message);
+
+                // Only notify client if some content hasn't already been streamed
+                if (!fullResponse && res) {
+                    res.write(`data: ${JSON.stringify({ text: "\n*(Switching to fallback model...)*\n" })}\n\n`);
+                }
+
+                const streamFallback = await openai.chat.completions.create({
+                    model: SECONDARY_AI_MODEL,
+                    messages: [{ role: "system", content: systemPrompt }, ...messages],
+                    stream: true,
+                    temperature: 0.4
+                });
+
+                for await (const chunk of streamFallback) {
+                    const content = chunk.choices[0]?.delta?.content || "";
+                    if (content) {
+                        fullResponse += content;
+                        if (res) {
+                            res.write(`data: ${JSON.stringify({ text: content })}\n\n`);
+                            if (typeof res.flush === 'function') res.flush();
+                        }
+                    }
+                }
+                return fullResponse;
+            }
+        } catch (error) {
+            console.error(`[AI Service] Provider ${i + 1} failed: ${error.message}`);
+
+            const isRetryable = error.status === 429 || (error.status >= 500 && error.status < 600);
+            if (isRetryable && i < apiKeys.length - 1) {
+                if (res) res.write(`data: ${JSON.stringify({ text: `\n*(Provider ${i + 1} rate limited. Switching to provider ${i + 2}...)*\n` })}\n\n`);
+                continue;
+            }
+
+            if (!fullResponse) throw new ApiError(error.status || 500, `All providers failed. Last error: ${error.message}`);
+            return fullResponse;
+        }
     }
-    return "";
 }

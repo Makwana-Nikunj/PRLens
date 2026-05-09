@@ -29,7 +29,7 @@ const Header = ({ activePR, setSidebarOpen }) => {
   }
 
   return (
-    <div className="h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-6 bg-[#0f0f13] flex-shrink-0">
+    <div className="h-15 border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-6 bg-[#0f0f13] flex-shrink-0">
       <div className="flex items-center gap-2 sm:gap-4 min-w-0 pr-4">
         <button className="md:hidden w-8 h-8 flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition" onClick={() => setSidebarOpen(true)}>
           <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>

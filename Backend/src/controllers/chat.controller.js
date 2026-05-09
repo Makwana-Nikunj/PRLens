@@ -2,6 +2,7 @@ import { sql } from "../db/index.js";
 import { ApiError } from "../utils/ApiError.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { streamChat } from "../services/ai.service.js";
+import { chunkDiff, formatDiffForPrompt } from "../services/chunker.service.js";
 
 export const getChatHistory = asyncHandler(async (req, res) => {
   const { pr_id } = req.params;
@@ -34,7 +35,7 @@ export const chatController = asyncHandler(async (req, res) => {
 
   // Load PR context from DB
   const prResult = await sql`
-    SELECT raw_diff, title, author, description
+    SELECT raw_diff, title, author, description, base_branch, head_branch, total_additions, total_deletions, total_files
     FROM pull_requests
     WHERE id = ${pr_id}
   `;
@@ -43,6 +44,7 @@ export const chatController = asyncHandler(async (req, res) => {
     throw new ApiError(404, "PR not found in database");
   }
 
+  // Load latest analysis for the PR
   const analysisResult = await sql`
     SELECT summary, key_changes, tradeoffs, risks, reviewer_checklist AS checklist, file_explanations
     FROM analyses
@@ -78,7 +80,8 @@ export const chatController = asyncHandler(async (req, res) => {
     const diffData = typeof rawDiff === 'string' ? JSON.parse(rawDiff) : rawDiff;
     if (Array.isArray(diffData)) {
       prFilesList = diffData.map(f => f.filename).filter(Boolean);
-      diffContext = diffData.map(f => `--- ${f.filename} ---\n${f.patch || 'No changes visible'}`).join('\n\n');
+      const chunks = chunkDiff(diffData);
+      diffContext = formatDiffForPrompt(chunks, prResult[0]);
     }
   } catch (e) {
     console.error("Failed to parse raw_diff for chat context", e);
@@ -86,36 +89,44 @@ export const chatController = asyncHandler(async (req, res) => {
 
   aiMessages.push({ role: 'system', content: `Current PR Analysis Summary: ${analysisResult[0].summary}` });
 
-  for (const m of history) {
+  // Smarter Context Management: Limit history to last 10 messages to prevent token overflow
+  const MAX_HISTORY = 10;
+  const recentHistory = history.slice(-MAX_HISTORY);
+
+  for (const m of recentHistory) {
     if (m.role === 'user' || m.role === 'assistant' || m.role === 'system') {
       aiMessages.push({ role: m.role, content: m.content });
     }
   }
 
+  res.writeHead(200, {
+    'Content-Type': 'text/event-stream',
+    'Cache-Control': 'no-cache',
+    'Connection': 'keep-alive'
+  });
+
   let fullResponse = "";
   try {
-    const responseText = await streamChat(aiMessages, {
+    fullResponse = await streamChat(aiMessages, {
       prTitle: prResult[0].title,
       prFiles: prFilesList,
-      diffContext: diffContext
+      diffContext: diffContext,
+      res
     });
 
-    fullResponse = responseText || "";
   } catch (err) {
     console.error("Chat generation failed:", err);
-    throw new ApiError(500, "Failed to generate chat response from AI");
+    res.write(`data: ${JSON.stringify({ error: "Failed to generate chat response from AI" })}\n\n`);
   }
 
   // Save AI response
-  await sql`
-    INSERT INTO chat_messages (pr_id, user_id, role, content)
-    VALUES (${pr_id}, null, 'assistant', ${fullResponse})
-  `;
+  if (fullResponse) {
+    await sql`
+      INSERT INTO chat_messages (pr_id, user_id, role, content)
+      VALUES (${pr_id}, null, 'assistant', ${fullResponse})
+    `;
+  }
 
-  res.status(200).json({
-    reply: fullResponse,
-    message: fullResponse,
-    pr_id,
-    content: message
-  });
+  res.write('data: [DONE]\n\n');
+  res.end();
 });

@@ -4,12 +4,12 @@ import { AlertTriangle, ShieldAlert, Scale, CheckCircle2 } from 'lucide-react';
 const TabRisks = ({ activePR }) => {
   let parsedRisks = activePR?.analysis?.risks || [];
   if (typeof parsedRisks === 'string') {
-    try { parsedRisks = JSON.parse(parsedRisks); } catch (e) { /* Not JSON */ }
+    try { parsedRisks = JSON.parse(parsedRisks); } catch { /* Not JSON */ }
   }
 
   let parsedTradeoffs = activePR?.analysis?.tradeoffs || [];
   if (typeof parsedTradeoffs === 'string') {
-    try { parsedTradeoffs = JSON.parse(parsedTradeoffs); } catch (e) { /* Not JSON */ }
+    try { parsedTradeoffs = JSON.parse(parsedTradeoffs); } catch { /* Not JSON */ }
   }
 
   const risksList = Array.isArray(parsedRisks)
@@ -41,7 +41,7 @@ const TabRisks = ({ activePR }) => {
             {risksList.map((risk, idx) => (
               <li key={idx} className="flex gap-3.5 p-4 sm:p-5 bg-red-500/5 border border-red-500/10 rounded-xl hover:bg-red-500/10 hover:border-red-500/30 transition-all duration-300 group">
                 <AlertTriangle className="w-5 h-5 text-red-400/80 shrink-0 mt-0.5 group-hover:text-red-400 group-hover:scale-110 transition-transform duration-300" />
-                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{typeof risk === 'string' ? risk.replace(/^[•\-\*]\s*/, '') : JSON.stringify(risk)}</span>
+                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{typeof risk === 'string' ? risk.replace(/^[•\-*]\s*/, '') : JSON.stringify(risk)}</span>
               </li>
             ))}
           </ul>
@@ -70,7 +70,7 @@ const TabRisks = ({ activePR }) => {
             {tradeoffsList.map((tradeoff, idx) => (
               <li key={idx} className="flex gap-3.5 p-4 sm:p-5 bg-yellow-500/5 border border-yellow-500/10 rounded-xl hover:bg-yellow-500/10 hover:border-yellow-500/30 transition-all duration-300 group">
                 <AlertTriangle className="w-5 h-5 text-yellow-400/80 shrink-0 mt-0.5 group-hover:text-yellow-400 group-hover:scale-110 transition-transform duration-300" />
-                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{typeof tradeoff === 'string' ? tradeoff.replace(/^[•\-\*]\s*/, '') : JSON.stringify(tradeoff)}</span>
+                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{typeof tradeoff === 'string' ? tradeoff.replace(/^[•\-*]\s*/, '') : JSON.stringify(tradeoff)}</span>
               </li>
             ))}
           </ul>

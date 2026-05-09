@@ -10,7 +10,7 @@ export const connectDB = async () => {
       max: 10,
       prepare: true,
       idle_timeout: 30,        // close idle connections after 30s
-      connect_timeout: 10,     // fail if connection takes >10s
+      connect_timeout: 30,
     });
 
     // ===============================

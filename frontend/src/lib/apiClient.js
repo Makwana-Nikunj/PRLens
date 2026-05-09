@@ -5,18 +5,24 @@ import axios from 'axios';
 export const apiClient = axios.create({
     baseURL: conf.apiBaseUrl,
     withCredentials: true,
-    timeout: 120000, 
+    timeout: 120000,
 });
 
 // Track if a token refresh is already in progress
 let isRefreshing = false;
 let refreshSubscribers = [];
 
+/**
+ * When a token refresh completes, call all the queued callbacks to retry their requests.
+ */
 function onTokenRefreshed() {
     refreshSubscribers.forEach(cb => cb());
     refreshSubscribers = [];
 }
 
+/**
+ * Add a callback to be called when the token refresh completes.
+ */
 function addRefreshSubscriber(callback) {
     refreshSubscribers.push(callback);
 }

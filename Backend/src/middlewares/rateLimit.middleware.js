@@ -12,7 +12,7 @@ export const apiLimiter = rateLimit({
 // Strict limiter for heavy AI analysis endpoints
 export const analyzeLimiter = rateLimit({
     windowMs: 15 * 60 * 1000,
-    max: 20, // 20 PR analyses per 15 min max
+    max: 5, // 5 PR analyses per 15 min max
     message: { error: 'Analysis rate limit exceeded. Please wait a moment.' },
     standardHeaders: true,
 });
@@ -20,7 +20,7 @@ export const analyzeLimiter = rateLimit({
 // Lenient limiter for chat endpoints
 export const chatLimiter = rateLimit({
     windowMs: 1 * 60 * 1000,
-    max: 30, // 30 chat messages per minute max
+    max: 10, // 10 chat messages per minute max
     message: { error: 'Chat rate limit exceeded. Please type slower.' },
     standardHeaders: true,
 });
@@ -28,7 +28,7 @@ export const chatLimiter = rateLimit({
 // Strict limiter for auth endpoints
 export const authLimiter = rateLimit({
     windowMs: 60 * 60 * 1000, // 1 hour
-    max: 50, // Temporarily increased to 50
+    max: 10, // 10 authentication attempts per hour max
     message: { error: 'Too many authentication attempts, please try again later' },
     standardHeaders: true,
 });

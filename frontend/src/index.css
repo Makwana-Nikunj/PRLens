@@ -1,28 +1,12 @@
 @import "tailwindcss";
-@plugin "@tailwindcss/typography";
-
-@theme {
-  --color-bg-theme: #0f0f13;
-  --color-surface-1: #161618;
-  --color-surface-2: #1a1a1f;
-  --color-text-primary: #E4E4E7;
-  --color-text-secondary: #A1A1AA;
-  --color-text-muted: #71717A;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.12);
-  --color-accent: #7c3aed;
-  --color-accent-2: #8b5cf6;
-
-  --font-inter: "Inter", sans-serif;
-}
 
 @layer base {
 
   html,
   body {
-    background-color: var(--color-bg-theme);
-    color: var(--color-text-primary);
-    font-family: var(--font-inter);
+    background-color: #0f0f13;
+    color: #E4E4E7;
+    font-family: "Inter", sans-serif;
     @apply m-0 p-0 box-border antialiased;
   }
 }
