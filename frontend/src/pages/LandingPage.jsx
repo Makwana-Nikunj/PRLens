@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
-import Navbar from '../components/landing/Navbar';
-import Hero from '../components/landing/Hero';
-import HowItWorks from '../components/landing/HowItWorks';
-import Preview from '../components/landing/Preview';
-import Features from '../components/landing/Features';
-import Example from '../components/landing/Example';
-import CTA from '../components/landing/CTA';
-import Footer from '../components/landing/Footer';
+import Navbar from '../Components/landing/Navbar';
+import Hero from '../Components/landing/Hero';
+import HowItWorks from '../Components/landing/HowItWorks';
+import Preview from '../Components/landing/Preview';
+import Features from '../Components/landing/Features';
+import Example from '../Components/landing/Example';
+import CTA from '../Components/landing/CTA';
+import Footer from '../Components/landing/Footer';
 
 const LandingPage = () => {
   useEffect(() => {

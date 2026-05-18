@@ -66,7 +66,7 @@ const Hero = () => {
             onFocus={(e) => { if (!e.target.value) e.target.value = ''; }}
           />
           <button
-            className={`flex flex-shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] rounded-lg text-white font-medium transition hover:-translate-y-px ${error ? 'bg-red-500' : success ? 'bg-gradient-to-r from-green-500 to-green-600' : 'bg-gradient-to-r from-violet-600 to-violet-500'}`}
+            className={`flex flex-shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] rounded-lg text-white font-medium transition hover:-translate-y-px ${error ? 'bg-red-500' : success ? 'bg-green-600' : 'bg-violet-600'}`}
             onClick={handleAnalyze}
             disabled={loading}
           >

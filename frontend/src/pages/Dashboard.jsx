@@ -1,10 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
-import Sidebar from '../components/dashboard/Sidebar';
-import Header from '../components/dashboard/Header';
-import TabSummary from '../components/dashboard/TabSummary';
-import TabChanges from '../components/dashboard/TabChanges';
-import TabRisks from '../components/dashboard/TabRisks';
-import ChatPanel from '../components/dashboard/ChatPanel';
+import Sidebar from '../Components/dashboard/Sidebar';
+import Header from '../Components/dashboard/Header';
+import TabSummary from '../Components/dashboard/TabSummary';
+import TabChanges from '../Components/dashboard/TabChanges';
+import TabRisks from '../Components/dashboard/TabRisks';
+import ChatPanel from '../Components/dashboard/ChatPanel';
 import prService from '../services/prService';
 import chatService from '../services/chatService';
 
@@ -286,7 +286,7 @@ const Dashboard = () => {
             <div className="max-w-[760px] mx-auto w-full">
               {!activePR ? (
                 <div className="flex flex-col items-center justify-center py-20 sm:py-32 text-center px-4 w-full">
-                  <div className="w-20 h-20 bg-gradient-to-br from-violet-600/20 to-purple-500/20 border border-violet-500/20 rounded-2xl flex items-center justify-center mb-8 text-violet-400 shadow-[0_0_40px_rgba(124,58,237,0.15)] animate-[reveal-up_0.4s_ease-out_forwards]">
+                  <div className="w-20 h-20 bg-violet-600/30 border border-violet-500/20 rounded-2xl flex items-center justify-center mb-8 text-violet-400 shadow-[0_0_40px_rgba(124,58,237,0.15)] animate-[reveal-up_0.4s_ease-out_forwards]">
                     <svg className="w-10 h-10" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.9 1.3 1.5 1.5 2.5" /><path d="M9 18h6" /><path d="M10 22h4" /></svg>
                   </div>
                   <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4 tracking-tight animate-[reveal-up_0.5s_ease-out_forwards]">Analyze a Pull Request</h2>

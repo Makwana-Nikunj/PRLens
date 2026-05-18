@@ -8,7 +8,7 @@ const TabSummary = ({ activePR }) => {
   return (
     <div className="animate-[reveal-up_0.4s_ease-out_forwards] space-y-6">
       <div className="bg-[#161618] border border-[#1a1a1f] rounded-2xl p-6 shadow-xl relative overflow-hidden group transition-all duration-300 hover:shadow-violet-500/5 hover:border-[#2a2a2f]">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-violet-600 to-purple-400 opacity-70"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-violet-500 opacity-70"></div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-xl bg-violet-600/20 flex items-center justify-center text-violet-400">

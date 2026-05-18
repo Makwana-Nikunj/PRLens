@@ -5,7 +5,7 @@ const Preview = () => (
     <div className="max-w-[1100px] mx-auto px-6">
       <h2 className="text-[32px] md:text-[40px] font-bold text-center tracking-tight mb-[80px] reveal opacity-0 text-white">See PRLens in action</h2>
       <div className="relative max-w-[900px] mx-auto reveal opacity-0">
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-gradient-to-r from-violet-600/20 to-purple-600/20 filter blur-[100px] z-0"></div>
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120%] h-[120%] bg-violet-600/20 filter blur-[100px] z-0"></div>
         <div className="relative z-10 flex flex-col md:flex-row bg-[#161618] border border-white/10 rounded-[16px] overflow-hidden shadow-[0_24px_80px_rgba(0,0,0,0.6)] h-auto md:h-[560px]">
           <div className="hidden md:flex w-[60px] bg-[#0b0b0f] border-r border-white/5 flex-col items-center py-4 flex-shrink-0">
             <div className="w-10 h-10 flex items-center justify-center text-violet-400 bg-white/5 rounded-xl mb-2"><svg className="w-5 h-5" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>

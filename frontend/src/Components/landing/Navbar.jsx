@@ -23,7 +23,7 @@ const Navbar = () => {
     <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-[#0f0f13]/80 backdrop-blur-md transition-colors">
       <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
         <a href="/" className="flex items-center gap-3 text-white font-semibold text-lg no-underline pt-1 pb-1 px-1">
-          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-violet-600/20 to-purple-500/20 border border-violet-600/30 text-purple-400">
+          <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 text-purple-400">
             <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
               <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v12" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M13 15c-2.5 0-4.5 0-6 0" />
             </svg>

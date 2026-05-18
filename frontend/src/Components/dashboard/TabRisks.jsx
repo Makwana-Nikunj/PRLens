@@ -25,7 +25,7 @@ const TabRisks = ({ activePR }) => {
 
       {/* Risks Section */}
       <div className="bg-[#161618] border border-[#1a1a1f] rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-300 hover:shadow-red-500/5 hover:border-[#2a2a2f]">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-red-500 to-orange-400 opacity-70"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-red-500 opacity-70"></div>
         <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-10 rounded-xl bg-red-500/20 flex items-center justify-center text-red-400 shrink-0">
             <ShieldAlert className="w-5 h-5" />
@@ -55,7 +55,7 @@ const TabRisks = ({ activePR }) => {
       {/* Tradeoffs Section */}
       {tradeoffsList.length > 0 && (
         <div className="bg-[#161618] border border-[#1a1a1f] rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-300 hover:shadow-yellow-500/5 hover:border-[#2a2a2f]">
-          <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-500 to-amber-400 opacity-70"></div>
+          <div className="absolute top-0 left-0 w-full h-1 bg-amber-500 opacity-70"></div>
           <div className="flex items-center gap-4 mb-6">
             <div className="w-10 h-10 rounded-xl bg-yellow-500/20 flex items-center justify-center text-yellow-400 shrink-0">
               <Scale className="w-5 h-5" />

@@ -5,8 +5,20 @@ const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
 const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
 const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
 
+
+/**
+ * wait for a specified number of milliseconds for retry backoff
+ * @param {*} ms 
+ * @returns 
+ */
 const wait = (ms) => new Promise((res) => setTimeout(res, ms));
 
+/**
+ * Retry a function with exponential backoff for transient errors (like rate limits or server errors). Throws after max retries.
+ * @param {*} fn 
+ * @param {*} maxRetries 
+ * @returns 
+ */
 async function retryWithBackoff(fn, maxRetries = 3) {
     let attempt = 0;
     while (attempt < maxRetries) {
@@ -28,6 +40,12 @@ async function retryWithBackoff(fn, maxRetries = 3) {
     }
 }
 
+
+/**
+ * for responses that are supposed to be JSON but may come wrapped in markdown code blocks or have extra text, attempt to extract and parse the JSON content robustly.
+ * @param {*} text 
+ * @returns 
+ */
 function parseJSONResponse(text) {
     let cleanText = text.trim();
     if (cleanText.startsWith("```json")) cleanText = cleanText.slice(7);
@@ -41,6 +59,11 @@ function parseJSONResponse(text) {
     }
 }
 
+/**
+ * validate that the AI response contains all required fields
+ * @param {*} data
+ * @returns
+ */
 function validateAnalysisResult(data) {
     const required = ["summary", "key_changes", "tradeoffs", "risks", "reviewer_checklist", "file_explanations"];
     for (const key of required) {
@@ -49,6 +72,12 @@ function validateAnalysisResult(data) {
     return data;
 }
 
+/**
+ * send a prompt to the AI and return the structured analysis result
+ * @param {*} prompt
+ * @param {*} options
+ * @returns
+ */
 export async function analyzePR(prompt, options = {}) {
     const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
     const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
@@ -56,16 +85,17 @@ export async function analyzePR(prompt, options = {}) {
 
     if (!AI_API_KEY) throw new ApiError(500, "AI_API_KEY is not configured.");
 
-    const systemPrompt = `You are an expert technical code reviewer. Analyze the github PR chunk. Output ONLY a valid JSON object representing your analysis.
-Required JSON format:
-{
-  "summary": "String summarizing changes",
-  "key_changes": ["Array of main string changes"],
-  "tradeoffs": ["Array of tradeoff strings"],
-  "risks": ["Array of risk strings"],
-  "reviewer_checklist": ["Array of check action items"],
-  "file_explanations": {"filename": "String explaining file"}
-}`;
+    const systemPrompt = `You are an expert technical code reviewer. Analyze the github PR chunk. Output ONLY a valid JSON object       
+                        representing your analysis.
+        Required JSON format:
+        {
+        "summary": "String summarizing changes",
+        "key_changes": ["Array of main string changes"],
+        "tradeoffs": ["Array of tradeoff strings"],
+        "risks": ["Array of risk strings"],
+        "reviewer_checklist": ["Array of check action items"],
+        "file_explanations": {"filename": "String explaining file"}
+        }`;
 
     return await retryWithBackoff(async () => {
         // Enforce timeout via AbortController to prevent AI hanging internally
@@ -80,8 +110,12 @@ Required JSON format:
                 body: JSON.stringify({
                     model: AI_MODEL,
                     messages: [
-                        { role: "system", content: systemPrompt },
-                        { role: "user", content: prompt }
+                        { role: "system",
+                          content: systemPrompt 
+                        },
+                        { role: "user", 
+                          content: prompt
+                         }
                     ],
                     temperature: 0.2
                 })
@@ -115,6 +149,7 @@ Required JSON format:
     });
 }
 
+
 export async function analyzePRChunks(chunks, prMetadata, options = {}) {
     if (!chunks || chunks.length === 0) return null;
 
@@ -137,6 +172,12 @@ export async function analyzePRChunks(chunks, prMetadata, options = {}) {
     return analysis;
 }
 
+/**
+ * this function streams the AI response back to the client as it arrives, allowing for a more interactive experience. It also implements a provider fallback mechanism in case of rate limits or errors.
+ * @param {*} messages 
+ * @param {*} options 
+ * @returns 
+ */
 export async function streamChat(messages, options = {}) {
     const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
     const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';

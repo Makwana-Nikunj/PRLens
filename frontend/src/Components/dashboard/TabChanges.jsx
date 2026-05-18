@@ -18,7 +18,7 @@ const TabChanges = ({ activePR }) => {
   return (
     <div className="animate-[reveal-up_0.4s_ease-out_forwards]">
       <div className="bg-[#161618] border border-[#1a1a1f] rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-300 hover:shadow-blue-500/5 hover:border-[#2a2a2f]">
-        <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-blue-500 to-cyan-400 opacity-70"></div>
+        <div className="absolute top-0 left-0 w-full h-1 bg-blue-500 opacity-70"></div>
 
         <div className="flex items-center gap-4 mb-6">
           <div className="w-10 h-10 rounded-xl bg-blue-500/20 flex items-center justify-center text-blue-400 shrink-0">

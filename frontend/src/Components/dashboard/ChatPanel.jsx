@@ -3,7 +3,7 @@ import ReactMarkdown from 'react-markdown';
 
 const ChatMessage = memo(({ msg, isStreaming }) => (
   <div className={`flex gap-2 sm:gap-3 max-w-[95%] sm:max-w-[90%] ${msg.who === 'user' ? 'self-end flex-row-reverse' : ''}`}>
-    <div className={`w-[28px] h-[28px] shrink-0 rounded-lg flex items-center justify-center text-[11px] font-bold ${msg.who === 'ai' ? 'bg-gradient-to-br from-violet-600/20 to-purple-500/20 text-violet-400 border border-violet-600/30' : 'bg-gradient-to-br from-[#0f0f13] to-[#1a1a1f] text-white border border-[#1a1a1f]'}`}>
+    <div className={`w-[28px] h-[28px] shrink-0 rounded-lg flex items-center justify-center text-[11px] font-bold ${msg.who === 'ai' ? 'bg-violet-600/30 text-violet-400 border border-violet-600/30' : 'bg-[#0f0f13] text-white border border-[#1a1a1f]'}`}>
       {msg.who === 'ai' ? (
         <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><path d="M6 9v9"></path></svg>
       ) : 'NM'}
@@ -43,7 +43,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
       ))}
       {isTyping && (
         <div className="flex gap-2 sm:gap-3 max-w-[90%]">
-          <div className="w-[28px] h-[28px] shrink-0 rounded-lg flex items-center justify-center text-[11px] font-bold bg-gradient-to-br from-violet-600/20 to-purple-500/20 text-violet-400 border border-violet-600/30">
+          <div className="w-[28px] h-[28px] shrink-0 rounded-lg flex items-center justify-center text-[11px] font-bold bg-violet-600/30 text-violet-400 border border-violet-600/30">
             <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3"></circle><circle cx="6" cy="6" r="3"></circle><path d="M13 6h3a2 2 0 0 1 2 2v7"></path><path d="M6 9v9"></path></svg>
           </div>
           <div className="p-3 rounded-xl text-[14px] leading-relaxed bg-[#1a1a1f] text-white rounded-tl-sm border border-white/5">

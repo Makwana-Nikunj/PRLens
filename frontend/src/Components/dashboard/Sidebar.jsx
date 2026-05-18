@@ -43,7 +43,7 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
       <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)}></div>
       <aside className={`fixed md:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
         <div className="h-[60px] flex items-center px-4 border-b border-[#1a1a1f] gap-3 shrink-0">
-          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-gradient-to-br from-violet-600/20 to-purple-500/20 text-purple-400 border border-violet-600/30">
+          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-violet-600/30 text-purple-400 border border-violet-600/30">
             <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /></svg>
           </div>
           <div className="text-[15px] font-semibold tracking-tight text-white">PRLens</div>
@@ -134,7 +134,7 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
             ) : user?.username ? (
               <img src={`https://github.com/${user.username}.png`} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" />
             ) : (
-              <div className="w-9 h-9 rounded-md bg-gradient-to-br from-violet-600 to-indigo-600 flex items-center justify-center text-[12px] font-bold text-white shadow-inner shrink-0">
+              <div className="w-9 h-9 rounded-md bg-violet-600 flex items-center justify-center text-[12px] font-bold text-white shadow-inner shrink-0">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
               </div>
             )}

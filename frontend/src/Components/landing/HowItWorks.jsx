@@ -1,7 +1,7 @@
 import React from 'react';
 
 const HowItWorks = () => (
-  <section className="py-[100px] border-t border-white/10 bg-gradient-to-b from-[#0f0f13] to-[#161618]">
+  <section className="py-[100px] border-t border-white/10 bg-[#0f0f13]">
     <div className="max-w-[1100px] mx-auto px-6">
       <h2 className="text-[32px] font-bold text-center mb-[60px] tracking-tight reveal opacity-0">How it works</h2>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">

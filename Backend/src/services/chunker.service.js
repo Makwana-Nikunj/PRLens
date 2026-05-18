@@ -18,7 +18,7 @@ function shouldSkip(filename) {
 }
 
 /**
- * Takes raw GitHub files array, returns cleaned chunks for Claude
+ * Chunk the diff files by relevance, capping at MAX_FILES and truncating patches that exceed MAX_PATCH_CHARS.
  */
 export function chunkDiff(files) {
     const relevant = files
@@ -43,26 +43,25 @@ export function chunkDiff(files) {
 }
 
 /**
- * Format chunks into a single string for the Claude prompt
+ * Format the chunked diff and PR metadata into a structured prompt for the AI model.
  */
 export function formatDiffForPrompt(chunks, prMetadata) {
     const header = `
-PR Title: ${prMetadata.title}
-Author: ${prMetadata.author}
-Base: ${prMetadata.base_branch} ← Head: ${prMetadata.head_branch}
-Description: ${prMetadata.description || 'No description provided'}
-Stats: +${prMetadata.total_additions} -${prMetadata.total_deletions} across ${prMetadata.total_files} files
-`.trim();
+            PR Title: ${prMetadata.title}
+            Author: ${prMetadata.author}
+            Base: ${prMetadata.base_branch} ← Head: ${prMetadata.head_branch}
+            Description: ${prMetadata.description || 'No description provided'}
+            Stats: +${prMetadata.total_additions} -${prMetadata.total_deletions} across ${prMetadata.total_files} files
+            `.trim();
 
-    const fileSections = chunks
-        .map((f) => {
-            return `
-### File: ${f.filename} [${f.status}] (+${f.additions}/-${f.deletions})
-\`\`\`diff
-${f.patch || '(no patch available — binary or empty file)'}
-\`\`\`
-`.trim();
-        })
+    const fileSections = chunks.map((f) => {
+        return `
+                    ### File: ${f.filename} [${f.status}] (+${f.additions}/-${f.deletions})
+                    \`\`\`diff
+                    ${f.patch || '(no patch available — binary or empty file)'}
+                    \`\`\`
+                    `.trim();
+    })
         .join('\n\n');
 
     return `${header}\n\n---\n\n${fileSections}`;
