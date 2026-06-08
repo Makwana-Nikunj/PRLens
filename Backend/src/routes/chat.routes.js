@@ -1,13 +1,15 @@
 import { Router } from "express";
-import { chatController, getChatHistory } from "../controllers/chat.controller.js";
+import { chatController, summarizeChatController, getChatHistory } from "../controllers/chat.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 import { chatLimiter } from "../middlewares/rateLimit.middleware.js";
 
 const router = Router();
 
-// Protected chat route
+// Protected chat routes
 router.use(verifyJwt);
-router.route("/").post(chatLimiter, chatController);
-router.route("/:pr_id").get(getChatHistory);
+
+router.get("/:prId/history", chatLimiter, getChatHistory);
+router.post("/:prId", chatLimiter, chatController);
+router.post("/:prId/summarize", chatLimiter, summarizeChatController);
 
 export default router;

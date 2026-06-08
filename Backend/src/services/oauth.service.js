@@ -29,10 +29,10 @@ export const verifyGitHubToken = async ({ code, codeVerifier, redirectUri }) => 
         try {
             tokenResponse = await fetchWithTimeout(GITHUB_TOKEN_URL, {
                 method: "POST",
-                headers: {
-                    "Content-Type": "application/json",
-                    Accept: "application/json",
-                },
+        headers: {
+            "Content-Type": "application/json",
+            "Accept": "application/json",
+        },
                 body: JSON.stringify({
                     client_id: process.env.GITHUB_CLIENT_ID,
                     client_secret: process.env.GITHUB_CLIENT_SECRET,

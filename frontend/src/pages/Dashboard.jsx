@@ -7,8 +7,10 @@ import TabRisks from '../Components/dashboard/TabRisks';
 import ChatPanel from '../Components/dashboard/ChatPanel';
 import prService from '../services/prService';
 import chatService from '../services/chatService';
+import { useChatStore } from '../store/chatStore';
 
 const Dashboard = () => {
+  const { summaryToken, loadToken, setToken } = useChatStore();
   const [activeTab, setActiveTab] = useState('summary');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [historyList, setHistoryList] = useState([]);
@@ -79,6 +81,7 @@ const Dashboard = () => {
     */
   useEffect(() => {
     if (activePRId) {
+      loadToken(activePRId);
       chatService.getHistory(activePRId)
         .then(res => {
           if (res.success && res.data?.length > 0) {
@@ -138,56 +141,71 @@ const Dashboard = () => {
     * This effect checks if there is a pending PR URL to analyze (e.g. from the landing page) and triggers analysis if found.
     * It also performs a cleanup of the URL parameters after processing to prevent re-analysis on page refresh.
     */
+  const pollForAnalysis = async (prUrl, timeoutMs = 300000, intervalMs = 5000) => {
+    const start = Date.now();
+    while (Date.now() - start < timeoutMs) {
+      try {
+        const history = await prService.getHistory();
+        if (history && history.length > 0) {
+          const match = history.find(item => item.github_pr_url === prUrl);
+          if (match) {
+            return match;
+          }
+        }
+      } catch (err) {
+        console.warn('Polling PR history failed, retrying...', err);
+      }
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
+    throw new Error('Analysis timed out');
+  };
+
   useEffect(() => {
-    // Check if there is a pending PR to analyze from the landing page
     const pendingPr = sessionStorage.getItem('pending_pr_analyze');
     if (pendingPr) {
       sessionStorage.removeItem('pending_pr_analyze');
       setNewPrUrl(pendingPr);
 
-      // Small timeout to allow state to settle before triggering
-      setTimeout(() => {
+      setTimeout(async () => {
         setIsAnalyzing(true);
-        prService.analyzePr(pendingPr)
-          .then(async (result) => {
-            if (result) {
-              await fetchPRs();
-              setNewPrUrl('');
-              if (result.analysis?.pr_id) {
-                setActivePRId(result.analysis.pr_id);
-              }
-            }
-          })
-          .catch(error => {
-            console.error(error);
-            alert('Failed to analyze PR from link');
-          })
-          .finally(() => {
-            setIsAnalyzing(false);
-          });
+        try {
+          await prService.analyzePr(pendingPr);
+          await fetchPRs();
+          setNewPrUrl('');
+        } catch (error) {
+          console.warn('Initial analyze failed, polling for result...', error);
+          try {
+            await pollForAnalysis(pendingPr);
+            await fetchPRs();
+            setNewPrUrl('');
+          } catch (pollError) {
+            console.error(pollError);
+            alert('Failed to analyze PR');
+          }
+        } finally {
+          setIsAnalyzing(false);
+        }
       }, 500);
     }
   }, []);
 
-  /**
-    * This function is called when the user submits a new PR URL for analysis. It sends the URL to the backend, triggers analysis, and updates the UI accordingly.
-    * It also handles loading state and error feedback for better UX.
-    */
   const handleNewPR = async () => {
     if (!newPrUrl) return;
     setIsAnalyzing(true);
     try {
-      const result = await prService.analyzePr(newPrUrl);
-      if (result) {
+      await prService.analyzePr(newPrUrl);
+      await fetchPRs();
+      setNewPrUrl('');
+    } catch (error) {
+      console.warn('Initial analyze failed, polling for result...', error);
+      try {
+        await pollForAnalysis(newPrUrl);
         await fetchPRs();
         setNewPrUrl('');
-        if (result.analysis?.pr_id) {
-          setActivePRId(result.analysis.pr_id);
-        }
+      } catch (pollError) {
+        console.error(pollError);
+        alert('Failed to analyze PR');
       }
-    } catch (error) {
-      console.error(error);
-      alert('Failed to analyze PR');
     } finally {
       setIsAnalyzing(false);
     }
@@ -210,9 +228,10 @@ const Dashboard = () => {
 
     const aiMessageId = ++msgIdRef.current;
     let placeholderAdded = false;
+    let resultingAiText = "";
 
     try {
-      await chatService.sendMessage(activePRId, text, (chunk) => {
+      resultingAiText = await chatService.sendMessage(activePRId, text, (chunk) => {
         if (!placeholderAdded) {
           placeholderAdded = true;
           setIsTyping(false);
@@ -227,7 +246,19 @@ const Dashboard = () => {
             )
           );
         }
-      });
+      }, summaryToken);
+      
+      // Update the summary backend
+      setIsTyping(true); // maybe optional, to show generating summary
+      try {
+        const sumRes = await chatService.summarize(activePRId, text, resultingAiText, summaryToken);
+        if (sumRes && sumRes.summaryToken) {
+          setToken(sumRes.summaryToken);
+        }
+      } catch (sumErr) {
+        console.error("Summary update failed", sumErr);
+      }
+
     } catch (err) {
       console.error(err);
       if (!placeholderAdded) {

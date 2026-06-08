@@ -19,9 +19,9 @@ export const analyzeLimiter = rateLimit({
 
 // Lenient limiter for chat endpoints
 export const chatLimiter = rateLimit({
-    windowMs: 1 * 60 * 1000,
-    max: 10, // 10 chat messages per minute max
-    message: { error: 'Chat rate limit exceeded. Please type slower.' },
+    windowMs: 60000,
+    max: 60, // 60 per minute for chat/rag endpoints
+    message: { error: 'Chat rate limit exceeded. Please wait a moment.' },
     standardHeaders: true,
 });
 

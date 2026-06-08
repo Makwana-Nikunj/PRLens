@@ -496,6 +496,58 @@ psql "postgresql://user:pass@localhost:5432/prlens" -c "SELECT 1"
 
 ---
 
+## 🧠 RAG Embedding Pipeline
+
+PRLens uses a Retrieval-Augmented Generation (RAG) pipeline to power contextual AI chat over pull request diffs.
+
+### Embedding Model
+
+| Config | Value |
+|--------|-------|
+| Model | `gemini-embedding-001` |
+| Dimensions | `1536` |
+| Index type | HNSW (cosine similarity) |
+
+### Why 1536 Dimensions?
+
+pgvector's HNSW and IVFFlat indexes have a hard limit of **2000 dimensions**. The previous NVIDIA embedding model (`llama-nemotron-embed-vl-1b-v2`) produced **2048-dimensional** vectors, which **cannot be indexed** by pgvector. This caused:
+
+- Full table scans on every similarity query
+- Exponential slowdowns as PR data grows
+- Inability to scale past small test datasets
+
+`gemini-embedding-001` at 1536 dimensions resolves this while keeping the system scalable.
+
+### HNSW Indexing Strategy
+
+```sql
+CREATE INDEX IF NOT EXISTS idx_pr_chunks_embedding
+ON pr_embeddings USING hnsw (embedding vector_cosine_ops);
+```
+
+- **HNSW** (Hierarchical Navigable Small Worlds) is the recommended index for high-dimensional vector search in pgvector.
+- **Cosine distance** (`vector_cosine_ops`) is used because embedding quality is relative — we care about semantic similarity, not vector magnitude.
+- On app startup, `connectDB()` automatically ensures the index exists.
+
+### Re-indexing Process
+
+When you first deploy this migration with existing 2048-dim data, the `connectDB()` migration will:
+
+1. Drop the old index (if present)
+2. Delete all existing embeddings from `pr_embeddings`
+3. Alter `pr_embeddings.embedding` to `vector(1536) NOT NULL`
+4. Re-create the HNSW index
+
+After this, **re-analyze any previously indexed PRs** to populate fresh 1536-dim embeddings. The PR controller's `cleanupPRVectors` + `processAndStorePRFiles` calls handle this automatically on re-analysis.
+
+### Validation Checklist
+
+- [ ] `\d pr_embeddings` shows `embedding vector(1536) NOT NULL`
+- [ ] `\di idx_pr_chunks_embedding` exists with method `hnsw`
+- [ ] Analyzed a PR and confirmed exactly 1536-dim embeddings stored
+- [ ] `SELECT COUNT(*) FROM pr_embeddings` returns non-zero after re-analysis
+- [ ] `/api/chat/:prId` returns context from vector search
+
 ## 🤝 Contributing
 
 1. **Fork** the repository

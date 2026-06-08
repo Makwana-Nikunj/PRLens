@@ -11,6 +11,7 @@ import { requestLogger } from "./middlewares/requestLogger.middleware.js";
 import authRouter from "./routes/auth.routes.js";
 import prRouter from "./routes/pr.routes.js";
 import chatRouter from "./routes/chat.routes.js";
+import ragRouter from "./routes/rag.routes.js";
 
 
 import { keepAlive } from "./utils/keepAlive.js";
@@ -78,6 +79,7 @@ app.use(requestLogger);
 app.use("/api/auth", authRouter);
 app.use("/api/pr", prRouter);
 app.use("/api/chat", chatRouter);
+app.use("/api/rag", ragRouter);
 
 
 

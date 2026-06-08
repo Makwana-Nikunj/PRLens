@@ -93,7 +93,7 @@ CREATE TABLE IF NOT EXISTS analyses (
 `;
 
     // ===============================
-    // Analyses TABLE
+    // Chat Messages TABLE
     // ===============================
 
     await sql`
@@ -109,8 +109,49 @@ CREATE TABLE IF NOT EXISTS chat_messages (
 `;
 
     // ===============================
+    // RAG: PR Embeddings TABLE
+    // ===============================
+
+    await sql`CREATE EXTENSION IF NOT EXISTS vector;`;
+
+    await sql`
+CREATE TABLE IF NOT EXISTS pr_embeddings (
+    id SERIAL PRIMARY KEY,
+    pr_id UUID REFERENCES pull_requests(id) ON DELETE CASCADE,
+    pr_url TEXT NOT NULL,
+    filename TEXT NOT NULL,
+    chunk_index INTEGER NOT NULL,
+    content TEXT NOT NULL,
+    embedding vector(1536) NOT NULL,
+    metadata JSONB,
+    created_at TIMESTAMPTZ DEFAULT CURRENT_TIMESTAMP
+);
+`;
+
+    await sql`DROP INDEX IF EXISTS idx_pr_chunks_embedding;`;
+    await sql`DELETE FROM pr_embeddings;`;
+    await sql`ALTER TABLE pr_embeddings ALTER COLUMN embedding TYPE vector(1536);`;
+    await sql`ALTER TABLE pr_embeddings ALTER COLUMN embedding SET NOT NULL;`;
+
+
+
+
+    // ===============================
     // PERFORMANCE INDEXES
     // ===============================
+
+    // It's recommended to have lists=100 for ivfflat but skipping for now or IF NOT EXISTS syntax might be tricky for ivfflat.
+    // Actually PostgreSQL 10+ handles IF NOT EXISTS nicely.
+
+    await sql`
+            CREATE INDEX IF NOT EXISTS idx_pr_embeddings_pr_id 
+            ON pr_embeddings (pr_id);
+        `;
+
+    await sql`
+            CREATE INDEX IF NOT EXISTS idx_pr_chunks_embedding
+            ON pr_embeddings USING hnsw (embedding vector_cosine_ops);
+        `;
 
     await sql`
             CREATE INDEX IF NOT EXISTS

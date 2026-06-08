@@ -1,132 +1,206 @@
 import { sql } from "../db/index.js";
 import { ApiError } from "../utils/ApiError.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { streamChat } from "../services/ai.service.js";
-import { chunkDiff, formatDiffForPrompt } from "../services/chunker.service.js";
+import { verifySummaryToken, createSummaryToken } from "../utils/summaryToken.js";
+import { retrieveRelevantChunks } from "../services/rag.service.js";
+import { cap, BUDGET } from "../utils/tokenBudget.js";
 
+// GET /api/chat/:prId/history
 export const getChatHistory = asyncHandler(async (req, res) => {
-  const { pr_id } = req.params;
+  const { prId } = req.params;
+  console.log("[CHAT] Fetch history", { prId });
 
-  if (!pr_id) {
-    throw new ApiError(400, "pr_id is required");
-  }
-
-  // Fetch conversation history
-  const history = await sql`
+  const messages = await sql`
     SELECT id, role, content, created_at
     FROM chat_messages
-    WHERE pr_id = ${pr_id}
+    WHERE pr_id = ${prId}
     ORDER BY created_at ASC
   `;
 
-  res.status(200).json({
-    success: true,
-    data: history
-  });
+  console.log("[CHAT] History returned", { prId, count: messages?.length });
+  res.status(200).json(new ApiResponse(200, messages, "Chat history retrieved successfully"));
 });
 
-// POST /api/chat
+// POST /api/chat/:prId
 export const chatController = asyncHandler(async (req, res) => {
-  const { pr_id, message } = req.body;
+  const { prId } = req.params;
+  let { message, summaryToken } = req.body;
 
-  if (!pr_id || !message) {
-    throw new ApiError(400, "pr_id and message are required");
+  console.log("[CHAT] Request started", { prId, messagePreview: typeof message === 'string' ? message.slice(0, 50) : message, hasSummaryToken: !!summaryToken });
+
+  if (!prId || !message) {
+    console.warn("[CHAT] Missing prId or message");
+    throw new ApiError(400, "prId and message are required");
   }
 
-  // Load PR context from DB
-  const prResult = await sql`
-    SELECT raw_diff, title, author, description, base_branch, head_branch, total_additions, total_deletions, total_files
-    FROM pull_requests
-    WHERE id = ${pr_id}
-  `;
-
-  if (!prResult || !prResult.length) {
-    throw new ApiError(404, "PR not found in database");
+  if (typeof message !== 'string') {
+    console.warn("[CHAT] Non-string message received, coercing", { type: typeof message });
+    message = String(message);
   }
 
-  // Load latest analysis for the PR
+  // Cap User Message
+  message = cap(message, BUDGET.userMessage, "User Message");
+  
+  // Basic input sanitization to prevent prompt injection
+  message = message
+    .replace(/<script[\s\S]*?<\/script>/gi, '')  // Remove script tags
+    .trim();
+
+  console.log("[CHAT] Input prepared", { messageLength: message.length });
+
+  // Verify Summary JWT
+  let trustedSummary;
+  try {
+    trustedSummary = verifySummaryToken(summaryToken, prId);
+  } catch (err) {
+    console.warn("[CHAT] Summary token verification threw:", err.message);
+    trustedSummary = null;
+  }
+  if (summaryToken && !trustedSummary) {
+    console.warn("Invalid or missing summary token, starting fresh conversation.");
+    trustedSummary = "";
+  }
+
+  console.log("[CHAT] Summary token state", { hasSummary: !!trustedSummary, summaryLength: trustedSummary?.length || 0 });
+
+  // Load Analysis
   const analysisResult = await sql`
-    SELECT summary, key_changes, tradeoffs, risks, reviewer_checklist AS checklist, file_explanations
+    SELECT summary, key_changes, tradeoffs, risks, file_explanations
     FROM analyses
-    WHERE pr_id = ${pr_id}
+    WHERE pr_id = ${prId}
     ORDER BY created_at DESC
     LIMIT 1
   `;
+  console.log("[CHAT] Analysis loaded", { hasAnalysis: analysisResult?.length > 0 });
 
-  if (!analysisResult || !analysisResult.length) {
-    throw new ApiError(404, "Analysis not found - analyze the PR first");
+  let analysisContent = "";
+  if (analysisResult?.length) {
+    analysisContent = JSON.stringify(analysisResult[0]);
   }
+  const cappedAnalysis = cap(analysisContent, BUDGET.systemPrompt, "Analysis");
+  console.log("[CHAT] Analysis capped", { originalLength: analysisContent.length, cappedLength: cappedAnalysis.length });
 
-  // Save user message first
-  await sql`
-    INSERT INTO chat_messages (pr_id, user_id, role, content)
-    VALUES (${pr_id}, ${req.user?.id || null}, 'user', ${message})
-  `;
-
-  // Fetch conversation history
-  const history = await sql`
-    SELECT role, content
-    FROM chat_messages
-    WHERE pr_id = ${pr_id}
-    ORDER BY created_at ASC
-  `;
-
-  const aiMessages = [];
-
-  let prFilesList = [];
-  let diffContext = "";
+  // Retrieve RAG Context
+  let retrievedContext = "";
   try {
-    const rawDiff = prResult[0].raw_diff;
-    const diffData = typeof rawDiff === 'string' ? JSON.parse(rawDiff) : rawDiff;
-    if (Array.isArray(diffData)) {
-      prFilesList = diffData.map(f => f.filename).filter(Boolean);
-      const chunks = chunkDiff(diffData);
-      diffContext = formatDiffForPrompt(chunks, prResult[0]);
+    const vectorCount = await sql`
+      SELECT COUNT(*)::int AS count FROM pr_embeddings WHERE pr_id = ${prId}
+    `;
+    const totalVectors = vectorCount?.[0]?.count ?? 0;
+    if (totalVectors === 0) {
+      console.warn(`[CHAT] No vectors found for PR ${prId}, chat will proceed without RAG context`);
+    } else {
+      console.log(`[CHAT] Vectors available for PR ${prId}`, { totalVectors });
     }
-  } catch (e) {
-    console.error("Failed to parse raw_diff for chat context", e);
+
+    console.log("[CHAT] Retrieving relevant chunks...");
+    const results = await retrieveRelevantChunks(prId, message);
+    if (results && results.length > 0) {
+      const texts = results.map(r => `File: ${r.filename}\n${r.content}`);
+      retrievedContext = texts.join("\n\n---\n\n");
+      console.log("[CHAT] RAG chunks retrieved", { chunkCount: results.length, contextLength: retrievedContext.length });
+    } else {
+      console.log("[CHAT] No RAG chunks found meeting threshold");
+    }
+  } catch (err) {
+    console.error("[CHAT] RAG retrieval failed, continuing without it:", err.message);
   }
 
-  aiMessages.push({ role: 'system', content: `Current PR Analysis Summary: ${analysisResult[0].summary}` });
+  const cappedRag = cap(retrievedContext, BUDGET.ragContext, "RAG Context");
 
-  // Smarter Context Management: Limit history to last 10 messages to prevent token overflow
-  const MAX_HISTORY = 10;
-  const recentHistory = history.slice(-MAX_HISTORY);
-
-  for (const m of recentHistory) {
-    if (m.role === 'user' || m.role === 'assistant' || m.role === 'system') {
-      aiMessages.push({ role: m.role, content: m.content });
-    }
-  }
+  // Context Monitoring
+  console.log({
+    analysisLength: cappedAnalysis.length,
+    ragLength: cappedRag.length,
+    summaryLength: trustedSummary ? trustedSummary.length : 0
+  });
 
   res.writeHead(200, {
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Connection': 'keep-alive'
   });
+  console.log("[CHAT] SSE stream opened", { prId, messageLength: message.length });
 
-  let fullResponse = "";
   try {
-    fullResponse = await streamChat(aiMessages, {
-      prTitle: prResult[0].title,
-      prFiles: prFilesList,
-      diffContext: diffContext,
+    // Generate Response via AI Service
+    await streamChat({
+      message,
+      analysis: cappedAnalysis,
+      ragContext: cappedRag,
+      summary: trustedSummary,
       res
     });
-
+    console.log("[CHAT] AI streaming complete", { prId });
   } catch (err) {
-    console.error("Chat generation failed:", err);
+    console.error("[CHAT] Chat generation failed:", err.message);
     res.write(`data: ${JSON.stringify({ error: "Failed to generate chat response from AI" })}\n\n`);
-  }
-
-  // Save AI response
-  if (fullResponse) {
-    await sql`
-      INSERT INTO chat_messages (pr_id, user_id, role, content)
-      VALUES (${pr_id}, null, 'assistant', ${fullResponse})
-    `;
   }
 
   res.write('data: [DONE]\n\n');
   res.end();
 });
+
+// POST /api/chat/:prId/summarize
+export const summarizeChatController = asyncHandler(async (req, res) => {
+  const { prId } = req.params;
+  const { summaryToken, latestMessage, latestResponse } = req.body;
+
+  console.log("[CHAT] Summarize request", { prId, hasSummaryToken: !!summaryToken });
+
+  let currentSummary = verifySummaryToken(summaryToken, prId) || "";
+  if (summaryToken && !currentSummary) {
+    console.warn("[CHAT] Summarize: invalid summary token, starting fresh");
+  }
+
+  // Call OpenAI/Claude directly or use AI service to get the new summary
+  const prompt = `Update the conversation summary with the latest interaction.
+Keep:
+- decisions
+- conclusions
+- discussed files
+- open questions
+
+Remove:
+- repetition
+- filler
+- old details
+
+Previous Summary:
+${currentSummary || "No previous summary."}
+
+User said:
+${latestMessage}
+
+Assistant replied:
+${latestResponse}
+
+Output strictly the new updated summary plain text.`;
+
+  let newSummary = "";
+  // We'll use the same streaming / inference helper but collect it.
+  const { default: OpenAI } = await import('openai');
+  const openai = new OpenAI({
+    apiKey: process.env.AI_API_KEY || process.env.CLAUDE_API_KEY,
+    baseURL: (process.env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
+  });
+
+  const response = await openai.chat.completions.create({
+    model: process.env.AI_MODEL || 'gpt-4o-mini',
+    messages: [{ role: "system", content: "You are a summarizing assistant. Follow the prompt instructions precisely." }, { role: "user", content: prompt }],
+    temperature: 0.1
+  });
+
+  newSummary = response.choices[0]?.message?.content || "";
+  newSummary = cap(newSummary, BUDGET.summary, "Summary");
+
+  const newToken = createSummaryToken(prId, newSummary);
+
+  console.log("[CHAT] Summarize complete", { prId, summaryLength: newSummary.length });
+  res.status(200).json({
+    summaryToken: newToken
+  });
+});
+

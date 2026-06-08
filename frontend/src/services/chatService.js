@@ -3,15 +3,15 @@ import conf from '../conf/conf';
 
 const chatService = {
     // Send a message to chat with a PR
-    sendMessage: async (prId, message, onChunk) => {
+    sendMessage: async (prId, message, onChunk, summaryToken = null) => {
         // We use native fetch for streaming SSE. `withCredentials: true` ensures cookies (session) are sent.
-        const response = await fetch(`${conf.apiBaseUrl}/chat`, {
+        const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({ pr_id: prId, message })
+            body: JSON.stringify({ message, summaryToken })
         });
 
         if (!response.ok) {
@@ -35,7 +35,7 @@ const chatService = {
                 if (line.startsWith('data: ')) {
                     const data = line.slice(6).trim();
                     if (data === '[DONE]') {
-                        return fullText;
+                        break;
                     }
                     try {
                         const parsed = JSON.parse(data);
@@ -53,13 +53,41 @@ const chatService = {
                 }
             }
         }
+
         return fullText;
+    },
+
+    summarize: async (prId, latestMessage, latestResponse, summaryToken = null) => {
+        const response = await apiClient.post(`/chat/${prId}/summarize`, {
+            summaryToken,
+            latestMessage,
+            latestResponse
+        });
+        return response.data;
     },
 
     // Fetch chat history for a PR
     getHistory: async (prId) => {
-        const response = await apiClient.get(`/chat/${prId}`);
-        return response.data;
+        const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}/history`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to load chat history: ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        const messages = (result?.data || []).map(m => ({
+            id: m.id,
+            role: m.role,
+            content: m.content,
+            created_at: m.created_at,
+        }));
+        return { success: true, data: messages };
     }
 };
 

@@ -34,6 +34,23 @@ coverage
 # nyc test coverage
 .nyc_output
 
+# Test files and directories
+*.test.js
+*.test.jsx
+*.test.ts
+*.test.tsx
+*.spec.js
+*.spec.jsx
+*.spec.ts
+*.spec.tsx
+__tests__/
+tests/
+test/
+jest.config.js
+jest.setup.js
+vitest.config.js
+.env.test
+
 # Grunt intermediate storage (https://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
 

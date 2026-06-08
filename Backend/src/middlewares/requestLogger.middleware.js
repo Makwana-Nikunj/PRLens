@@ -1,5 +1,7 @@
 export const requestLogger = (req, res, next) => {
     const start = Date.now();
+    const startIso = new Date().toISOString();
+    console.log(`[REQ ${startIso}] ${req.method} ${req.path} ip=${req.ip} contentType=${req.get('content-type') || '-'}`);
 
     res.on('finish', () => {
         // Defer logger execution to avoid blocking event loop completion

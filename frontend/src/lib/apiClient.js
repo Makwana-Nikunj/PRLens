@@ -5,7 +5,7 @@ import axios from 'axios';
 export const apiClient = axios.create({
     baseURL: conf.apiBaseUrl,
     withCredentials: true,
-    timeout: 120000,
+    timeout: 300000,
 });
 
 // Track if a token refresh is already in progress

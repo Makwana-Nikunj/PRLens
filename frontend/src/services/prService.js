@@ -13,6 +13,12 @@ const prService = {
         return response.data?.data || response.data;
     },
 
+    // Get analysis history
+    getHistory: async () => {
+        const response = await apiClient.get('/pr/history');
+        return response.data?.data || response.data;
+    },
+
     // Trigger analysis for a specific PR
     analyzePr: async (prUrl) => {
         const response = await apiClient.post('/pr/analyze', { url: prUrl });

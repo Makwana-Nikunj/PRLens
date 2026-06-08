@@ -1,0 +1,11 @@
+{
+  "dependencies": {
+    "@langchain/core": "^1.1.48",
+    "@langchain/openai": "^1.4.7",
+    "@langchain/textsplitters": "^1.0.1",
+    "express-rate-limit": "^8.5.2",
+    "jsonwebtoken": "^9.0.3",
+    "langchain": "^1.4.4",
+    "pgvector": "^0.3.0"
+  }
+}

@@ -123,16 +123,21 @@ const oauthLogin = asyncHandler(async (req, res) => {
     throw new ApiError(400, "codeVerifier is required");
   }
 
+  if (!process.env.GITHUB_CLIENT_ID || !process.env.GITHUB_CLIENT_SECRET) {
+    throw new ApiError(500, "GitHub OAuth is not configured on the server (missing GITHUB_CLIENT_ID or GITHUB_CLIENT_SECRET)");
+  }
+
   // Validate redirect URI against allowed origins
   const allowedOrigins = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
     process.env.FRONTEND_URL,
-  ].filter(Boolean);
+  ].filter(Boolean).map((origin) => origin.replace(/\/$/, ""));
 
+  const normalizedRedirect = redirectUri.replace(/\/$/, "");
   const isAllowed = allowedOrigins.some(
-    (origin) => redirectUri.startsWith(origin + "/") || redirectUri === origin
+    (origin) => normalizedRedirect === origin || normalizedRedirect.startsWith(origin + "/")
   );
   if (!isAllowed) {
     throw new ApiError(400, "Invalid redirect URI");
