@@ -7,6 +7,7 @@ const useAuthStore = create(
       user: null,
       accessToken: null,
       isAuthenticated: false,
+      isHydrated: false,
 
       login: ({ userData, accessToken }) => set({
         user: userData,
@@ -21,10 +22,18 @@ const useAuthStore = create(
       }),
     }),
     {
-      name: 'auth-storage', // name of the item in the storage (must be unique)
-      storage: createJSONStorage(() => localStorage), // (optional) by default, 'localStorage' is used
+      name: 'auth-storage',
+      storage: createJSONStorage(() => localStorage),
+      onRehydrateStorage: () => (_state, error) => {
+        if (error) return;
+        useAuthStore.setState({ isHydrated: true });
+      },
     }
   )
 );
+
+if (typeof window !== 'undefined') {
+  useAuthStore.setState({ isHydrated: true });
+}
 
 export default useAuthStore;

@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import useAuthStore from '../../store/authStore';
 import apiClient from '../../lib/apiClient';
 
-const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick }) => {
+const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick, isHistoryLoading, historyError, onRetryHistory }) => {
   const { user, logout } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -77,7 +77,20 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
         <div className="flex-1 overflow-y-auto px-2 pb-4">
           <div className="px-2 py-1.5 text-[11px] font-bold text-[#71717A] uppercase tracking-wider sticky top-0 bg-[#0b0b0f] z-10 mt-1">Recent Analyses</div>
           <div className="flex flex-col gap-1 mt-1">
-            {filteredHistory.length > 0 ? (
+            {isHistoryLoading ? (
+              <div className="flex flex-col gap-2 mt-2">
+                {[0,1].map((i) => (
+                  <div key={i} className="h-14 rounded-lg bg-[#1a1a1f] animate-pulse" />
+                ))}
+              </div>
+            ) : historyError ? (
+              <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+                <p className="text-[12px] text-red-400 mb-2">Failed to load history</p>
+                {onRetryHistory && (
+                  <button onClick={onRetryHistory} className="text-[12px] px-3 py-1.5 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 transition">Retry</button>
+                )}
+              </div>
+            ) : filteredHistory.length > 0 ? (
               filteredHistory.map(item => {
                 let repoName = 'Repository';
                 let prTitle = 'Unknown PR';
@@ -126,13 +139,13 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
             className="w-full flex items-center gap-3 p-2 hover:bg-[#1a1a1f] rounded-lg transition text-left"
           >
             {user?.avatar ? (
-              <img src={user.avatar} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" />
+              <img src={user.avatar} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" />
+              <img src={user.avatarUrl} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : user?.avatar_url ? (
-              <img src={user.avatar_url} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" />
+              <img src={user.avatar_url} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : user?.username ? (
-              <img src={`https://github.com/${user.username}.png`} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" />
+              <img src={`https://github.com/${user.username}.png`} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
             ) : (
               <div className="w-9 h-9 rounded-md bg-violet-600 flex items-center justify-center text-[12px] font-bold text-white shadow-inner shrink-0">
                 {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}

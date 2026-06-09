@@ -4,7 +4,7 @@ import useGithubOAuth from '../hooks/useGithubOAuth';
 
 const GithubSignIn = () => {
   const navigate = useNavigate();
-  const { handleGithubLogin, isGithubLoading } = useGithubOAuth({ redirectPath: '/dashboard' });
+  const { handleGithubLogin, isGithubLoading, oauthError } = useGithubOAuth({ redirectPath: '/dashboard' });
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0f0f13] text-[#E4E4E7] font-sans relative overflow-hidden">
@@ -42,6 +42,11 @@ const GithubSignIn = () => {
           )}
         </button>
 
+        {oauthError && (
+          <p className="mt-4 text-[13px] text-red-400 text-center">
+            {oauthError}
+          </p>
+        )}
         <a onClick={() => navigate('/')} className="inline-block mt-6 text-[13px] text-[#A1A1AA] no-underline transition-colors hover:text-white cursor-pointer">
           &larr; Back to home
         </a>

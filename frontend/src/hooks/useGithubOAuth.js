@@ -31,6 +31,7 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
     const navigate = useNavigate();
     const login = useAuthStore((state) => state.login);
     const [isGithubLoading, setIsGithubLoading] = useState(false);
+    const [oauthError, setOauthError] = useState(null);
     const isProcessingRef = useRef(false);
 
     // Handle GitHub OAuth redirect callback
@@ -51,6 +52,8 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
                 sessionStorage.removeItem(STATE_KEY);
                 sessionStorage.removeItem(VERIFIER_KEY);
                 window.history.replaceState({}, "", window.location.pathname);
+                setOauthError("Security check failed. Please try again.");
+                isProcessingRef.current = false;
                 return;
             }
 
@@ -60,6 +63,7 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
         const handleOAuthCallback = async () => {
                 try {
                     if (isMounted) setIsGithubLoading(true);
+                    setOauthError(null);
                     const response = await apiClient.post("/auth/oauth", {
                         code,
                         codeVerifier,
@@ -89,6 +93,9 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
                     sessionStorage.removeItem(STATE_KEY);
                     sessionStorage.removeItem(VERIFIER_KEY);
                     window.history.replaceState({}, "", window.location.pathname);
+                    const message = err.response?.data?.message || "GitHub login failed. Please try again.";
+                    if (isMounted) setOauthError(message);
+                    if (isMounted) isProcessingRef.current = false;
                 } finally {
                     if (isMounted) setIsGithubLoading(false);
                 }
@@ -104,6 +111,8 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
         // Cancelled/failed path
         if (params.get("error")) {
             console.error("GitHub login was cancelled or failed. Please try again.");
+            setOauthError("GitHub login was cancelled or failed. Please try again.");
+            isProcessingRef.current = false;
             window.history.replaceState({}, "", window.location.pathname);
         }
     }, [login, navigate, redirectPath, onSuccess]);
@@ -131,7 +140,7 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
         window.location.href = `https://github.com/login/oauth/authorize?${params}`;
     };
 
-    return { handleGithubLogin, isGithubLoading };
+    return { handleGithubLogin, isGithubLoading, oauthError };
 }
 
 export { generateState };

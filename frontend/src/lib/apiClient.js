@@ -53,12 +53,21 @@ apiClient.interceptors.response.use(
                     // Retry the original request
                     return apiClient(originalRequest);
                 } catch (refreshError) {
+                    const refreshStatus = refreshError?.response?.status;
+                    console.warn('[apiClient] refresh failed', refreshStatus, refreshError.message);
                     isRefreshing = false;
+                    if (typeof refreshSubscribers?.forEach === 'function') {
+                        refreshSubscribers.forEach((cb) => {
+                            try { cb(Promise.reject(refreshError)); } catch (_queueErr) {}
+                        });
+                    }
                     refreshSubscribers = [];
-                    // Full client-side state wipe for a clean fresh start
-                    try { localStorage.clear(); } catch (_clearLocal) {}
-                    try { sessionStorage.clear(); } catch (_clearSession) {}
-                    // Hard redirect to login — reset all app state
+                    try { localStorage.removeItem('auth-storage'); } catch (_clearLocal) {}
+                    try {
+                        sessionStorage.removeItem(STATE_KEY);
+                        sessionStorage.removeItem(VERIFIER_KEY);
+                        sessionStorage.removeItem('pending_pr_analyze');
+                    } catch (_clearSession) {}
                     window.location.href = '/login';
                     return Promise.reject(refreshError);
                 }

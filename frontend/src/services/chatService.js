@@ -3,15 +3,15 @@ import conf from '../conf/conf';
 
 const chatService = {
     // Send a message to chat with a PR
-    sendMessage: async (prId, message, onChunk, summaryToken = null) => {
-        // We use native fetch for streaming SSE. `withCredentials: true` ensures cookies (session) are sent.
+    sendMessage: async (prId, message, onChunk, summaryToken = null, signal) => {
         const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             credentials: 'include',
-            body: JSON.stringify({ message, summaryToken })
+            body: JSON.stringify({ message, summaryToken }),
+            signal,
         });
 
         if (!response.ok) {
@@ -23,35 +23,44 @@ const chatService = {
         let fullText = "";
         let buffer = "";
 
-        while (true) {
-            const { value, done } = await reader.read();
-            if (done) break;
+        try {
+            while (true) {
+                if (signal?.aborted) {
+                    try { await reader.cancel(); } catch (_cancelErr) {}
+                    throw new Error('Message aborted');
+                }
+                const { value, done } = await reader.read();
+                if (done) break;
 
-            buffer += decoder.decode(value, { stream: true });
-            const lines = buffer.split('\n');
-            buffer = lines.pop(); // Keep last incomplete line in buffer
+                buffer += decoder.decode(value, { stream: true });
+                const lines = buffer.split('\n');
+                buffer = lines.pop(); // Keep last incomplete line in buffer
 
-            for (const line of lines) {
-                if (line.startsWith('data: ')) {
-                    const data = line.slice(6).trim();
-                    if (data === '[DONE]') {
-                        break;
-                    }
-                    try {
-                        const parsed = JSON.parse(data);
-                        if (parsed.text) {
-                            fullText += parsed.text;
-                            if (onChunk) onChunk(parsed.text);
-                        } else if (parsed.error) {
-                            const err = new Error(parsed.error);
-                            err._sseError = true;
-                            throw err;
+                for (const line of lines) {
+                    if (line.startsWith('data: ')) {
+                        const data = line.slice(6).trim();
+                        if (data === '[DONE]') {
+                            break;
                         }
-                    } catch (e) {
-                        if (e._sseError) throw e;
+                        try {
+                            const parsed = JSON.parse(data);
+                            if (parsed.text) {
+                                fullText += parsed.text;
+                                if (onChunk) onChunk(parsed.text);
+                            } else if (parsed.error) {
+                                const err = new Error(parsed.error);
+                                err._sseError = true;
+                                throw err;
+                            }
+                        } catch (e) {
+                            if (e._sseError) throw e;
+                            throw e;
+                        }
                     }
                 }
             }
+        } finally {
+            try { reader.releaseLock(); } catch (_releaseErr) {}
         }
 
         return fullText;
@@ -80,7 +89,12 @@ const chatService = {
             throw new Error(`Failed to load chat history: ${response.statusText}`);
         }
 
-        const result = await response.json();
+        let result;
+        try {
+            result = await response.json();
+        } catch {
+            throw new Error('Invalid response from server while loading chat history');
+        }
         const messages = (result?.data || []).map(m => ({
             id: m.id,
             role: m.role,
