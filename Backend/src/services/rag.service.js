@@ -86,7 +86,7 @@ export async function processAndStorePRFiles(prId, prUrl, files) {
 
 export async function retrieveRelevantChunks(prId, query) {
   const queryVector = await embedQuery(query);
-  const threshold = parseFloat(process.env.RAG_SIMILARITY_THRESHOLD || "0.75");
+  const threshold = parseFloat(process.env.RAG_SIMILARITY_THRESHOLD || "0.4");
   const limit = parseInt(process.env.RAG_TOP_K || "5", 10);
 
   const results = await sql`

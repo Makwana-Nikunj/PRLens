@@ -9,6 +9,10 @@ const PROVIDER_GEMINI_BASE_URL = (process.env.PROVIDER_GEMINI_BASE_URL || '').re
 const PROVIDER_GEMINI_API_KEY = process.env.PROVIDER_GEMINI_API_KEY || '';
 const GEMINI_FALLBACK_MODEL = process.env.GEMINI_FALLBACK_MODEL || 'gemini-2.5-flash';
 
+const KILO_API_KEY = process.env.KILO_API_KEY || '';
+const KILO_BASE_URL = 'https://api.kilo.ai/api/gateway';
+const KILO_MODEL = process.env.KILO_MODEL || 'poolside/laguna-m.1:free';
+
 
 /**
  * wait for a specified number of milliseconds for retry backoff
@@ -123,6 +127,48 @@ async function fetchGeminiJSON(systemPrompt, message) {
         return { ...validateAnalysisResult(parsed), raw_response: content, model_used: `gemini:${GEMINI_FALLBACK_MODEL}` };
     } catch {
         throw new ApiError(502, "Gemini fallback response was not valid JSON");
+    }
+}
+
+async function callKiloJSON(systemPrompt, message) {
+    if (!KILO_API_KEY || !KILO_BASE_URL) {
+        throw new ApiError(500, "Kilo provider is not configured");
+    }
+
+    const response = await fetch(`${KILO_BASE_URL}/chat/completions`, {
+        method: "POST",
+        headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${KILO_API_KEY}`
+        },
+        body: JSON.stringify({
+            model: KILO_MODEL,
+            messages: [
+                { role: "system", content: systemPrompt },
+                { role: "user", content: message }
+            ],
+            temperature: 0.2
+        })
+    });
+
+    if (!response.ok) {
+        const text = await response.text();
+        const status = response.status;
+        if (status === 429 || (status >= 500 && status < 600)) {
+            throw new ApiError(status, `Kilo provider transient error: ${text}`);
+        }
+        throw new ApiError(status, `Kilo provider failed: ${text}`);
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    if (!content) throw new ApiError(502, "Kilo provider returned an empty response");
+
+    try {
+        const parsed = JSON.parse(content);
+        return { ...validateAnalysisResult(parsed), raw_response: content, model_used: `kilo:${KILO_MODEL}` };
+    } catch {
+        throw new ApiError(502, "Kilo provider response was not valid JSON");
     }
 }
 
@@ -268,7 +314,17 @@ export async function analyzePR(prompt, options = {}) {
                     try {
                         return await fetchGeminiJSON(systemPrompt, prompt);
                     } catch (geminiErr) {
-                        throw new ApiError(fetchErr.status || 502, `Primary AI failed, Gemini fallback also failed: ${geminiErr.message}`);
+                        if (
+                            KILO_API_KEY &&
+                            (!fetchErr.status || fetchErr.status >= 500 || fetchErr.status === 429)
+                        ) {
+                            try {
+                                return await callKiloJSON(systemPrompt, prompt);
+                            } catch (kiloErr) {
+                                throw new ApiError(fetchErr.status || 502, `Primary AI failed. Gemini fallback failed: ${geminiErr.message}. Kilo fallback failed: ${kiloErr.message}`);
+                            }
+                        }
+                        throw new ApiError(fetchErr.status || 502, `Primary AI failed. Gemini fallback also failed: ${geminiErr.message}`);
                     }
                 }
 

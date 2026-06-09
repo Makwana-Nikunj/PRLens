@@ -128,15 +128,6 @@ CREATE TABLE IF NOT EXISTS pr_embeddings (
 );
 `;
 
-    await sql`DROP INDEX IF EXISTS idx_pr_chunks_embedding;`;
-    await sql`DELETE FROM pr_embeddings;`;
-    await sql`ALTER TABLE pr_embeddings ALTER COLUMN embedding TYPE vector(1536);`;
-    await sql`ALTER TABLE pr_embeddings ALTER COLUMN embedding SET NOT NULL;`;
-
-
-
-
-    // ===============================
     // PERFORMANCE INDEXES
     // ===============================
 

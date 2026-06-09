@@ -5,19 +5,24 @@ import { asyncHandler } from "../utils/asyncHandler.js";
 import { streamChat } from "../services/ai.service.js";
 import { verifySummaryToken, createSummaryToken } from "../utils/summaryToken.js";
 import { retrieveRelevantChunks } from "../services/rag.service.js";
+import { saveChatMessage } from "../services/chat.service.js";
 import { cap, BUDGET } from "../utils/tokenBudget.js";
+
+const getChatHistoryService = async (prId) => {
+  return sql`
+    SELECT id, role, content, created_at
+    FROM chat_messages
+    WHERE pr_id = ${prId}
+    ORDER BY created_at ASC
+  `;
+};
 
 // GET /api/chat/:prId/history
 export const getChatHistory = asyncHandler(async (req, res) => {
   const { prId } = req.params;
   console.log("[CHAT] Fetch history", { prId });
 
-  const messages = await sql`
-    SELECT id, role, content, created_at
-    FROM chat_messages
-    WHERE pr_id = ${prId}
-    ORDER BY created_at ASC
-  `;
+  const messages = await getChatHistoryService(prId);
 
   console.log("[CHAT] History returned", { prId, count: messages?.length });
   res.status(200).json(new ApiResponse(200, messages, "Chat history retrieved successfully"));
@@ -124,9 +129,10 @@ export const chatController = asyncHandler(async (req, res) => {
   });
   console.log("[CHAT] SSE stream opened", { prId, messageLength: message.length });
 
+  let fullResponse = "";
   try {
     // Generate Response via AI Service
-    await streamChat({
+    fullResponse = await streamChat({
       message,
       analysis: cappedAnalysis,
       ragContext: cappedRag,
@@ -141,6 +147,28 @@ export const chatController = asyncHandler(async (req, res) => {
 
   res.write('data: [DONE]\n\n');
   res.end();
+  console.log("[CHAT] Response sent, persisting messages", { prId });
+
+  try {
+    await saveChatMessage({
+      prId,
+      userId: req.user?.id || null,
+      role: 'user',
+      content: message,
+      tokensUsed: null
+    });
+
+    await saveChatMessage({
+      prId,
+      userId: req.user?.id || null,
+      role: 'assistant',
+      content: fullResponse,
+      tokensUsed: null
+    });
+    console.log("[CHAT] Messages persisted", { prId });
+  } catch (persistErr) {
+    console.error("[CHAT] Failed to persist chat messages:", persistErr.message);
+  }
 });
 
 // POST /api/chat/:prId/summarize

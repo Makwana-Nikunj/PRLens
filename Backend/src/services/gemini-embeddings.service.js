@@ -22,6 +22,12 @@ async function callGeminiEmbedding(texts) {
     const baseUrl = getGeminiBaseUrl();
     const url = `${baseUrl}/models/${GEMINI_EMBEDDING_MODEL}:embedContent?key=${apiKey}`;
 
+    if (!texts || texts.length === 0) {
+        return [];
+    }
+
+    console.log(`[Embeddings] Requesting ${texts.length} embeddings from Gemini...`);
+
     const results = await Promise.all(
         texts.map((text) =>
             fetch(url, {

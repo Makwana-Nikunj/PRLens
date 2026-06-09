@@ -169,8 +169,11 @@ const Dashboard = () => {
       setTimeout(async () => {
         setIsAnalyzing(true);
         try {
-          await prService.analyzePr(pendingPr);
+          const result = await prService.analyzePr(pendingPr);
           await fetchPRs();
+          if (result?.analysis?.pr_id) {
+            setActivePRId(result.analysis.pr_id);
+          }
           setNewPrUrl('');
         } catch (error) {
           console.warn('Initial analyze failed, polling for result...', error);
@@ -248,15 +251,9 @@ const Dashboard = () => {
         }
       }, summaryToken);
       
-      // Update the summary backend
-      setIsTyping(true); // maybe optional, to show generating summary
-      try {
-        const sumRes = await chatService.summarize(activePRId, text, resultingAiText, summaryToken);
-        if (sumRes && sumRes.summaryToken) {
-          setToken(sumRes.summaryToken);
-        }
-      } catch (sumErr) {
-        console.error("Summary update failed", sumErr);
+      const sumRes = await chatService.summarize(activePRId, text, resultingAiText, summaryToken);
+      if (sumRes && sumRes.summaryToken) {
+        setToken(sumRes.summaryToken);
       }
 
     } catch (err) {
