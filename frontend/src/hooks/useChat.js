@@ -13,7 +13,6 @@ export function useChat({ prId }) {
     const [isTyping, setIsTyping] = useState(false);
     const [streamingMsgId, setStreamingMsgId] = useState(null);
     const [inputValue, setInputValue] = useState('');
-    const [chatError, setChatError] = useState(null);
 
     const chatInputRef = useRef(null);
     const messagesEndRef = useRef(null);
@@ -22,26 +21,25 @@ export function useChat({ prId }) {
     const lastFailedMessageRef = useRef('');
 
     useEffect(() => {
-        if (prId) {
-            loadToken(prId);
-            chatService.getHistory(prId)
-                .then(res => {
-                    if (res.success && res.data?.length > 0) {
-                        const loadedMessages = res.data.map(m => ({
-                            id: m.id || ++msgIdRef.current,
-                            who: m.role === 'user' ? 'user' : 'ai',
-                            text: m.content
-                        }));
-                        setMessages(loadedMessages);
-                    } else {
-                        setMessages([{ id: ++msgIdRef.current, who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
-                    }
-                })
-                .catch(() => {
-                    setMessages([{ id: Date.now(), who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
-                });
-        }
-        }, [prId, loadToken]);
+        if (!prId) return;
+        loadToken(prId);
+        chatService.getHistory(prId)
+            .then(res => {
+                if (res.success && res.data?.length > 0) {
+                    const loadedMessages = res.data.map(m => ({
+                        id: m.id || ++msgIdRef.current,
+                        who: m.role === 'user' ? 'user' : 'ai',
+                        text: m.content
+                    }));
+                    setMessages(loadedMessages);
+                } else {
+                    setMessages([{ id: ++msgIdRef.current, who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
+                }
+            })
+            .catch(() => {
+                setMessages([{ id: Date.now(), who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
+            });
+    }, [prId, loadToken]);
 
     const scrollToEnd = useCallback(() => {
         setTimeout(() => {
@@ -57,13 +55,12 @@ export function useChat({ prId }) {
         const userMessageId = ++msgIdRef.current;
 
         let placeholderAdded = false;
-        let resultingAiText = "";
+        let resultingAiText = '';
 
         setMessages(prev => [...prev, { id: userMessageId, who: 'user', text }]);
         setInputValue('');
         if (chatInputRef.current) chatInputRef.current.style.height = 'auto';
         setIsTyping(true);
-        setChatError(null);
         lastFailedMessageRef.current = '';
 
         try {
@@ -86,18 +83,16 @@ export function useChat({ prId }) {
             }, summaryToken, chatAbortRef.current.signal);
             chatAbortRef.current = null;
 
-            const sumRes = await chatService.summarize(prId, text, resultingAiText, summaryToken);
+            const sumRes = await chatService.summarize(prId, text, resultingAiText, summaryToken).catch(() => null);
             if (sumRes && sumRes.summaryToken) {
                 setToken(sumRes.summaryToken);
             }
-
         } catch (err) {
             console.error(err);
             const rateLimit = err?.status === 429 || /rate limit/i.test(err?.message || '');
             const message = rateLimit
                 ? 'Too many requests. Please wait a moment and try again.'
                 : 'Something went wrong. Please try again.';
-            setChatError(message);
 
             if (!placeholderAdded) {
                 setMessages(prev => [...prev, { id: aiMessageId, who: 'ai', text: message }]);
@@ -105,7 +100,7 @@ export function useChat({ prId }) {
                 setMessages(prev =>
                     prev.map(msg =>
                         msg.id === aiMessageId
-                            ? { ...msg, text: `${msg.text}\n\n*(response incomplete — please retry)*` }
+                            ? { ...msg, text: msg.text }
                             : msg
                     )
                 );
@@ -124,7 +119,6 @@ export function useChat({ prId }) {
     const retryLastFailed = useCallback(() => {
         const text = lastFailedMessageRef.current;
         lastFailedMessageRef.current = '';
-        setChatError(null);
         setInputValue(text);
         setTimeout(() => {
             chatInputRef.current?.focus();
@@ -138,11 +132,6 @@ export function useChat({ prId }) {
         e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
     }, []);
 
-    const dismissError = useCallback(() => {
-        setChatError(null);
-        lastFailedMessageRef.current = '';
-    }, []);
-
     return {
         messages,
         setMessages,
@@ -150,14 +139,11 @@ export function useChat({ prId }) {
         streamingMsgId,
         inputValue,
         setInputValue,
-        chatError,
-        setChatError,
         chatInputRef,
         messagesEndRef,
         handleSendMessage,
         autoResizeInput,
         retryLastFailed,
-        dismissError,
     };
 }
 

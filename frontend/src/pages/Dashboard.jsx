@@ -243,21 +243,6 @@ const Dashboard = () => {
               inputValue={chat.inputValue} autoResizeInput={chat.autoResizeInput}
               handleSendMessage={chat.handleSendMessage}
             />
-            {chat.chatError && (
-              <div className="fixed bottom-[88px] right-4 md:right-6 z-30 w-[320px] max-w-[calc(100vw-32px)] rounded-xl bg-[#1a1a1f] border border-white/10 shadow-2xl p-4">
-                <p className="text-[13px] text-[#E4E4E7] leading-relaxed">{chat.chatError.message || chat.chatError}</p>
-                <div className="mt-3 flex gap-2">
-                  <button onClick={chat.dismissError} className="text-[12px] px-3 py-1.5 rounded-md bg-white/10 text-white hover:bg-white/15 transition">Dismiss</button>
-                  <button onClick={chat.retryLastFailed} className="text-[12px] px-3 py-1.5 rounded-md bg-violet-600 text-white hover:bg-violet-700 transition">Retry last message</button>
-                </div>
-              </div>
-            )}
-            <button
-              className={`fixed right-4 md:right-5 bottom-4 md:bottom-5 w-12 h-12 bg-violet-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-violet-600/20 z-10 transition-all duration-300 ${isReopenShown ? 'translate-y-0 opacity-100' : 'translate-y-[100px] opacity-0 pointer-events-none'}`}
-              onClick={() => resize.toggleChat(true)} title="Open chat"
-            >
-              <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a2 2 0 0 1 2-2h7" /></svg>
-            </button>
           </>
         )}
       </div>
