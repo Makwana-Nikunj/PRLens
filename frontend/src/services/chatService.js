@@ -1,14 +1,11 @@
-import { apiClient } from '../lib/apiClient';
 import conf from '../conf/conf';
+import { apiClient } from '../lib/apiClient';
 
 const chatService = {
-    // Send a message to chat with a PR
     sendMessage: async (prId, message, onChunk, summaryToken = null, signal) => {
         const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}`, {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
             body: JSON.stringify({ message, summaryToken }),
             signal,
@@ -26,7 +23,7 @@ const chatService = {
         try {
             while (true) {
                 if (signal?.aborted) {
-                    try { await reader.cancel(); } catch (_cancelErr) {}
+                    await reader.cancel();
                     throw new Error('Message aborted');
                 }
                 const { value, done } = await reader.read();
@@ -34,14 +31,12 @@ const chatService = {
 
                 buffer += decoder.decode(value, { stream: true });
                 const lines = buffer.split('\n');
-                buffer = lines.pop(); // Keep last incomplete line in buffer
+                buffer = lines.pop();
 
                 for (const line of lines) {
                     if (line.startsWith('data: ')) {
                         const data = line.slice(6).trim();
-                        if (data === '[DONE]') {
-                            break;
-                        }
+                        if (data === '[DONE]') break;
                         try {
                             const parsed = JSON.parse(data);
                             if (parsed.text) {
@@ -60,7 +55,7 @@ const chatService = {
                 }
             }
         } finally {
-            try { reader.releaseLock(); } catch (_releaseErr) {}
+            reader.releaseLock().catch(() => void 0);
         }
 
         return fullText;
@@ -75,27 +70,9 @@ const chatService = {
         return response.data;
     },
 
-    // Fetch chat history for a PR
     getHistory: async (prId) => {
-        const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}/history`, {
-            method: 'GET',
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            credentials: 'include',
-        });
-
-        if (!response.ok) {
-            throw new Error(`Failed to load chat history: ${response.statusText}`);
-        }
-
-        let result;
-        try {
-            result = await response.json();
-        } catch {
-            throw new Error('Invalid response from server while loading chat history');
-        }
-        const messages = (result?.data || []).map(m => ({
+        const response = await apiClient.get(`/chat/${prId}/history`);
+        const messages = (response.data?.data || []).map(m => ({
             id: m.id,
             role: m.role,
             content: m.content,

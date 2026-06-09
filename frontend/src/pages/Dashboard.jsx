@@ -6,168 +6,34 @@ import TabChanges from '../Components/dashboard/TabChanges';
 import TabRisks from '../Components/dashboard/TabRisks';
 import ChatPanel from '../Components/dashboard/ChatPanel';
 import prService from '../services/prService';
-import chatService from '../services/chatService';
-import { useChatStore } from '../store/chatStore';
+import { useChat, useChatResize } from '../hooks/useChat';
 
 const Dashboard = () => {
-  const { summaryToken, loadToken, setToken } = useChatStore();
   const [activeTab, setActiveTab] = useState('summary');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [historyList, setHistoryList] = useState([]);
   const [activePRId, setActivePRId] = useState(null);
   const [newPrUrl, setNewPrUrl] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [historyError, setHistoryError] = useState(null);
   const activePR = historyList.find(h => h.pr_id === activePRId) || null;
 
   const [chatCollapsed, setChatCollapsed] = useState(true);
   const [chatOpenMobile, setChatOpenMobile] = useState(false);
-  const [chatWidth, setChatWidth] = useState(360);
-  const [messages, setMessages] = useState([
-    { id: 1, who: 'ai', text: "I've analyzed this PR. It adds edge runtime support." },
-    { id: 2, who: 'user', text: "Will this break existing API routes?" }
-  ]);
-  const [isTyping, setIsTyping] = useState(false);
-  const [streamingMsgId, setStreamingMsgId] = useState(null);
-  const [inputValue, setInputValue] = useState('');
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
-  const [historyError, setHistoryError] = useState(null);
-  const [chatError, setChatError] = useState(null);
-  const lastFailedMessageRef = useRef('');
-
-  const chatInputRef = useRef(null);
-  const messagesEndRef = useRef(null);
   const isResizingRef = useRef(false);
-  const msgIdRef = useRef(3);
-  const pollAbortRef = useRef(false);
   const timersRef = useRef([]);
-  const chatAbortRef = useRef(null);
-  const pollAbortControllerRef = useRef(null);
 
-  const retryLastFailed = async () => {
-    const text = lastFailedMessageRef.current;
-    lastFailedMessageRef.current = '';
-    setChatError(null);
-    setInputValue(text);
-    setTimeout(() => {
-      chatInputRef.current?.focus();
-      handleSendMessage();
-    }, 0);
-  };
+  const chat = useChat({ prId: activePRId });
+  const resize = useChatResize({ chatCollapsed, setChatCollapsed, chatOpenMobile, setChatOpenMobile, isResizingRef });
 
-  useEffect(() => {
-    return () => {
-      pollAbortRef.current = true;
-      if (pollAbortControllerRef.current) {
-        pollAbortControllerRef.current.abort();
-      }
-      timersRef.current.forEach((id) => clearTimeout(id));
-      timersRef.current = [];
-    };
-  }, []);
-
-  /**
-   * Handle chat panel resizing on desktop by dragging the left edge
-   */
-  useEffect(() => {
-    const handleMouseMove = (e) => {
-      if (!isResizingRef.current || window.innerWidth < 1024) return;
-      const newWidth = window.innerWidth - e.clientX;
-      setChatWidth(Math.max(300, Math.min(700, newWidth)));
-    };
-    const handleMouseUp = () => {
-      if (isResizingRef.current) {
-        isResizingRef.current = false;
-        document.body.style.cursor = '';
-        document.body.style.userSelect = '';
-      }
-    };
-    let resizeTimer;
-    const handleResize = () => {
-      clearTimeout(resizeTimer);
-      resizeTimer = setTimeout(() => {
-        if (window.innerWidth < 1024) { setChatCollapsed(false); }
-        else { setChatOpenMobile(false); }
-      }, 50);
-    };
-    window.addEventListener('mousemove', handleMouseMove);
-    window.addEventListener('mouseup', handleMouseUp);
-    window.addEventListener('resize', handleResize);
-    handleResize();
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-      window.removeEventListener('mouseup', handleMouseUp);
-      window.removeEventListener('resize', handleResize);
-    };
-  }, []);
-
-
-  /**
-    * Load chat history when a PR is selected from the sidebar. If there is no history, start with a default message.
-    * This runs every time activePRId changes, which happens when user clicks on a different PR in the sidebar.
-    */
-  useEffect(() => {
-    if (activePRId) {
-      loadToken(activePRId);
-      chatService.getHistory(activePRId)
-        .then(res => {
-          if (res.success && res.data?.length > 0) {
-            const loadedMessages = res.data.map(m => ({
-              id: m.id || ++msgIdRef.current,
-              who: m.role === 'user' ? 'user' : 'ai',
-              text: m.content
-            }));
-            setMessages(loadedMessages);
-          } else {
-            setMessages([{ id: ++msgIdRef.current, who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
-          }
-        })
-        .catch(err => {
-          console.error("Failed to load chat history", err);
-          setMessages([{ id: Date.now(), who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
-        });
-    }
-  }, [activePRId]);
-
-
-  /**
-    * When user clicks on a PR in the sidebar, we set that PR as active, which triggers loading its details and chat history.
-    * We also close the sidebar on mobile for better UX.
-    */
-   
-  const handleHistoryClick = (id) => {
-    setActivePRId(id);
-    if (window.innerWidth < 1024) {
-      setChatOpenMobile(true);
-    } else {
-      setChatCollapsed(false);
-    }
-    const timer = setTimeout(() => { setSidebarOpen(false); }, 400);
-    timersRef.current.push(timer);
-  };
-
-
-  /**
-    * On initial load, we fetch the list of PRs that have been analyzed before and show them in the sidebar.
-    * This runs only once when the component mounts.
-    */
-  useEffect(() => {
-    fetchPRs();
-  }, []);
-
-  /**
-    * This function is used to fetch the list of analyzed PRs from the backend and update the sidebar history.
-    * We call this after analyzing a new PR to refresh the list, and also on initial load.
-    */
   const fetchPRs = async () => {
     setIsHistoryLoading(true);
     setHistoryError(null);
     try {
       const data = await prService.getPrList();
-      if (data && data.length > 0) {
-        setHistoryList(data);
-      } else {
-        setHistoryList([]);
-      }
+      if (data && data.length > 0) setHistoryList(data);
+      else setHistoryList([]);
     } catch (err) {
       console.error(err);
       setHistoryError(err);
@@ -177,24 +43,14 @@ const Dashboard = () => {
     }
   };
 
-  /**
-    * This effect checks if there is a pending PR URL to analyze (e.g. from the landing page) and triggers analysis if found.
-    * It also performs a cleanup of the URL parameters after processing to prevent re-analysis on page refresh.
-    */
   const pollForAnalysis = async (prUrl, timeoutMs = 300000, intervalMs = 5000) => {
-    pollAbortRef.current = false;
     const start = Date.now();
     while (Date.now() - start < timeoutMs) {
-      if (pollAbortRef.current) {
-        throw new Error('Analysis polling aborted');
-      }
       try {
         const history = await prService.getHistory();
         if (history && history.length > 0) {
           const match = history.find(item => item.github_pr_url === prUrl);
-          if (match) {
-            return match;
-          }
+          if (match) return match;
         }
       } catch (err) {
         console.warn('Polling PR history failed, retrying...', err);
@@ -209,15 +65,12 @@ const Dashboard = () => {
     if (pendingPr) {
       sessionStorage.removeItem('pending_pr_analyze');
       setNewPrUrl(pendingPr);
-
       const timer = setTimeout(async () => {
         setIsAnalyzing(true);
         try {
           const result = await prService.analyzePr(pendingPr);
           await fetchPRs();
-          if (result?.analysis?.pr_id) {
-            setActivePRId(result.analysis.pr_id);
-          }
+          if (result?.analysis?.pr_id) setActivePRId(result.analysis.pr_id);
           setNewPrUrl('');
         } catch (error) {
           console.warn('Initial analyze failed, polling for result...', error);
@@ -236,6 +89,10 @@ const Dashboard = () => {
       }, 500);
       timersRef.current.push(timer);
     }
+  }, []);
+
+  useEffect(() => {
+    fetchPRs();
   }, []);
 
   const handleNewPR = async () => {
@@ -280,91 +137,22 @@ const Dashboard = () => {
     }
   };
 
-  /**
-    * This function handles sending a new message in the chat interface. It optimistically adds the user's message to the chat, then calls the backend to get the AI response as a stream.
-    * As chunks of the AI response come in, it updates the last message in the chat to create a live typing effect. It also handles errors gracefully.
-    */
-  const handleSendMessage = async () => {
-    const text = inputValue.trim();
-    if (!text || !activePRId) return;
-
-    // Add user message
-    setMessages(prev => [...prev, { id: ++msgIdRef.current, who: 'user', text }]);
-    setInputValue('');
-    if (chatInputRef.current) chatInputRef.current.style.height = 'auto';
-
-    setIsTyping(true);
-
-    const aiMessageId = ++msgIdRef.current;
-    let placeholderAdded = false;
-    let resultingAiText = "";
-
-    try {
-      chatAbortRef.current = new AbortController();
-      resultingAiText = await chatService.sendMessage(activePRId, text, (chunk) => {
-        if (!placeholderAdded) {
-          placeholderAdded = true;
-          setIsTyping(false);
-          setStreamingMsgId(aiMessageId);
-          setMessages(prev => [...prev, { id: aiMessageId, who: 'ai', text: chunk }]);
-        } else {
-          setMessages(prev =>
-            prev.map(msg =>
-              msg.id === aiMessageId
-                ? { ...msg, text: msg.text + chunk }
-                : msg
-            )
-          );
-        }
-      }, summaryToken, chatAbortRef.current.signal);
-      chatAbortRef.current = null;
-      
-      const sumRes = await chatService.summarize(activePRId, text, resultingAiText, summaryToken);
-      if (sumRes && sumRes.summaryToken) {
-        setToken(sumRes.summaryToken);
-      }
-
-    } catch (err) {
-      console.error(err);
-      const rateLimit = err?.status === 429 || /rate limit/i.test(err?.message || '');
-      const message = rateLimit
-        ? 'Too many requests. Please wait a moment and try again.'
-        : 'Something went wrong. Please try again.';
-      setChatError(message);
-
-      if (!placeholderAdded) {
-        setMessages(prev => [...prev, { id: aiMessageId, who: 'ai', text: message }]);
-      } else {
-        setMessages(prev =>
-          prev.map(msg =>
-            msg.id === aiMessageId
-              ? { ...msg, text: `${msg.text}\n\n*(response incomplete — please retry)*` }
-              : msg
-          )
-        );
-      }
-
-      if (!rateLimit && text) {
-        lastFailedMessageRef.current = text;
-      }
-    } finally {
-      setIsTyping(false);
-      setStreamingMsgId(null);
-    }
+  const handleHistoryClick = (id) => {
+    setActivePRId(id);
+    if (window.innerWidth < 1024) setChatOpenMobile(true);
+    else setChatCollapsed(false);
+    const timer = setTimeout(() => setSidebarOpen(false), 400);
+    timersRef.current.push(timer);
   };
 
-  const toggleChat = (forceOpen) => {
-    if (window.innerWidth < 1024) setChatOpenMobile(forceOpen !== undefined ? forceOpen : !chatOpenMobile);
-    else setChatCollapsed(forceOpen !== undefined ? !forceOpen : !chatCollapsed);
-  };
+  useEffect(() => {
+    return () => {
+      timersRef.current.forEach((id) => clearTimeout(id));
+      timersRef.current = [];
+    };
+  }, []);
 
-  const autoResizeInput = (e) => {
-    setInputValue(e.target.value);
-    e.target.style.height = 'auto';
-    e.target.style.height = Math.min(e.target.scrollHeight, 120) + 'px';
-  };
-
-  const isReopenShown = (window.innerWidth < 1024 && !chatOpenMobile) || (window.innerWidth >= 1024 && chatCollapsed);
+  const isReopenShown = resize.isReopenShown;
 
   return (
     <div className="w-full h-[100dvh] bg-[#0f0f13] text-[#E4E4E7] font-sans flex overflow-hidden">
@@ -448,27 +236,25 @@ const Dashboard = () => {
           <>
             <ChatPanel
               chatCollapsed={chatCollapsed} chatOpenMobile={chatOpenMobile}
-              chatWidth={chatWidth} isResizingRef={isResizingRef}
-              toggleChat={toggleChat} messages={messages} isTyping={isTyping}
-              streamingMsgId={streamingMsgId}
-              messagesEndRef={messagesEndRef} chatInputRef={chatInputRef}
-              inputValue={inputValue} autoResizeInput={autoResizeInput}
-              handleSendMessage={handleSendMessage}
+              chatWidth={resize.chatWidth} isResizingRef={isResizingRef}
+              toggleChat={resize.toggleChat} messages={chat.messages} isTyping={chat.isTyping}
+              streamingMsgId={chat.streamingMsgId}
+              messagesEndRef={chat.messagesEndRef} chatInputRef={chat.chatInputRef}
+              inputValue={chat.inputValue} autoResizeInput={chat.autoResizeInput}
+              handleSendMessage={chat.handleSendMessage}
             />
-            {chatError && (
+            {chat.chatError && (
               <div className="fixed bottom-[88px] right-4 md:right-6 z-30 w-[320px] max-w-[calc(100vw-32px)] rounded-xl bg-[#1a1a1f] border border-white/10 shadow-2xl p-4">
-                <p className="text-[13px] text-[#E4E4E7] leading-relaxed">{chatError.message || chatError}</p>
+                <p className="text-[13px] text-[#E4E4E7] leading-relaxed">{chat.chatError.message || chat.chatError}</p>
                 <div className="mt-3 flex gap-2">
-                  <button onClick={() => setChatError(null)} className="text-[12px] px-3 py-1.5 rounded-md bg-white/10 text-white hover:bg-white/15 transition">Dismiss</button>
-                  {lastFailedMessageRef.current && (
-                    <button onClick={retryLastFailed} className="text-[12px] px-3 py-1.5 rounded-md bg-violet-600 text-white hover:bg-violet-700 transition">Retry last message</button>
-                  )}
+                  <button onClick={chat.dismissError} className="text-[12px] px-3 py-1.5 rounded-md bg-white/10 text-white hover:bg-white/15 transition">Dismiss</button>
+                  <button onClick={chat.retryLastFailed} className="text-[12px] px-3 py-1.5 rounded-md bg-violet-600 text-white hover:bg-violet-700 transition">Retry last message</button>
                 </div>
               </div>
             )}
             <button
               className={`fixed right-4 md:right-5 bottom-4 md:bottom-5 w-12 h-12 bg-violet-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-violet-600/20 z-10 transition-all duration-300 ${isReopenShown ? 'translate-y-0 opacity-100' : 'translate-y-[100px] opacity-0 pointer-events-none'}`}
-              onClick={() => toggleChat(true)} title="Open chat"
+              onClick={() => resize.toggleChat(true)} title="Open chat"
             >
               <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 15a4 4 0 0 1-4 4H7l-4 4V5a2 2 0 0 1 2-2h7" /></svg>
             </button>
@@ -478,4 +264,5 @@ const Dashboard = () => {
     </div>
   );
 };
+
 export default Dashboard;
