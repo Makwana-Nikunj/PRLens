@@ -54,10 +54,12 @@ export function useChat({ prId }) {
         if (!text || !prId) return;
 
         const aiMessageId = ++msgIdRef.current;
+        const userMessageId = ++msgIdRef.current;
+
         let placeholderAdded = false;
         let resultingAiText = "";
 
-        setMessages(prev => [...prev, { id: msgIdRef.current++, who: 'user', text }]);
+        setMessages(prev => [...prev, { id: userMessageId, who: 'user', text }]);
         setInputValue('');
         if (chatInputRef.current) chatInputRef.current.style.height = 'auto';
         setIsTyping(true);

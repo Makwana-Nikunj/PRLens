@@ -9,7 +9,7 @@ const ChatMessage = memo(({ msg, isStreaming }) => {
   return (
     <div className={`flex ${msg.who === 'user' ? 'gap-2 sm:gap-3 self-end flex-row-reverse' : 'w-full'}`}>
       <div className={msg.who === 'user' ? userBubble : aiBubble}>
-        <div className="text-[14px] leading-relaxed break-words min-w-0 prose prose-invert w-full">
+        <div className="break-words min-w-0 prose prose-invert prose-sm max-w-none prose-sm:leading-snug prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-pre:bg-[#0f0f13] prose-pre:border prose-pre:border-[#1a1a1f] prose-pre:rounded-xl prose-pre:p-3 prose-pre:text-[13px] prose-code:text-[13px] prose-code:bg-[#0b0b0f] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-[#1a1a1f] prose-h1:text-[15px] prose-h1:font-semibold prose-h2:text-[13px] prose-h2:font-semibold prose-h3:text-[13px] prose-h3:font-semibold prose-strong:text-white">
           <ReactMarkdown>{msg.text}</ReactMarkdown>
         </div>
         {isStreaming && (
