@@ -55,7 +55,11 @@ apiClient.interceptors.response.use(
                 } catch (refreshError) {
                     isRefreshing = false;
                     refreshSubscribers = [];
-                    // Refresh failed — user needs to re-login
+                    // Full client-side state wipe for a clean fresh start
+                    try { localStorage.clear(); } catch (_clearLocal) {}
+                    try { sessionStorage.clear(); } catch (_clearSession) {}
+                    // Hard redirect to login — reset all app state
+                    window.location.href = '/login';
                     return Promise.reject(refreshError);
                 }
             } else {
