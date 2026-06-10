@@ -3,9 +3,14 @@ import { createPortal } from 'react-dom';
 import useAuthStore from '../../store/authStore';
 import apiClient from '../../lib/apiClient';
 
-function stopPropagation(e) { e.stopPropagation(); e.preventDefault(); }
+function stop(e) { e.stopPropagation(); }
 
-const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick, isHistoryLoading, historyError, onRetryHistory, onRenamePr, onDeletePr, isRenaming, isDeleting }) => {
+const Sidebar = memo(({
+  sidebarOpen, setSidebarOpen, sidebarCollapsed, setSidebarCollapsed,
+  historyList, activePRId, handleHistoryClick, onNewClick,
+  isHistoryLoading, historyError, onRetryHistory,
+  onRenamePr, onDeletePr, isRenaming, isDeleting
+}) => {
   const { user, logout } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
@@ -13,91 +18,62 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
   const [renameTarget, setRenameTarget] = useState(null);
   const [renameValue, setRenameValue] = useState('');
   const [deleteTarget, setDeleteTarget] = useState(null);
-
-  const menuContainerRef = useRef(null);
   const [menuPos, setMenuPos] = useState(null);
 
+  const menuContainerRef = useRef(null);
+  const dropdownRef = useRef(null);
+
   const handleMenuClick = (e, prId) => {
-    e.stopPropagation();
+    stop(e);
     setOpenMenuId(prev => prev === prId ? null : prId);
   };
 
-  const handleMenuMouseDown = (e) => {
-    e.stopPropagation();
-  };
-
-  const handlePointerDown = (e) => {
-    if (deleteTarget || renameTarget) return;
-    const outsideMenu = menuContainerRef.current && !menuContainerRef.current.contains(e.target);
-    const outsideTrigger = !e.target.closest(`[data-menu-id="${openMenuId}"]`);
-    if (openMenuId && outsideMenu && outsideTrigger) {
-      setOpenMenuId(null);
-      setMenuPos(null);
-    }
-  };
+  const handleMenuMouseDown = (e) => e.stopPropagation();
 
   useEffect(() => {
-    document.addEventListener('pointerdown', handlePointerDown);
-    return () => document.removeEventListener('pointerdown', handlePointerDown);
-  }, [openMenuId, deleteTarget, renameTarget]);
-
-  const updateMenuPos = () => {
-    if (!openMenuId) return;
+    if (!openMenuId) { setMenuPos(null); return; }
     const btn = document.querySelector(`[data-menu-id="${openMenuId}"]`);
     if (!btn) return;
     const rect = btn.getBoundingClientRect();
     setMenuPos({ top: rect.bottom + 4, left: Math.max(8, rect.right - 144) });
-  };
-
-  useEffect(() => {
-    if (!openMenuId) { setMenuPos(null); return; }
-    updateMenuPos();
   }, [openMenuId]);
 
   useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (deleteTarget || renameTarget) return;
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setProfileDropdownOpen(false);
-      }
+    if (!openMenuId || deleteTarget || renameTarget) return;
+    const handler = (e) => {
+      const inMenu = menuContainerRef.current && menuContainerRef.current.contains(e.target);
+      const onTrigger = !!e.target.closest(`[data-menu-id="${openMenuId}"]`);
+      if (!inMenu && !onTrigger) setOpenMenuId(null);
     };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [deleteTarget, renameTarget]);
+    document.addEventListener('pointerdown', handler);
+    return () => document.removeEventListener('pointerdown', handler);
+  }, [openMenuId, deleteTarget, renameTarget]);
 
   useEffect(() => {
     if (!openMenuId) return;
-    const handleEsc = (e) => { if (e.key === 'Escape') setOpenMenuId(null); };
-    document.addEventListener('keydown', handleEsc);
-    return () => document.removeEventListener('keydown', handleEsc);
+    const handler = (e) => { if (e.key === 'Escape') setOpenMenuId(null); };
+    document.addEventListener('keydown', handler);
+    return () => document.removeEventListener('keydown', handler);
   }, [openMenuId]);
 
   const handleLogout = async () => {
-    try {
-      await apiClient.post('/auth/logout');
-    } catch (error) {
-      console.error('Logout error:', error);
-    } finally {
-      logout();
-    }
+    try { await apiClient.post('/auth/logout'); } catch (error) { console.error('Logout error:', error); } finally { logout(); }
   };
 
   const filteredHistory = useMemo(() => {
-    return historyList ? historyList.filter(item => {
+    if (!historyList) return [];
+    return historyList.filter(item => {
       if (!searchTerm) return true;
       const url = item.github_pr_url || '';
       return url.toLowerCase().includes(searchTerm.toLowerCase());
-    }) : [];
+    });
   }, [historyList, searchTerm]);
-
-  const dropdownRef = useRef(null);
 
   const startRename = (item) => {
     setOpenMenuId(null);
     setRenameTarget(item);
     setRenameValue(item.title || item.analysis?.summary || '');
   };
-
   const confirmRename = () => {
     const trimmed = renameValue.trim();
     if (!trimmed || !renameTarget) return;
@@ -105,86 +81,85 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
     setRenameTarget(null);
     setRenameValue('');
   };
-
-  const cancelRename = () => {
-    setRenameTarget(null);
-    setRenameValue('');
+  const cancelRename = () => { setRenameTarget(null); setRenameValue(''); };
+  const handleRenameKeyDown = (e) => {
+    if (e.key === 'Enter') confirmRename();
+    if (e.key === 'Escape') cancelRename();
   };
 
-  const startDelete = (prId) => {
-    setOpenMenuId(null);
-    setDeleteTarget(prId);
-  };
-
+  const startDelete = (prId) => { setOpenMenuId(null); setDeleteTarget(prId); };
   const confirmDelete = () => {
     if (!deleteTarget) return;
     onDeletePr?.(deleteTarget);
     setDeleteTarget(null);
   };
-
   const cancelDelete = () => setDeleteTarget(null);
-
-  const handleRenameKeyDown = (e) => {
-    if (e.key === 'Enter') confirmRename();
-    if (e.key === 'Escape') cancelRename();
-  };
 
   const menuPortal = openMenuId && menuPos && !deleteTarget && !renameTarget;
   const menuItem = historyList?.find(h => h.pr_id === openMenuId);
 
   return (
     <>
-      <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)}></div>
+      <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
       <aside
-        className={`fixed md:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+        className={`fixed md:static inset-y-0 left-0 bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${sidebarCollapsed ? 'md:w-[60px]' : 'md:w-[260px]'}`}
       >
         <div className="h-[60px] flex items-center px-4 border-b border-[#1a1a1f] gap-3 shrink-0">
-          <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-violet-600/30 text-purple-400 border border-violet-600/30">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /></svg>
+          <div className="relative w-8 h-8 shrink-0">
+            <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-violet-600/30 text-purple-400 border border-violet-600/30">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /></svg>
+            </div>
+            {sidebarCollapsed && (
+              <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden md:flex absolute inset-0 w-full h-full items-center justify-center bg-[#0b0b0f]/80 rounded-lg text-[#E4E4E7] opacity-0 hover:opacity-100 transition-opacity z-10" title="Expand">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
+              </button>
+            )}
           </div>
-          <div className="text-[15px] font-semibold tracking-tight text-white">PRLens</div>
+          <div className={`text-[15px] font-semibold tracking-tight text-white truncate ${sidebarCollapsed ? 'md:hidden' : ''}`}>PRLens</div>
+          <div className="flex ml-auto items-center gap-1">
+            <button type="button" onClick={() => setSidebarOpen(false)} className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-[#A1A1AA]">
+              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            </button>
+            <button type="button" onClick={() => setSidebarCollapsed(true)} className={`hidden md:flex w-8 h-8 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition ${sidebarCollapsed ? 'md:hidden' : ''}`} title="Collapse sidebar">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
+            </button>
+          </div>
         </div>
 
-        <nav className="p-3 shrink-0 flex flex-col gap-3">
-          <button
-            type="button"
-            onClick={onNewClick}
-            className="w-full flex justify-center items-center gap-2 px-3 py-2 bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100"
-          >
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg> Analyze PR
+        <nav className={`shrink-0 ${sidebarCollapsed ? 'md:p-2' : 'p-3'} flex flex-col gap-3`}>
+          <button type="button" onClick={onNewClick} className="w-full flex justify-center items-center gap-2 px-3 py-2 bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100">
+            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+            <span className={sidebarCollapsed ? 'md:hidden' : ''}>Analyze PR</span>
           </button>
-
-          <div className="relative">
-            <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#71717A]">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+          {sidebarCollapsed ? (
+            <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden md:flex w-full justify-center items-center p-2 rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition" title="Search">
+              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            </button>
+          ) : (
+            <div className="relative">
+              <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#71717A]">
+                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+              </div>
+              <input type="text" placeholder="Search history..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-1.5 bg-[#1a1a1f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500" />
             </div>
-            <input
-              type="text"
-              placeholder="Search history..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-9 pr-3 py-1.5 bg-[#1a1a1f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500"
-            />
-          </div>
+          )}
         </nav>
 
-        <div className="my-[2px] mx-4 h-px bg-[#1a1a1f] shrink-0"></div>
+        <div className={`shrink-0 ${sidebarCollapsed ? 'md:mx-2 md:my-2' : 'mx-4'}`}>
+          <div className="h-px bg-[#1a1a1f]" />
+        </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-4">
-          <div className="px-2 py-1.5 text-[11px] font-bold text-[#71717A] uppercase tracking-wider sticky top-0 bg-[#0b0b0f] z-10 mt-1">Recent Analyses</div>
-          <div className="flex flex-col gap-1 mt-1">
+          {!sidebarCollapsed && (
+            <div className="px-2 py-1.5 text-[11px] font-bold text-[#71717A] uppercase tracking-wider sticky top-0 bg-[#0b0b0f] z-10 mt-1">Recent Analyses</div>
+          )}
+          <div className={`flex flex-col gap-1 ${sidebarCollapsed ? 'md:mt-2' : 'mt-1'}`}>
             {isHistoryLoading ? (
-              <div className="flex flex-col gap-2 mt-2">
-                {[0,1].map((i) => (
-                  <div key={i} className="h-14 rounded-lg bg-[#1a1a1f] animate-pulse" />
-                ))}
-              </div>
+              <div className="flex flex-col gap-2 mt-2">{[0,1].map((i) => <div key={i} className="h-14 rounded-lg bg-[#1a1a1f] animate-pulse" />)}</div>
             ) : historyError ? (
               <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
                 <p className="text-[12px] text-red-400 mb-2">Failed to load history</p>
-                {onRetryHistory && (
-                  <button onClick={onRetryHistory} className="text-[12px] px-3 py-1.5 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 transition">Retry</button>
-                )}
+                {onRetryHistory && <button onClick={onRetryHistory} className="text-[12px] px-3 py-1.5 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 transition">Retry</button>}
               </div>
             ) : filteredHistory.length > 0 ? (
               filteredHistory.map(item => {
@@ -193,38 +168,25 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
                 if (item.github_pr_url) {
                   const parts = item.github_pr_url.split('/');
                   repoName = `${parts[3]}/${parts[4]}`;
-
-                  if (item.title) {
-                    prTitle = item.title;
-                  } else if (item.analysis?.summary) {
-                    prTitle = item.analysis.summary.split(' ').slice(0, 5).join(' ') + '...';
-                  } else {
-                    prTitle = `PR #${parts[6]}`;
-                  }
+                  if (item.title) prTitle = item.title;
+                  else if (item.analysis?.summary) prTitle = item.analysis.summary.split(' ').slice(0, 5).join(' ') + '...';
+                  else prTitle = `PR #${parts[6]}`;
                 }
                 const isOpen = openMenuId === item.pr_id;
 
                 return (
-                  <div
-                    key={item.pr_id}
-                    className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`}
-                    onClick={() => handleHistoryClick(item.pr_id)}
-                  >
-                    <div className="text-[13px] truncate font-medium flex items-center justify-between">
-                      <span className="truncate">{repoName}</span>
-                      <button
-                        type="button"
-                        data-menu-id={item.pr_id}
-                        onMouseDown={handleMenuMouseDown}
-                        onClick={(e) => handleMenuClick(e, item.pr_id)}
-                        className="w-6 h-6 flex items-center justify-center rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/10 text-[#52525B] hover:text-[#A1A1AA] transition-opacity"
-                      >
-                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
-                      </button>
-                    </div>
-                    <div className={`text-[11.5px] truncate ${activePRId === item.pr_id ? 'text-violet-400/80' : 'text-[#71717A]'}`}>
-                      {prTitle}
-                    </div>
+                  <div key={item.pr_id} className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`} onClick={() => handleHistoryClick(item.pr_id)}>
+                    {!sidebarCollapsed ? (
+                      <div className="text-[13px] truncate font-medium flex items-center justify-between">
+                        <span className="truncate">{repoName}</span>
+                        <button type="button" data-menu-id={item.pr_id} onMouseDown={handleMenuMouseDown} onClick={(e) => handleMenuClick(e, item.pr_id)} className="w-6 h-6 flex items-center justify-center rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/10 text-[#52525B] hover:text-[#A1A1AA] transition-opacity">
+                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+                        </button>
+                      </div>
+                    ) : null}
+                    {!sidebarCollapsed && (
+                      <div className={`text-[11.5px] truncate ${activePRId === item.pr_id ? 'text-violet-400/80' : 'text-[#71717A]'}`}>{prTitle}</div>
+                    )}
                   </div>
                 );
               })
@@ -239,80 +201,68 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
           </div>
         </div>
 
-        <div className="p-3 border-t border-[#1a1a1f] shrink-0 relative" ref={dropdownRef}>
-          <button
-            onClick={() => setProfileDropdownOpen(!profileDropdownOpen)}
-            className="w-full flex items-center gap-3 p-2 hover:bg-[#1a1a1f] rounded-lg transition text-left"
-          >
-            {user?.avatar ? (
-              <img src={user.avatar} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
-            ) : user?.avatarUrl ? (
-              <img src={user.avatarUrl} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
-            ) : user?.avatar_url ? (
-              <img src={user.avatar_url} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
-            ) : user?.username ? (
-              <img src={`https://github.com/${user.username}.png`} alt="Avatar" className="w-9 h-9 rounded-md object-cover shrink-0 border border-white/10" onError={(e) => { e.target.style.display = 'none'; }} />
-            ) : (
-              <div className="w-9 h-9 rounded-md bg-violet-600 flex items-center justify-center text-[12px] font-bold text-white shadow-inner shrink-0">
-                {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+        <div className="border-t border-[#1a1a1f] shrink-0 relative flex justify-center" ref={dropdownRef}>
+          <div className={`w-full ${sidebarCollapsed ? 'max-w-[60px]' : 'max-w-[260px]'}`}>
+            <button onClick={(e) => { if (sidebarCollapsed) { setSidebarCollapsed(false); setSidebarOpen(true); } else { setProfileDropdownOpen(prev => !prev); } }} className={`w-full transition rounded-lg ${sidebarCollapsed ? 'flex flex-col items-center gap-2 p-3 text-center' : 'flex items-center gap-3 p-2 hover:bg-[#1a1a1f] text-left'}`}>
+              {user?.avatar ? (
+                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400">
+                  <img src={user.avatar} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                </div>
+              ) : user?.avatarUrl ? (
+                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400">
+                  <img src={user.avatarUrl} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                </div>
+              ) : user?.avatar_url ? (
+                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400">
+                  <img src={user.avatar_url} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                </div>
+              ) : user?.username ? (
+                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400">
+                  <img src={`https://github.com/${user.username}.png`} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
+                </div>
+              ) : (
+                <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-[12px] font-bold text-white shadow-inner shrink-0">
+                  {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
+                </div>
+              )}
+              {!sidebarCollapsed && (
+                <div className="flex-1 overflow-hidden flex flex-col justify-center">
+                  <div className="text-[13px] font-semibold text-[#E4E4E7] truncate">{user?.name || user?.username || 'User'}</div>
+                  <div className="text-[11px] text-[#71717A] truncate">@{user?.username || 'github'}</div>
+                </div>
+              )}
+              {!sidebarCollapsed && (
+                <svg className={`w-4 h-4 text-[#A1A1AA] transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
+              )}
+            </button>
+
+            {!sidebarCollapsed && profileDropdownOpen && (
+              <div className="absolute bottom-[calc(100%-8px)] left-3 right-3 bg-[#1a1a1f] border border-[#2a2a2f] rounded-lg shadow-xl overflow-hidden py-1 z-50 mb-1 animate-[reveal-up_0.2s_ease-out]">
+                <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f] transition flex items-center gap-2">
+                  <svg className="w-4 h-4 text-[#A1A1AA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                  Profile
+                </button>
+                <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f] transition flex items-center gap-2">
+                  <svg className="w-4 h-4 text-[#A1A1AA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                  Settings
+                </button>
+                <div className="h-px bg-[#2a2a2f] my-1" />
+                <button onClick={handleLogout} className="w-full px-4 py-2.5 text-left text-[13px] text-red-500 hover:bg-red-500/10 transition flex items-center gap-2 font-medium">
+                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                  Sign out
+                </button>
               </div>
             )}
-            <div className="flex-1 overflow-hidden flex flex-col justify-center">
-              <div className="text-[13px] font-semibold text-[#E4E4E7] truncate">{user?.name || user?.username || 'User'}</div>
-              <div className="text-[11px] text-[#71717A] truncate">@{user?.username || 'github'}</div>
-            </div>
-            <svg className={`w-4 h-4 text-[#A1A1AA] transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
-          </button>
-
-          {profileDropdownOpen && (
-            <div className="absolute bottom-[calc(100%-8px)] left-3 right-3 bg-[#1a1a1f] border border-[#2a2a2f] rounded-lg shadow-xl overflow-hidden py-1 z-50 mb-1 animate-[reveal-up_0.2s_ease-out]">
-              <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f] transition flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#A1A1AA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                Profile
-              </button>
-              <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f] transition flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#A1A1AA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1 2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
-                Settings
-              </button>
-              <div className="h-px bg-[#2a2a2f] my-1"></div>
-              <button
-                onClick={handleLogout}
-                className="w-full px-4 py-2.5 text-left text-[13px] text-red-500 hover:bg-red-500/10 transition flex items-center gap-2 font-medium"
-              >
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
-                Sign out
-              </button>
-            </div>
-          )}
+          </div>
         </div>
       </aside>
 
       {menuPortal && createPortal(
-        <div
-          ref={el => { if (el) menuContainerRef.current = el; }}
-          className="fixed w-36 rounded-lg bg-[#1a1a1f] border border-[#2a2a2f] shadow-xl py-1 z-[60]"
-          style={{ top: menuPos.top, left: menuPos.left }}
-          onMouseDown={handleMenuMouseDown}
-          onClick={stopPropagation}
-        >
+        <div ref={el => { if (el) menuContainerRef.current = el; }} className="fixed w-36 rounded-lg bg-[#1a1a1f] border border-[#2a2a2f] shadow-xl py-1 z-[60]" style={{ top: menuPos.top, left: menuPos.left }} onMouseDown={handleMenuMouseDown} onClick={stop}>
           {menuItem && (
             <>
-              <button
-                type="button"
-                onMouseDown={handleMenuMouseDown}
-                onClick={() => startRename(menuItem)}
-                className="w-full px-3 py-2 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f]"
-              >
-                Rename
-              </button>
-              <button
-                type="button"
-                onMouseDown={handleMenuMouseDown}
-                onClick={() => startDelete(openMenuId)}
-                className="w-full px-3 py-2 text-left text-[13px] text-red-400 hover:bg-red-500/10"
-              >
-                Delete
-              </button>
+              <button type="button" onMouseDown={handleMenuMouseDown} onClick={() => startRename(menuItem)} className="w-full px-3 py-2 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f]">Rename</button>
+              <button type="button" onMouseDown={handleMenuMouseDown} onClick={() => startDelete(openMenuId)} className="w-full px-3 py-2 text-left text-[13px] text-red-400 hover:bg-red-500/10">Delete</button>
             </>
           )}
         </div>,
@@ -320,25 +270,14 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
       )}
 
       {renameTarget && createPortal(
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-          onMouseDown={(e) => { if (e.target === e.currentTarget) cancelRename(); }}
-          onClick={stopPropagation}
-        >
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) cancelRename(); }} onClick={stop}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div className="relative w-full max-w-sm bg-[#1a1a1f] border border-[#2a2a2f] rounded-xl shadow-2xl p-5">
             <h3 className="text-[15px] font-semibold text-white mb-3">Rename PR</h3>
-            <input
-              type="text"
-              value={renameValue}
-              onChange={(e) => setRenameValue(e.target.value)}
-              onKeyDown={handleRenameKeyDown}
-              className="w-full px-3 py-2.5 bg-[#0b0b0f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500 mb-4"
-              autoFocus
-            />
+            <input type="text" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={handleRenameKeyDown} className="w-full px-3 py-2.5 bg-[#0b0b0f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500 mb-4" autoFocus />
             <div className="flex justify-end gap-2">
               <button type="button" onClick={cancelRename} className="px-3 py-2 text-[13px] text-[#A1A1AA] hover:text-white transition">Cancel</button>
-              <button type="button" onClick={confirmRename} disabled={isRenaming === renameTarget?.pr_id} className="px-3 py-2 text-[13px] bg-white text-black font-semibold rounded-lg hover:bg-gray-100 transition disabled:opacity-50">{isRenaming === renameTarget?.pr_id ? 'Saving...' : 'Save'}</button>
+              <button type="button" onClick={confirmRename} disabled={isRenaming === renameTarget?.pr_id} className={`px-3 py-2 text-[13px] bg-white text-black font-semibold rounded-lg hover:bg-gray-100 transition disabled:opacity-50 ${isRenaming === renameTarget?.pr_id ? 'opacity-75 cursor-wait' : ''}`}>{isRenaming === renameTarget?.pr_id ? 'Saving...' : 'Save'}</button>
             </div>
           </div>
         </div>,
@@ -346,18 +285,14 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
       )}
 
       {deleteTarget && createPortal(
-        <div
-          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
-          onMouseDown={(e) => { if (e.target === e.currentTarget) cancelDelete(); }}
-          onClick={stopPropagation}
-        >
-          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+        <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) cancelDelete(); }} onClick={stop}>
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
           <div className="relative w-full max-w-sm bg-[#1a1a1f] border border-red-500/20 rounded-xl shadow-2xl p-5">
             <h3 className="text-[15px] font-semibold text-white mb-2">Delete PR Analysis?</h3>
             <p className="text-[13px] text-[#A1A1AA] mb-4">This action cannot be undone. All analysis data, chat history, and embeddings for this PR will be permanently removed.</p>
             <div className="flex justify-end gap-2">
               <button type="button" onClick={cancelDelete} className="px-3 py-2 text-[13px] text-[#A1A1AA] hover:text-white transition">Cancel</button>
-              <button type="button" onClick={confirmDelete} disabled={isDeleting === deleteTarget} className="px-3 py-2 text-[13px] bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50">{isDeleting === deleteTarget ? 'Deleting...' : 'Delete'}</button>
+              <button type="button" onClick={confirmDelete} disabled={isDeleting === deleteTarget} className={`px-3 py-2 text-[13px] bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50 ${isDeleting === deleteTarget ? 'opacity-75 cursor-wait' : ''}`}>{isDeleting === deleteTarget ? 'Deleting...' : 'Delete'}</button>
             </div>
           </div>
         </div>,

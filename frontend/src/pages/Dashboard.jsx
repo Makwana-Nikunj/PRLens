@@ -11,6 +11,7 @@ import { useChat, useChatResize } from '../hooks/useChat';
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState('summary');
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [historyList, setHistoryList] = useState([]);
   const [activePRId, setActivePRId] = useState(null);
   const [newPrUrl, setNewPrUrl] = useState('');
@@ -185,11 +186,14 @@ const Dashboard = () => {
 
   const isReopenShown = resize.isReopenShown;
 
+  const handleChatToggleSidebar = () => setSidebarOpen(prev => !prev);
+
   return (
     <div className="w-full h-[100dvh] bg-[#0f0f13] text-[#E4E4E7] font-sans flex overflow-hidden">
       <div className="flex w-full h-full relative overflow-hidden">
         <Sidebar
           sidebarOpen={sidebarOpen} setSidebarOpen={setSidebarOpen}
+          sidebarCollapsed={sidebarCollapsed} setSidebarCollapsed={setSidebarCollapsed}
           historyList={historyList} activePRId={activePRId}
           handleHistoryClick={handleHistoryClick}
           onNewClick={() => {
@@ -206,7 +210,7 @@ const Dashboard = () => {
           isRenaming={isRenaming}
           isDeleting={isDeleting}
         />
-        <main className="flex-1 min-w-0 flex flex-col bg-[#0f0f13]">
+        <main className="flex-1 min-w-0 flex flex-col bg-[#0f0f13] relative">
           <Header activePR={activePR} setSidebarOpen={setSidebarOpen} />
           <div className="flex border-b border-[#1a1a1f] px-2 sm:px-4 shrink-0 overflow-x-auto scrollbar-hide">
             {activePR && ['summary', 'changes', 'risks'].map(tab => (
@@ -277,7 +281,17 @@ const Dashboard = () => {
               messagesEndRef={chat.messagesEndRef} chatInputRef={chat.chatInputRef}
               inputValue={chat.inputValue} autoResizeInput={chat.autoResizeInput}
               handleSendMessage={chat.handleSendMessage}
+              onToggleSidebar={handleChatToggleSidebar}
             />
+            {!chatOpenMobile && (
+              <button
+                type="button"
+                onClick={() => setChatOpenMobile(true)}
+                className="md:hidden fixed bottom-6 right-6 w-14 h-14 bg-violet-600 hover:bg-violet-700 text-white rounded-full shadow-lg flex items-center justify-center z-30 transition-colors"
+              >
+                <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" /></svg>
+              </button>
+            )}
           </>
         )}
       </div>
