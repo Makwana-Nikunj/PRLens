@@ -149,6 +149,12 @@ export function useChat({ prId }) {
 
 export function useChatResize({ chatCollapsed, setChatCollapsed, chatOpenMobile, setChatOpenMobile, isResizingRef }) {
     const [chatWidth, setChatWidth] = useState(360);
+    const chatCollapsedRef = useRef(chatCollapsed);
+    const chatOpenMobileRef = useRef(chatOpenMobile);
+    useEffect(() => { chatCollapsedRef.current = chatCollapsed; }, [chatCollapsed]);
+    useEffect(() => { chatOpenMobileRef.current = chatOpenMobile; }, [chatOpenMobile]);
+
+    const isChatOpen = window.innerWidth < 1024 ? chatOpenMobile : !chatCollapsed;
 
     useEffect(() => {
         const handleMouseMove = (e) => {
@@ -167,9 +173,14 @@ export function useChatResize({ chatCollapsed, setChatCollapsed, chatOpenMobile,
         const handleResize = () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                if (window.innerWidth < 1024) setChatCollapsed(false);
-                else setChatOpenMobile(false);
-            }, 50);
+                if (window.innerWidth < 1024) {
+                    setChatOpenMobile(!chatCollapsedRef.current);
+                    setChatCollapsed(false);
+                } else {
+                    setChatCollapsed(!chatOpenMobileRef.current);
+                    setChatOpenMobile(false);
+                }
+            }, 150);
         };
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
@@ -184,11 +195,14 @@ export function useChatResize({ chatCollapsed, setChatCollapsed, chatOpenMobile,
     }, [isResizingRef, setChatCollapsed, setChatOpenMobile]);
 
     const toggleChat = useCallback((forceOpen) => {
-        if (window.innerWidth < 1024) setChatOpenMobile(forceOpen !== undefined ? forceOpen : !chatOpenMobile);
-        else setChatCollapsed(forceOpen !== undefined ? !forceOpen : !chatCollapsed);
+        if (window.innerWidth < 1024) {
+            setChatOpenMobile(Boolean(forceOpen ?? !chatOpenMobile));
+        } else {
+            setChatCollapsed(Boolean(forceOpen === undefined ? !chatCollapsed : !forceOpen));
+        }
     }, [chatCollapsed, chatOpenMobile, setChatCollapsed, setChatOpenMobile]);
 
-    const isReopenShown = (window.innerWidth < 1024 && !chatOpenMobile) || (window.innerWidth >= 1024 && chatCollapsed);
+    const isReopenShown = !isChatOpen;
 
     return { chatWidth, setChatWidth, toggleChat, isReopenShown };
 }
