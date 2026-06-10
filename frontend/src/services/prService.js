@@ -23,6 +23,16 @@ const prService = {
     analyzePr: async (prUrl) => {
         const response = await apiClient.post('/pr/analyze', { url: prUrl });
         return response.data?.data || response.data;
+    },
+
+    renamePr: async (prId, title) => {
+        const response = await apiClient.put(`/pr/${prId}`, { title });
+        return response.data?.data || response.data;
+    },
+
+    deletePr: async (prId) => {
+        const response = await apiClient.delete(`/pr/${prId}`);
+        return response.data?.data || response.data;
     }
 };
 

@@ -17,6 +17,8 @@ const Dashboard = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [historyError, setHistoryError] = useState(null);
+  const [isRenaming, setIsRenaming] = useState(null);
+  const [isDeleting, setIsDeleting] = useState(null);
   const activePR = historyList.find(h => h.pr_id === activePRId) || null;
 
   const [chatCollapsed, setChatCollapsed] = useState(true);
@@ -145,6 +147,35 @@ const Dashboard = () => {
     timersRef.current.push(timer);
   };
 
+  const deletePr = async (id) => {
+    setIsDeleting(id);
+    try {
+      await prService.deletePr(id);
+      if (activePRId === id) setActivePRId(null);
+      await fetchPRs();
+    } catch (err) {
+      console.error(err);
+      setHistoryError(err);
+    } finally {
+      setIsDeleting(null);
+    }
+  };
+
+  const renamePr = async (id, title) => {
+    setIsRenaming(id);
+    try {
+      const trimmed = title.trim();
+      if (!trimmed) return;
+      await prService.renamePr(id, trimmed);
+      await fetchPRs();
+    } catch (err) {
+      console.error(err);
+      setHistoryError(err);
+    } finally {
+      setIsRenaming(null);
+    }
+  };
+
   useEffect(() => {
     return () => {
       timersRef.current.forEach((id) => clearTimeout(id));
@@ -170,6 +201,10 @@ const Dashboard = () => {
           isHistoryLoading={isHistoryLoading}
           historyError={historyError}
           onRetryHistory={fetchPRs}
+          onRenamePr={renamePr}
+          onDeletePr={deletePr}
+          isRenaming={isRenaming}
+          isDeleting={isDeleting}
         />
         <main className="flex-1 min-w-0 flex flex-col bg-[#0f0f13]">
           <Header activePR={activePR} setSidebarOpen={setSidebarOpen} />

@@ -1,12 +1,76 @@
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
+import { createPortal } from 'react-dom';
 import useAuthStore from '../../store/authStore';
 import apiClient from '../../lib/apiClient';
 
-const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick, isHistoryLoading, historyError, onRetryHistory }) => {
+function stopPropagation(e) { e.stopPropagation(); e.preventDefault(); }
+
+const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, handleHistoryClick, onNewClick, isHistoryLoading, historyError, onRetryHistory, onRenamePr, onDeletePr, isRenaming, isDeleting }) => {
   const { user, logout } = useAuthStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
-  const dropdownRef = useRef(null);
+  const [openMenuId, setOpenMenuId] = useState(null);
+  const [renameTarget, setRenameTarget] = useState(null);
+  const [renameValue, setRenameValue] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
+
+  const menuContainerRef = useRef(null);
+  const [menuPos, setMenuPos] = useState(null);
+
+  const handleMenuClick = (e, prId) => {
+    e.stopPropagation();
+    setOpenMenuId(prev => prev === prId ? null : prId);
+  };
+
+  const handleMenuMouseDown = (e) => {
+    e.stopPropagation();
+  };
+
+  const handlePointerDown = (e) => {
+    if (deleteTarget || renameTarget) return;
+    const outsideMenu = menuContainerRef.current && !menuContainerRef.current.contains(e.target);
+    const outsideTrigger = !e.target.closest(`[data-menu-id="${openMenuId}"]`);
+    if (openMenuId && outsideMenu && outsideTrigger) {
+      setOpenMenuId(null);
+      setMenuPos(null);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('pointerdown', handlePointerDown);
+    return () => document.removeEventListener('pointerdown', handlePointerDown);
+  }, [openMenuId, deleteTarget, renameTarget]);
+
+  const updateMenuPos = () => {
+    if (!openMenuId) return;
+    const btn = document.querySelector(`[data-menu-id="${openMenuId}"]`);
+    if (!btn) return;
+    const rect = btn.getBoundingClientRect();
+    setMenuPos({ top: rect.bottom + 4, left: Math.max(8, rect.right - 144) });
+  };
+
+  useEffect(() => {
+    if (!openMenuId) { setMenuPos(null); return; }
+    updateMenuPos();
+  }, [openMenuId]);
+
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (deleteTarget || renameTarget) return;
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        setProfileDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [deleteTarget, renameTarget]);
+
+  useEffect(() => {
+    if (!openMenuId) return;
+    const handleEsc = (e) => { if (e.key === 'Escape') setOpenMenuId(null); };
+    document.addEventListener('keydown', handleEsc);
+    return () => document.removeEventListener('keydown', handleEsc);
+  }, [openMenuId]);
 
   const handleLogout = async () => {
     try {
@@ -18,18 +82,6 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
     }
   };
 
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setProfileDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
   const filteredHistory = useMemo(() => {
     return historyList ? historyList.filter(item => {
       if (!searchTerm) return true;
@@ -38,10 +90,54 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
     }) : [];
   }, [historyList, searchTerm]);
 
+  const dropdownRef = useRef(null);
+
+  const startRename = (item) => {
+    setOpenMenuId(null);
+    setRenameTarget(item);
+    setRenameValue(item.title || item.analysis?.summary || '');
+  };
+
+  const confirmRename = () => {
+    const trimmed = renameValue.trim();
+    if (!trimmed || !renameTarget) return;
+    onRenamePr?.(renameTarget.pr_id, trimmed);
+    setRenameTarget(null);
+    setRenameValue('');
+  };
+
+  const cancelRename = () => {
+    setRenameTarget(null);
+    setRenameValue('');
+  };
+
+  const startDelete = (prId) => {
+    setOpenMenuId(null);
+    setDeleteTarget(prId);
+  };
+
+  const confirmDelete = () => {
+    if (!deleteTarget) return;
+    onDeletePr?.(deleteTarget);
+    setDeleteTarget(null);
+  };
+
+  const cancelDelete = () => setDeleteTarget(null);
+
+  const handleRenameKeyDown = (e) => {
+    if (e.key === 'Enter') confirmRename();
+    if (e.key === 'Escape') cancelRename();
+  };
+
+  const menuPortal = openMenuId && menuPos && !deleteTarget && !renameTarget;
+  const menuItem = historyList?.find(h => h.pr_id === openMenuId);
+
   return (
     <>
       <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)}></div>
-      <aside className={`fixed md:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}>
+      <aside
+        className={`fixed md:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-transform duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0`}
+      >
         <div className="h-[60px] flex items-center px-4 border-b border-[#1a1a1f] gap-3 shrink-0">
           <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-violet-600/30 text-purple-400 border border-violet-600/30">
             <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /></svg>
@@ -98,7 +194,6 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
                   const parts = item.github_pr_url.split('/');
                   repoName = `${parts[3]}/${parts[4]}`;
 
-                  // Use the PR Title if available, else derive from the AI summary, else just default to PR number
                   if (item.title) {
                     prTitle = item.title;
                   } else if (item.analysis?.summary) {
@@ -107,14 +202,25 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
                     prTitle = `PR #${parts[6]}`;
                   }
                 }
+                const isOpen = openMenuId === item.pr_id;
+
                 return (
                   <div
                     key={item.pr_id}
-                    className={`p-2.5 rounded-lg cursor-pointer transition select-none flex flex-col gap-1 ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`}
+                    className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`}
                     onClick={() => handleHistoryClick(item.pr_id)}
                   >
                     <div className="text-[13px] truncate font-medium flex items-center justify-between">
                       <span className="truncate">{repoName}</span>
+                      <button
+                        type="button"
+                        data-menu-id={item.pr_id}
+                        onMouseDown={handleMenuMouseDown}
+                        onClick={(e) => handleMenuClick(e, item.pr_id)}
+                        className="w-6 h-6 flex items-center justify-center rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/10 text-[#52525B] hover:text-[#A1A1AA] transition-opacity"
+                      >
+                        <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+                      </button>
                     </div>
                     <div className={`text-[11.5px] truncate ${activePRId === item.pr_id ? 'text-violet-400/80' : 'text-[#71717A]'}`}>
                       {prTitle}
@@ -165,7 +271,7 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
                 Profile
               </button>
               <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f] transition flex items-center gap-2">
-                <svg className="w-4 h-4 text-[#A1A1AA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                <svg className="w-4 h-4 text-[#A1A1AA]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1 2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
                 Settings
               </button>
               <div className="h-px bg-[#2a2a2f] my-1"></div>
@@ -180,7 +286,85 @@ const Sidebar = memo(({ sidebarOpen, setSidebarOpen, historyList, activePRId, ha
           )}
         </div>
       </aside>
+
+      {menuPortal && createPortal(
+        <div
+          ref={el => { if (el) menuContainerRef.current = el; }}
+          className="fixed w-36 rounded-lg bg-[#1a1a1f] border border-[#2a2a2f] shadow-xl py-1 z-[60]"
+          style={{ top: menuPos.top, left: menuPos.left }}
+          onMouseDown={handleMenuMouseDown}
+          onClick={stopPropagation}
+        >
+          {menuItem && (
+            <>
+              <button
+                type="button"
+                onMouseDown={handleMenuMouseDown}
+                onClick={() => startRename(menuItem)}
+                className="w-full px-3 py-2 text-left text-[13px] text-[#E4E4E7] hover:bg-[#2a2a2f]"
+              >
+                Rename
+              </button>
+              <button
+                type="button"
+                onMouseDown={handleMenuMouseDown}
+                onClick={() => startDelete(openMenuId)}
+                className="w-full px-3 py-2 text-left text-[13px] text-red-400 hover:bg-red-500/10"
+              >
+                Delete
+              </button>
+            </>
+          )}
+        </div>,
+        document.body
+      )}
+
+      {renameTarget && createPortal(
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) cancelRename(); }}
+          onClick={stopPropagation}
+        >
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-sm bg-[#1a1a1f] border border-[#2a2a2f] rounded-xl shadow-2xl p-5">
+            <h3 className="text-[15px] font-semibold text-white mb-3">Rename PR</h3>
+            <input
+              type="text"
+              value={renameValue}
+              onChange={(e) => setRenameValue(e.target.value)}
+              onKeyDown={handleRenameKeyDown}
+              className="w-full px-3 py-2.5 bg-[#0b0b0f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500 mb-4"
+              autoFocus
+            />
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={cancelRename} className="px-3 py-2 text-[13px] text-[#A1A1AA] hover:text-white transition">Cancel</button>
+              <button type="button" onClick={confirmRename} disabled={isRenaming === renameTarget?.pr_id} className="px-3 py-2 text-[13px] bg-white text-black font-semibold rounded-lg hover:bg-gray-100 transition disabled:opacity-50">{isRenaming === renameTarget?.pr_id ? 'Saving...' : 'Save'}</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
+
+      {deleteTarget && createPortal(
+        <div
+          className="fixed inset-0 z-[70] flex items-center justify-center p-4"
+          onMouseDown={(e) => { if (e.target === e.currentTarget) cancelDelete(); }}
+          onClick={stopPropagation}
+        >
+          <div className="absolute inset-0 bg-black/70 backdrop-blur-sm"></div>
+          <div className="relative w-full max-w-sm bg-[#1a1a1f] border border-red-500/20 rounded-xl shadow-2xl p-5">
+            <h3 className="text-[15px] font-semibold text-white mb-2">Delete PR Analysis?</h3>
+            <p className="text-[13px] text-[#A1A1AA] mb-4">This action cannot be undone. All analysis data, chat history, and embeddings for this PR will be permanently removed.</p>
+            <div className="flex justify-end gap-2">
+              <button type="button" onClick={cancelDelete} className="px-3 py-2 text-[13px] text-[#A1A1AA] hover:text-white transition">Cancel</button>
+              <button type="button" onClick={confirmDelete} disabled={isDeleting === deleteTarget} className="px-3 py-2 text-[13px] bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50">{isDeleting === deleteTarget ? 'Deleting...' : 'Delete'}</button>
+            </div>
+          </div>
+        </div>,
+        document.body
+      )}
     </>
   );
 });
+
 export default Sidebar;

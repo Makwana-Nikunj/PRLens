@@ -281,4 +281,27 @@ const deletePR = asyncHandler(async (req, res) => {
     res.status(200).json(new ApiResponse(200, null, "PR and analysis deleted successfully"));
 });
 
-export { analyzePR, getPR, getAllPRs, deletePR };
+const updatePRTitle = asyncHandler(async (req, res) => {
+    const { id } = req.params;
+    const { title } = req.body;
+
+    if (!title || typeof title !== 'string' || !title.trim()) {
+        throw new ApiError(400, "Title is required");
+    }
+
+    const result = await sql`
+        UPDATE pull_requests
+        SET title = ${title.trim()},
+            updated_at = NOW()
+        WHERE id = ${id} AND user_id = ${req.user.id}
+        RETURNING id, title, url as github_pr_url, author, updated_at
+    `;
+
+    if (!result || result.length === 0) {
+        throw new ApiError(404, "PR not found");
+    }
+
+    res.status(200).json(new ApiResponse(200, result[0], "PR title updated successfully"));
+});
+
+export { analyzePR, getPR, getAllPRs, deletePR, updatePRTitle };

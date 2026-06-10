@@ -1,5 +1,5 @@
 import { Router } from "express";
-import { analyzePR, getPR, getAllPRs, deletePR } from "../controllers/pr.controller.js";
+import { analyzePR, getPR, getAllPRs, deletePR, updatePRTitle } from "../controllers/pr.controller.js";
 import { verifyJwt } from "../middlewares/auth.middleware.js";
 import { analyzeLimiter } from "../middlewares/rateLimit.middleware.js";
 
@@ -11,6 +11,6 @@ router.use(verifyJwt);
 router.route("/analyze").post(analyzeLimiter, analyzePR);
 router.route("/").get(getAllPRs);
 
-router.route("/:id").get(getPR).delete(deletePR);
+router.route("/:id").get(getPR).put(updatePRTitle).delete(deletePR);
 
 export default router;
