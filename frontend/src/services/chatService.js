@@ -1,13 +1,12 @@
-import conf from '../conf/conf';
-import { apiClient } from '../lib/apiClient';
+import conf from '../conf/conf.js';
 
 const chatService = {
-    sendMessage: async (prId, message, onChunk, summaryToken = null, signal) => {
+    sendMessage: async (prId, message, onChunk, signal) => {
         const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             credentials: 'include',
-            body: JSON.stringify({ message, summaryToken }),
+            body: JSON.stringify({ message }),
             signal,
         });
 
@@ -24,7 +23,7 @@ const chatService = {
             while (true) {
                 if (signal?.aborted) {
                     await reader.cancel();
-                    return fullText;
+                    throw new Error('Message aborted');
                 }
                 const { value, done } = await reader.read();
                 if (done) break;
@@ -45,9 +44,6 @@ const chatService = {
                             } else if (parsed.error) {
                                 const err = new Error(parsed.error);
                                 err._sseError = true;
-                                if (signal?.aborted) {
-                                    return fullText;
-                                }
                                 throw err;
                             }
                         } catch (e) {
@@ -64,18 +60,17 @@ const chatService = {
         return fullText;
     },
 
-    summarize: async (prId, latestMessage, latestResponse, summaryToken = null) => {
-        const response = await apiClient.post(`/chat/${prId}/summarize`, {
-            summaryToken,
-            latestMessage,
-            latestResponse
-        });
-        return response.data;
-    },
-
     getHistory: async (prId) => {
-        const response = await apiClient.get(`/chat/${prId}/history`);
-        const messages = (response.data?.data || []).map(m => ({
+        const response = await fetch(`${conf.apiBaseUrl}/chat/${prId}/history`, {
+            credentials: 'include',
+        });
+
+        if (!response.ok) {
+            throw new Error(`Failed to fetch history: ${response.statusText}`);
+        }
+
+        const data = await response.json();
+        const messages = (data.data || []).map(m => ({
             id: m.id,
             role: m.role,
             content: m.content,

@@ -3,7 +3,7 @@ const CHARS_PER_TOKEN = 3.5; // Conservative estimate (was 4)
 export const BUDGET = {
     systemPrompt: 32000,
     ragContext: 25600,
-    summary: 19200,
+    chatHistory: 20000,
     userMessage: 6400,
     llmResponse: 25600
 };

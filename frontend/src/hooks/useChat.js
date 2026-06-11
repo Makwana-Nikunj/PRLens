@@ -1,12 +1,10 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import chatService from '../services/chatService';
-import { useChatStore } from '../store/chatStore';
 
 export const RESIZE_MIN = 300;
 export const RESIZE_MAX = 700;
 
 export function useChat({ prId }) {
-    const { summaryToken, loadToken, setToken } = useChatStore();
     const [messages, setMessages] = useState([
         { id: 1, who: 'ai', text: "I'm ready. Ask me anything about this PR!" }
     ]);
@@ -22,7 +20,6 @@ export function useChat({ prId }) {
 
     useEffect(() => {
         if (!prId) return;
-        loadToken(prId);
         chatService.getHistory(prId)
             .then(res => {
                 if (res.success && res.data?.length > 0) {
@@ -39,7 +36,7 @@ export function useChat({ prId }) {
             .catch(() => {
                 setMessages([{ id: Date.now(), who: 'ai', text: "I'm ready. Ask me anything about this PR!" }]);
             });
-    }, [prId, loadToken]);
+    }, [prId]);
 
     const scrollToEnd = useCallback(() => {
         setTimeout(() => {
@@ -80,13 +77,8 @@ export function useChat({ prId }) {
                         )
                     );
                 }
-            }, summaryToken, chatAbortRef.current.signal);
+            }, chatAbortRef.current.signal);
             chatAbortRef.current = null;
-
-            const sumRes = await chatService.summarize(prId, text, resultingAiText, summaryToken).catch(() => null);
-            if (sumRes && sumRes.summaryToken) {
-                setToken(sumRes.summaryToken);
-            }
         } catch (err) {
             console.error(err);
             const rateLimit = err?.status === 429 || /rate limit/i.test(err?.message || '');
@@ -114,7 +106,7 @@ export function useChat({ prId }) {
             setStreamingMsgId(null);
             scrollToEnd();
         }
-    }, [inputValue, prId, summaryToken, setToken, scrollToEnd]);
+    }, [inputValue, prId, scrollToEnd]);
 
     const retryLastFailed = useCallback(() => {
         const text = lastFailedMessageRef.current;

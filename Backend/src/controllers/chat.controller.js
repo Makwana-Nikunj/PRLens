@@ -3,26 +3,22 @@ import { ApiError } from "../utils/ApiError.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asyncHandler.js";
 import { streamChat } from "../services/ai.service.js";
-import { verifySummaryToken, createSummaryToken } from "../utils/summaryToken.js";
 import { retrieveRelevantChunks } from "../services/rag.service.js";
 import { saveChatMessage } from "../services/chat.service.js";
 import { cap, BUDGET } from "../utils/tokenBudget.js";
-
-const getChatHistoryService = async (prId) => {
-  return sql`
-    SELECT id, role, content, created_at
-    FROM chat_messages
-    WHERE pr_id = ${prId}
-    ORDER BY created_at ASC
-  `;
-};
 
 // GET /api/chat/:prId/history
 export const getChatHistory = asyncHandler(async (req, res) => {
   const { prId } = req.params;
   console.log("[CHAT] Fetch history", { prId });
 
-  const messages = await getChatHistoryService(prId);
+  const messages = await sql`
+    SELECT id, role, content, created_at
+    FROM chat_messages
+    WHERE pr_id = ${prId}
+    ORDER BY created_at ASC
+    LIMIT 30
+  `;
 
   console.log("[CHAT] History returned", { prId, count: messages?.length });
   res.status(200).json(new ApiResponse(200, messages, "Chat history retrieved successfully"));
@@ -31,9 +27,9 @@ export const getChatHistory = asyncHandler(async (req, res) => {
 // POST /api/chat/:prId
 export const chatController = asyncHandler(async (req, res) => {
   const { prId } = req.params;
-  let { message, summaryToken } = req.body;
+  let { message } = req.body;
 
-  console.log("[CHAT] Request started", { prId, messagePreview: typeof message === 'string' ? message.slice(0, 50) : message, hasSummaryToken: !!summaryToken });
+  console.log("[CHAT] Request started", { prId, messagePreview: typeof message === 'string' ? message.slice(0, 50) : message });
 
   if (!prId || !message) {
     console.warn("[CHAT] Missing prId or message");
@@ -53,20 +49,6 @@ export const chatController = asyncHandler(async (req, res) => {
 
   console.log("[CHAT] Input prepared", { messageLength: message.length });
 
-  let trustedSummary;
-  try {
-    trustedSummary = verifySummaryToken(summaryToken, prId);
-  } catch (err) {
-    console.warn("[CHAT] Summary token verification threw:", err.message);
-    trustedSummary = null;
-  }
-  if (summaryToken && !trustedSummary) {
-    console.warn("Invalid or missing summary token, starting fresh conversation.");
-    trustedSummary = "";
-  }
-
-  console.log("[CHAT] Summary token state", { hasSummary: !!trustedSummary, summaryLength: trustedSummary?.length || 0 });
-
   const analysisResult = await sql`
     SELECT summary, key_changes, tradeoffs, risks, file_explanations
     FROM analyses
@@ -82,6 +64,30 @@ export const chatController = asyncHandler(async (req, res) => {
   }
   const cappedAnalysis = cap(analysisContent, BUDGET.systemPrompt, "Analysis");
   console.log("[CHAT] Analysis capped", { originalLength: analysisContent.length, cappedLength: cappedAnalysis.length });
+
+  let recentMessages = [];
+  try {
+    recentMessages = await sql`
+      SELECT role, content
+      FROM chat_messages
+      WHERE pr_id = ${prId}
+      ORDER BY created_at DESC
+      LIMIT 30
+    `;
+    recentMessages.reverse();
+    console.log("[CHAT] Recent messages loaded", { count: recentMessages?.length });
+  } catch (err) {
+    console.error("[CHAT] Failed to load chat history:", err.message);
+  }
+
+  let chatHistoryStr = "";
+  if (recentMessages?.length) {
+    chatHistoryStr = recentMessages
+      .map(m => `${m.role === 'user' ? 'User' : 'Assistant'}: ${m.content}`)
+      .join('\n');
+  }
+  const cappedHistory = cap(chatHistoryStr, BUDGET.chatHistory, "Chat History");
+  console.log("[CHAT] Chat history capped", { originalLength: chatHistoryStr.length, cappedLength: cappedHistory.length });
 
   let retrievedContext = "";
   try {
@@ -112,8 +118,8 @@ export const chatController = asyncHandler(async (req, res) => {
 
   console.log({
     analysisLength: cappedAnalysis.length,
-    ragLength: cappedRag.length,
-    summaryLength: trustedSummary ? trustedSummary.length : 0
+    historyLength: cappedHistory.length,
+    ragLength: cappedRag.length
   });
 
   res.writeHead(200, {
@@ -124,17 +130,14 @@ export const chatController = asyncHandler(async (req, res) => {
   console.log("[CHAT] SSE stream opened", { prId, messageLength: message.length });
 
   let aborted = false;
-  const streamAbortController = new AbortController();
-  const onAborted = () => streamAbortController.signal.aborted;
+  const onAborted = () => aborted;
 
   const abortHandler = () => {
     aborted = true;
     console.log("[CHAT] Client aborted stream", { prId });
-    streamAbortController.abort();
   };
   req.on('aborted', abortHandler);
   req.on('close', abortHandler);
-  res.on('close', abortHandler);
 
   let fullResponse = "";
   try {
@@ -142,16 +145,11 @@ export const chatController = asyncHandler(async (req, res) => {
       message,
       analysis: cappedAnalysis,
       ragContext: cappedRag,
-      summary: trustedSummary,
+      chatHistory: cappedHistory,
       res,
-      isAborted: onAborted,
-      abortSignal: streamAbortController.signal
+      isAborted: onAborted
     });
-    if (aborted) {
-      console.log("[CHAT] Stream aborted by user", { prId, responseLength: fullResponse.length });
-    } else {
-      console.log("[CHAT] AI streaming complete", { prId });
-    }
+    console.log("[CHAT] AI streaming complete", { prId, aborted });
   } catch (err) {
     console.error("[CHAT] Chat generation failed:", err.message);
     if (!aborted) {
@@ -193,70 +191,8 @@ export const chatController = asyncHandler(async (req, res) => {
       content: fullResponse,
       tokensUsed: null
     });
-    console.log("[CHAT] Messages persisted", { prId, aborted, responseLength: fullResponse.length });
+    console.log("[CHAT] Messages persisted", { prId });
   } catch (persistErr) {
     console.error("[CHAT] Failed to persist chat messages:", persistErr.message);
   }
 });
-
-// POST /api/chat/:prId/summarize
-export const summarizeChatController = asyncHandler(async (req, res) => {
-  const { prId } = req.params;
-  const { summaryToken, latestMessage, latestResponse } = req.body;
-
-  console.log("[CHAT] Summarize request", { prId, hasSummaryToken: !!summaryToken });
-
-  let currentSummary = verifySummaryToken(summaryToken, prId) || "";
-  if (summaryToken && !currentSummary) {
-    console.warn("[CHAT] Summarize: invalid summary token, starting fresh");
-  }
-
-  // Call OpenAI/Claude directly or use AI service to get the new summary
-  const prompt = `Update the conversation summary with the latest interaction.
-Keep:
-- decisions
-- conclusions
-- discussed files
-- open questions
-
-Remove:
-- repetition
-- filler
-- old details
-
-Previous Summary:
-${currentSummary || "No previous summary."}
-
-User said:
-${latestMessage}
-
-Assistant replied:
-${latestResponse}
-
-Output strictly the new updated summary plain text.`;
-
-  let newSummary = "";
-  // We'll use the same streaming / inference helper but collect it.
-  const { default: OpenAI } = await import('openai');
-  const openai = new OpenAI({
-    apiKey: process.env.AI_API_KEY || process.env.CLAUDE_API_KEY,
-    baseURL: (process.env.AI_BASE_URL || 'https://api.openai.com/v1').replace(/\/$/, '')
-  });
-
-  const response = await openai.chat.completions.create({
-    model: process.env.AI_MODEL || 'gpt-4o-mini',
-    messages: [{ role: "system", content: "You are a summarizing assistant. Follow the prompt instructions precisely." }, { role: "user", content: prompt }],
-    temperature: 0.1
-  });
-
-  newSummary = response.choices[0]?.message?.content || "";
-  newSummary = cap(newSummary, BUDGET.summary, "Summary");
-
-  const newToken = createSummaryToken(prId, newSummary);
-
-  console.log("[CHAT] Summarize complete", { prId, summaryLength: newSummary.length });
-  res.status(200).json({
-    summaryToken: newToken
-  });
-});
-
