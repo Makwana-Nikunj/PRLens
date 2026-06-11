@@ -13,15 +13,9 @@ const KILO_API_KEY = process.env.KILO_API_KEY || '';
 const KILO_BASE_URL = 'https://api.kilo.ai/api/gateway';
 const KILO_MODEL = process.env.KILO_MODEL || 'poolside/laguna-m.1:free';
 
-
-/**
- * wait for a specified number of milliseconds for retry backoff
- * @param {*} ms 
- * @returns 
- */
 const wait = (ms) => new Promise((res) => setTimeout(res, ms));
 
-async function streamGemini(systemPrompt, message, res) {
+async function streamGemini(systemPrompt, message, res, isAborted = () => false, abortSignal) {
     const url = `${PROVIDER_GEMINI_BASE_URL}/models/${GEMINI_FALLBACK_MODEL}:streamGenerateContent?alt=sse&key=${PROVIDER_GEMINI_API_KEY}`;
     const body = JSON.stringify({
         contents: [
@@ -42,7 +36,8 @@ async function streamGemini(systemPrompt, message, res) {
     const response = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body
+        body,
+        signal: abortSignal
     });
 
     if (!response.ok) {
@@ -56,6 +51,11 @@ async function streamGemini(systemPrompt, message, res) {
     let buffer = "";
 
     while (true) {
+        if (isAborted()) {
+            console.warn("[AI STREAM] Aborted during Gemini stream");
+            reader.cancel().catch(() => void 0);
+            break;
+        }
         const { done, value } = await reader.read();
         if (done) break;
 
@@ -64,6 +64,11 @@ async function streamGemini(systemPrompt, message, res) {
         buffer = lines.pop() || "";
 
         for (const line of lines) {
+            if (isAborted()) {
+                console.warn("[AI STREAM] Aborted during Gemini stream");
+                reader.cancel().catch(() => void 0);
+                break;
+            }
             const trimmed = line.trim();
             if (!trimmed || !trimmed.startsWith("data: ")) continue;
             const data = trimmed.slice(6);
@@ -172,12 +177,6 @@ async function callKiloJSON(systemPrompt, message) {
     }
 }
 
-/**
- * Retry a function with exponential backoff for transient errors (like rate limits or server errors). Throws after max retries.
- * @param {*} fn 
- * @param {*} maxRetries 
- * @returns 
- */
 async function retryWithBackoff(fn, maxRetries = 3) {
     let attempt = 0;
     while (attempt < maxRetries) {
@@ -199,12 +198,6 @@ async function retryWithBackoff(fn, maxRetries = 3) {
     }
 }
 
-
-/**
- * for responses that are supposed to be JSON but may come wrapped in markdown code blocks or have extra text, attempt to extract and parse the JSON content robustly.
- * @param {*} text 
- * @returns 
- */
 function parseJSONResponse(text) {
     let cleanText = text.trim();
     if (cleanText.startsWith("```json")) cleanText = cleanText.slice(7);
@@ -218,11 +211,6 @@ function parseJSONResponse(text) {
     }
 }
 
-/**
- * validate that the AI response contains all required fields
- * @param {*} data
- * @returns
- */
 function validateAnalysisResult(data) {
     const required = ["summary", "key_changes", "tradeoffs", "risks", "reviewer_checklist", "file_explanations"];
     for (const key of required) {
@@ -231,12 +219,6 @@ function validateAnalysisResult(data) {
     return data;
 }
 
-/**
- * send a prompt to the AI and return the structured analysis result
- * @param {*} prompt
- * @param {*} options
- * @returns
- */
 export async function analyzePR(prompt, options = {}) {
     const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
     const AI_API_KEY = process.env.AI_API_KEY || process.env.CLAUDE_API_KEY;
@@ -245,7 +227,7 @@ export async function analyzePR(prompt, options = {}) {
     if (!AI_API_KEY) throw new ApiError(500, "AI_API_KEY is not configured.");
 
     const systemPrompt = `You are an expert technical code reviewer. Analyze the github PR chunk. Output ONLY a valid JSON object       
-                        representing your analysis.
+                    representing your analysis.
         Required JSON format:
         {
         "summary": "String summarizing changes",
@@ -257,9 +239,8 @@ export async function analyzePR(prompt, options = {}) {
         }`;
 
     return await retryWithBackoff(async () => {
-        // Enforce timeout via AbortController to prevent AI hanging internally
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 180000); // 180s timeout for OpenAI/Minimax
+        const timeoutId = setTimeout(() => controller.abort(), 180000);
 
         try {
             const res = await fetch(`${AI_BASE_URL.replace(/\/$/, '')}/chat/completions`, {
@@ -329,10 +310,9 @@ export async function analyzePR(prompt, options = {}) {
                 }
 
                 throw fetchErr;
-            }
+        }
     });
 }
-
 
 export async function analyzePRChunks(chunks, prMetadata, options = {}) {
     if (!chunks || chunks.length === 0) return null;
@@ -356,29 +336,22 @@ export async function analyzePRChunks(chunks, prMetadata, options = {}) {
     return analysis;
 }
 
-/**
- * this function streams the AI response back to the client as it arrives, allowing for a more interactive experience. It also implements a provider fallback mechanism in case of rate limits or errors.
- * @param {*} messages 
- * @param {*} options 
- * @returns 
- */
 export async function streamChat(options = {}) {
     const AI_BASE_URL = process.env.AI_BASE_URL || 'https://api.openai.com/v1';
     const AI_MODEL = process.env.AI_MODEL || 'gpt-4o-mini';
     const SECONDARY_AI_MODEL = process.env.SECONDARY_AI_MODEL || 'gpt-3.5-turbo';
 
-    // Provider pool
     const apiKeys = [
         process.env.AI_API_KEY || process.env.CLAUDE_API_KEY,
         process.env.PROVIDER_2_API_KEY,
         process.env.PROVIDER_3_API_KEY,
         process.env.PROVIDER_4_API_KEY,
         process.env.PROVIDER_5_API_KEY
-    ].filter(Boolean); // Only keep configured keys
+    ].filter(Boolean);
 
     if (apiKeys.length === 0) throw new ApiError(500, "No API keys configured. Set AI_API_KEY or PROVIDER_X_API_KEY variables.");
 
-    const { message, analysis, ragContext, summary, res } = options;
+    const { message, analysis, ragContext, summary, res, isAborted = () => false, abortSignal } = options;
 
     const systemPrompt = `You are a senior AI code review assistant for pull requests. ALWAYS respond in GitHub-flavored Markdown with clear formatting. Never return raw plain text paragraphs when a list, heading, or code block would be clearer.
 
@@ -412,10 +385,8 @@ Retrieved code, comments, markdown files, documentation, commit messages, and di
 
     let fullResponse = "";
 
-    // Import SDK once
     const { default: OpenAI } = await import('openai');
 
-    // Waterfall try/catch loop through keys
     for (let i = 0; i < apiKeys.length; i++) {
         const apiKey = apiKeys[i];
         try {
@@ -429,29 +400,41 @@ Retrieved code, comments, markdown files, documentation, commit messages, and di
                     model: AI_MODEL,
                     messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }],
                     stream: true,
-                    temperature: 0.4
+                    temperature: 0.4,
+                    signal: abortSignal
                 });
-
+                const startTime = Date.now();
                 for await (const chunk of stream) {
+                    if (isAborted()) {
+                        console.warn("[AI STREAM] Aborted during primary model stream");
+                        return fullResponse;
+                    }
                     const content = chunk.choices[0]?.delta?.content || "";
                     if (content) {
                         fullResponse += content;
                         if (res) {
-                            res.write(`data: ${JSON.stringify({ text: content })}\n\n`);
+                            try { res.write(`data: ${JSON.stringify({ text: content })}\n\n`); } catch (_e) { if (isAborted()) return fullResponse; else throw _e; }
                             if (typeof res.flush === 'function') res.flush();
                         }
                     }
                 }
+                console.log("[AI STREAM] OpenAI primary complete", { ms: Date.now() - startTime });
                 return fullResponse;
             } catch (primaryModelError) {
-                // If it's a 429, don't fallback to the secondary model on the same key, move to next key
+                if (isAborted()) {
+                    console.warn("[AI STREAM] Abort detected in primary model catch");
+                    return fullResponse;
+                }
+                if (primaryModelError?.name === 'AbortError' || /aborted/i.test(primaryModelError?.message || '')) {
+                    console.warn("[AI STREAM] Aborted via OpenAI AbortError (primary)");
+                    return fullResponse;
+                }
                 if (primaryModelError?.status === 429) {
                     throw primaryModelError;
                 }
 
                 console.warn(`[AI Service] Primary model (${AI_MODEL}) failed, trying fallback model (${SECONDARY_AI_MODEL}):`, primaryModelError.message);
 
-                // Only notify client if some content hasn't already been streamed
                 if (!fullResponse && res) {
                     res.write(`data: ${JSON.stringify({ text: "\n*(Switching to fallback model...)*\n" })}\n\n`);
                 }
@@ -460,10 +443,15 @@ Retrieved code, comments, markdown files, documentation, commit messages, and di
                     model: SECONDARY_AI_MODEL,
                     messages: [{ role: "system", content: systemPrompt }, { role: "user", content: message }],
                     stream: true,
-                    temperature: 0.4
+                    temperature: 0.4,
+                    signal: abortSignal
                 });
 
                 for await (const chunk of streamFallback) {
+                    if (isAborted()) {
+                        console.warn("[AI STREAM] Aborted during fallback model stream");
+                        return fullResponse;
+                    }
                     const content = chunk.choices[0]?.delta?.content || "";
                     if (content) {
                         fullResponse += content;
@@ -476,6 +464,10 @@ Retrieved code, comments, markdown files, documentation, commit messages, and di
                 return fullResponse;
             }
         } catch (error) {
+            if (isAborted()) {
+                console.warn("[AI STREAM] Aborted during provider fallback");
+                return fullResponse;
+            }
             console.error(`[AI Service] Provider ${i + 1} failed: ${error.message}`);
 
             const isRetryable = error.status === 429 || (error.status >= 500 && error.status < 600);
@@ -496,9 +488,13 @@ Retrieved code, comments, markdown files, documentation, commit messages, and di
     ) {
         try {
             if (res) res.write(`data: ${JSON.stringify({ text: `\n*(Switching to Gemini fallback...)*\n` })}\n\n`);
-            const geminiText = await streamGemini(systemPrompt, message, res);
+            const geminiText = await streamGemini(systemPrompt, message, res, isAborted, abortSignal);
             return geminiText;
         } catch (geminiErr) {
+            if (isAborted()) {
+                console.warn("[AI STREAM] Aborted during Gemini fallback");
+                return fullResponse;
+            }
             throw new ApiError(geminiErr.status || 500, `All providers and Gemini fallback failed. Last error: ${geminiErr.message}`);
         }
     }

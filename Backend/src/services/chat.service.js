@@ -1,7 +1,7 @@
 import { sql } from "../db/index.js";
 
 export const saveChatMessage = async ({ prId, userId, role, content, tokensUsed = null }) => {
-  if (!prId || !role || !content) return null;
+  if (!prId || !role || content == null) return null;
   const result = await sql`
     INSERT INTO chat_messages (pr_id, user_id, role, content, tokens_used)
     VALUES (${prId}, ${userId || null}, ${role}, ${content}, ${tokensUsed})

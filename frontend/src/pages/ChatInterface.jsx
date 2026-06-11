@@ -46,6 +46,7 @@ const ChatInterface = () => {
                 inputValue={chat.inputValue}
                 autoResizeInput={chat.autoResizeInput}
                 handleSendMessage={chat.handleSendMessage}
+                onStopStreaming={chat.stopStreaming}
             />
             <button
                 className={`fixed right-4 md:right-5 bottom-4 md:bottom-5 w-12 h-12 bg-violet-600 text-white rounded-full flex items-center justify-center shadow-lg shadow-violet-600/20 z-10 transition-all duration-300 ${resize.isReopenShown ? 'translate-y-0 opacity-100' : 'translate-y-[100px] opacity-0 pointer-events-none'}`}

@@ -45,17 +45,14 @@ export const chatController = asyncHandler(async (req, res) => {
     message = String(message);
   }
 
-  // Cap User Message
   message = cap(message, BUDGET.userMessage, "User Message");
-  
-  // Basic input sanitization to prevent prompt injection
+
   message = message
-    .replace(/<script[\s\S]*?<\/script>/gi, '')  // Remove script tags
+    .replace(/<script[\s\S]*?<\/script>/gi, '')
     .trim();
 
   console.log("[CHAT] Input prepared", { messageLength: message.length });
 
-  // Verify Summary JWT
   let trustedSummary;
   try {
     trustedSummary = verifySummaryToken(summaryToken, prId);
@@ -70,7 +67,6 @@ export const chatController = asyncHandler(async (req, res) => {
 
   console.log("[CHAT] Summary token state", { hasSummary: !!trustedSummary, summaryLength: trustedSummary?.length || 0 });
 
-  // Load Analysis
   const analysisResult = await sql`
     SELECT summary, key_changes, tradeoffs, risks, file_explanations
     FROM analyses
@@ -87,7 +83,6 @@ export const chatController = asyncHandler(async (req, res) => {
   const cappedAnalysis = cap(analysisContent, BUDGET.systemPrompt, "Analysis");
   console.log("[CHAT] Analysis capped", { originalLength: analysisContent.length, cappedLength: cappedAnalysis.length });
 
-  // Retrieve RAG Context
   let retrievedContext = "";
   try {
     const vectorCount = await sql`
@@ -115,7 +110,6 @@ export const chatController = asyncHandler(async (req, res) => {
 
   const cappedRag = cap(retrievedContext, BUDGET.ragContext, "RAG Context");
 
-  // Context Monitoring
   console.log({
     analysisLength: cappedAnalysis.length,
     ragLength: cappedRag.length,
@@ -129,25 +123,59 @@ export const chatController = asyncHandler(async (req, res) => {
   });
   console.log("[CHAT] SSE stream opened", { prId, messageLength: message.length });
 
+  let aborted = false;
+  const streamAbortController = new AbortController();
+  const onAborted = () => streamAbortController.signal.aborted;
+
+  const abortHandler = () => {
+    aborted = true;
+    console.log("[CHAT] Client aborted stream", { prId });
+    streamAbortController.abort();
+  };
+  req.on('aborted', abortHandler);
+  req.on('close', abortHandler);
+  res.on('close', abortHandler);
+
   let fullResponse = "";
   try {
-    // Generate Response via AI Service
     fullResponse = await streamChat({
       message,
       analysis: cappedAnalysis,
       ragContext: cappedRag,
       summary: trustedSummary,
-      res
+      res,
+      isAborted: onAborted,
+      abortSignal: streamAbortController.signal
     });
-    console.log("[CHAT] AI streaming complete", { prId });
+    if (aborted) {
+      console.log("[CHAT] Stream aborted by user", { prId, responseLength: fullResponse.length });
+    } else {
+      console.log("[CHAT] AI streaming complete", { prId });
+    }
   } catch (err) {
     console.error("[CHAT] Chat generation failed:", err.message);
-    res.write(`data: ${JSON.stringify({ error: "Failed to generate chat response from AI" })}\n\n`);
+    if (!aborted) {
+      try {
+        res.write(`data: ${JSON.stringify({ error: "Failed to generate chat response from AI" })}\n\n`);
+      } catch (_e) {
+        // ignore write errors if client disconnected
+      }
+    }
+  } finally {
+    req.off('aborted', abortHandler);
+    req.off('close', abortHandler);
+    res.off('close', abortHandler);
   }
 
-  res.write('data: [DONE]\n\n');
-  res.end();
-  console.log("[CHAT] Response sent, persisting messages", { prId });
+  if (!aborted) {
+    try {
+      res.write('data: [DONE]\n\n');
+      res.end();
+    } catch (_e) {
+      // ignore if already closed
+    }
+  }
+  console.log("[CHAT] Response sent, persisting messages", { prId, aborted, responseLength: fullResponse.length });
 
   try {
     await saveChatMessage({
@@ -165,7 +193,7 @@ export const chatController = asyncHandler(async (req, res) => {
       content: fullResponse,
       tokensUsed: null
     });
-    console.log("[CHAT] Messages persisted", { prId });
+    console.log("[CHAT] Messages persisted", { prId, aborted, responseLength: fullResponse.length });
   } catch (persistErr) {
     console.error("[CHAT] Failed to persist chat messages:", persistErr.message);
   }

@@ -282,6 +282,7 @@ const Dashboard = () => {
               inputValue={chat.inputValue} autoResizeInput={chat.autoResizeInput}
               handleSendMessage={chat.handleSendMessage}
               onToggleSidebar={handleChatToggleSidebar}
+              onStopStreaming={chat.stopStreaming}
             />
             {resize.isReopenShown && activePR && !chatOpenMobile && (
               <button

@@ -126,6 +126,13 @@ export function useChat({ prId }) {
         }, 0);
     }, [handleSendMessage]);
 
+    const stopStreaming = useCallback(() => {
+        if (chatAbortRef.current) {
+            chatAbortRef.current.abort();
+            chatAbortRef.current = null;
+        }
+    }, []);
+
     const autoResizeInput = useCallback((e) => {
         setInputValue(e.target.value);
         e.target.style.height = 'auto';
@@ -144,6 +151,7 @@ export function useChat({ prId }) {
         handleSendMessage,
         autoResizeInput,
         retryLastFailed,
+        stopStreaming,
     };
 }
 

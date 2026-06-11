@@ -26,7 +26,7 @@ const ChatMessage = memo(({ msg, isStreaming }) => {
   );
 });
 
-const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRef, toggleChat, messages, isTyping, streamingMsgId, messagesEndRef, chatInputRef, inputValue, autoResizeInput, handleSendMessage, onToggleSidebar }) => {
+const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRef, toggleChat, messages, isTyping, streamingMsgId, messagesEndRef, chatInputRef, inputValue, autoResizeInput, handleSendMessage, onStopStreaming, onToggleSidebar }) => {
   useEffect(() => {
     if (messagesEndRef?.current) {
       messagesEndRef.current.scrollIntoView({ behavior: streamingMsgId ? 'auto' : 'smooth' });
@@ -75,19 +75,25 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
         )}
         <div ref={messagesEndRef} />
       </div>
-      <div className="p-4 bg-[#161618] border-t border-[#1a1a1f] shrink-0">
-        <div className="relative flex items-end bg-[#0b0b0f] border border-[#1a1a1f] rounded-xl focus-within:border-violet-500/50 transition overflow-hidden">
-          <textarea
-            className="w-full bg-transparent border-none text-[14px] text-white p-3 md:pr-12 pr-10 focus:outline-none resize-none min-h-[44px] max-h-[120px] scrollbar-hide leading-relaxed placeholder-[#71717A]"
-            ref={chatInputRef} value={inputValue} onChange={autoResizeInput}
-            onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleSendMessage(); } }}
-            placeholder="Ask anything..." rows="1"
-          ></textarea>
-          <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#1a1a1f] text-white hover:bg-violet-600 transition disabled:opacity-50 disabled:bg-[#1a1a1f]" onClick={handleSendMessage} disabled={!inputValue.trim()}>
-            <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="m22 2-7 20-4-9-9-4 20-7Z" /></svg>
-          </button>
-        </div>
-      </div>
+       <div className="p-4 bg-[#161618] border-t border-[#1a1a1f] shrink-0">
+         <div className="relative flex items-end bg-[#0b0b0f] border border-[#1a1a1f] rounded-xl focus-within:border-violet-500/50 transition overflow-hidden">
+           <textarea
+             className="w-full bg-transparent border-none text-[14px] text-white p-3 md:pr-12 pr-10 focus:outline-none resize-none min-h-[44px] max-h-[120px] scrollbar-hide leading-relaxed placeholder-[#71717A]"
+             ref={chatInputRef} value={inputValue} onChange={autoResizeInput}
+             onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (streamingMsgId || isTyping) { onStopStreaming?.(); } else { handleSendMessage(); } } }}
+             placeholder="Ask anything..." rows="1"
+           ></textarea>
+           {streamingMsgId || isTyping ? (
+             <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#1a1a1f] text-white hover:bg-violet-600 transition" onClick={onStopStreaming} title="Stop generating">
+               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
+             </button>
+           ) : (
+             <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#1a1a1f] text-white hover:bg-violet-600 transition disabled:opacity-50 disabled:bg-[#1a1a1f]" onClick={handleSendMessage} disabled={!inputValue.trim()}>
+               <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="m22 2-7 20-4-9-9-4 20-7Z" /></svg>
+             </button>
+           )}
+         </div>
+       </div>
     </aside>
   );
 });

@@ -24,7 +24,7 @@ const chatService = {
             while (true) {
                 if (signal?.aborted) {
                     await reader.cancel();
-                    throw new Error('Message aborted');
+                    return fullText;
                 }
                 const { value, done } = await reader.read();
                 if (done) break;
@@ -45,6 +45,9 @@ const chatService = {
                             } else if (parsed.error) {
                                 const err = new Error(parsed.error);
                                 err._sseError = true;
+                                if (signal?.aborted) {
+                                    return fullText;
+                                }
                                 throw err;
                             }
                         } catch (e) {
