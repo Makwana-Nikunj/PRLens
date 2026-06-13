@@ -4,6 +4,8 @@ import Header from '../Components/dashboard/Header';
 import TabSummary from '../Components/dashboard/TabSummary';
 import TabChanges from '../Components/dashboard/TabChanges';
 import TabRisks from '../Components/dashboard/TabRisks';
+import TabChecklist from '../Components/dashboard/TabChecklist';
+import TabFileExplanations from '../Components/dashboard/TabFileExplanations';
 import ChatPanel from '../Components/dashboard/ChatPanel';
 import prService from '../services/prService';
 import { useChat, useChatResize } from '../hooks/useChat';
@@ -213,13 +215,13 @@ const Dashboard = () => {
         <main className="flex-1 min-w-0 flex flex-col bg-[#0f0f13] relative">
           <Header activePR={activePR} setSidebarOpen={setSidebarOpen} />
           <div className="flex border-b border-[#1a1a1f] px-2 sm:px-4 shrink-0 overflow-x-auto scrollbar-hide">
-            {activePR && ['summary', 'changes', 'risks'].map(tab => (
+            {activePR && ['summary', 'changes', 'risks', 'checklist', 'files'].map(tab => (
               <button
                 key={tab}
                 className={`px-4 py-3.5 text-[14px] font-medium border-b-2 whitespace-nowrap transition ${activeTab === tab ? 'text-violet-500 border-violet-500' : 'text-[#A1A1AA] border-transparent hover:text-white hover:border-white/20'}`}
                 onClick={() => setActiveTab(tab)}
               >
-                {tab === 'summary' ? 'Summary' : tab === 'changes' ? 'Key Changes' : 'Risks'}
+                {tab === 'summary' ? 'Summary' : tab === 'changes' ? 'Key Changes' : tab === 'risks' ? 'Risks' : tab === 'checklist' ? 'Reviewer Checklist' : 'File Explanations'}
               </button>
             ))}
           </div>
@@ -266,6 +268,8 @@ const Dashboard = () => {
                   {activeTab === 'summary' && <TabSummary activePR={activePR} />}
                   {activeTab === 'changes' && <TabChanges activePR={activePR} />}
                   {activeTab === 'risks' && <TabRisks activePR={activePR} />}
+                  {activeTab === 'checklist' && <TabChecklist activePR={activePR} />}
+                  {activeTab === 'files' && <TabFileExplanations activePR={activePR} />}
                 </>
               )}
             </div>
