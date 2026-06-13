@@ -132,6 +132,7 @@ const oauthLogin = asyncHandler(async (req, res) => {
     "http://localhost:5173",
     "http://127.0.0.1:5173",
     "http://localhost:5174",
+    "https://prlens-eight.vercel.app",
     process.env.FRONTEND_URL,
   ].filter(Boolean).map((origin) => origin.replace(/\/$/, ""));
 
