@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const DocsPage = () => (
   <div className="min-h-screen bg-[#0f0f13] text-white">
+    <Helmet>
+      <title>Docs - PRLens</title>
+      <meta name="description" content="PRLens documentation: getting started, features, and FAQ for AI-powered pull request review." />
+      <link rel="canonical" href="https://prlens-eight.vercel.app/docs" />
+    </Helmet>
     <div className="max-w-3xl mx-auto px-6 py-20">
       <h1 className="text-4xl font-bold mb-4">Documentation</h1>
       <p className="text-[#A1A1AA] text-lg mb-10">Get started with PRLens and learn how to use its features.</p>

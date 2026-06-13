@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const PRSummaryPage = () => (
   <div className="min-h-screen bg-[#0f0f13] text-white">
+    <Helmet>
+      <title>Pull Request Summary Tool - PRLens</title>
+      <meta name="description" content="Generate clear, concise pull request summaries automatically with AI using PRLens." />
+      <link rel="canonical" href="https://prlens-eight.vercel.app/pull-request-summary" />
+    </Helmet>
     <div className="max-w-3xl mx-auto px-6 py-20">
       <h1 className="text-4xl font-bold mb-4">Pull Request Summary Tool</h1>
       <p className="text-[#A1A1AA] text-lg mb-10">Generate clear, concise pull request summaries automatically with AI.</p>

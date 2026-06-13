@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const FeaturesPage = () => (
   <div className="min-h-screen bg-[#0f0f13] text-white">
+    <Helmet>
+      <title>Features - PRLens</title>
+      <meta name="description" content="Explore PRLens features: AI PR summaries, risk detection, file breakdown, AI chat, and review checklists." />
+      <link rel="canonical" href="https://prlens-eight.vercel.app/docs/features" />
+    </Helmet>
     <div className="max-w-3xl mx-auto px-6 py-20">
       <h1 className="text-4xl font-bold mb-4">Features</h1>
       <p className="text-[#A1A1AA] text-lg mb-10">A complete set of tools to understand and review pull requests faster.</p>

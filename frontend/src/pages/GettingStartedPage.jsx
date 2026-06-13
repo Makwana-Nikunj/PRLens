@@ -1,8 +1,14 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { Helmet } from 'react-helmet-async';
 
 const GettingStartedPage = () => (
   <div className="min-h-screen bg-[#0f0f13] text-white">
+    <Helmet>
+      <title>Getting Started - PRLens</title>
+      <meta name="description" content="Get started with PRLens: connect GitHub, analyze your first pull request, and view AI-powered review results." />
+      <link rel="canonical" href="https://prlens-eight.vercel.app/docs/getting-started" />
+    </Helmet>
     <div className="max-w-3xl mx-auto px-6 py-20">
       <h1 className="text-4xl font-bold mb-4">Getting Started</h1>
       <p className="text-[#A1A1AA] text-lg mb-10">Follow these steps to start analyzing GitHub pull requests with PRLens.</p>

@@ -10,6 +10,17 @@ import AIReviewPage from "./pages/AIReviewPage";
 import GitHubPRAnalysisPage from "./pages/GitHubPRAnalysisPage";
 import PRSummaryPage from "./pages/PRSummaryPage";
 import CodeReviewAutomationPage from "./pages/CodeReviewAutomationPage";
+import BlogPage from "./pages/BlogPage";
+import HowToReviewFasterWithAI from "./pages/blog/HowToReviewFasterWithAI.jsx";
+import AICodeReviewVsManual from "./pages/blog/AICodeReviewVsManual.jsx";
+import GitHubPRBestPractices from "./pages/blog/GitHubPRBestPractices.jsx";
+import CommonSecurityIssuesInPRReviews from "./pages/blog/CommonSecurityIssuesInPRReviews.jsx";
+import HowRAGImprovesCodeReviewSystems from "./pages/blog/HowRAGImprovesCodeReviewSystems.jsx";
+import BuildingAnAIPullRequestReviewTool from "./pages/blog/BuildingAnAIPullRequestReviewTool.jsx";
+import ReducingReviewTimeWithAIAssistedAnalysis from "./pages/blog/ReducingReviewTimeWithAIAssistedAnalysis.jsx";
+import LargePullRequestsChallengesAndSolutions from "./pages/blog/LargePullRequestsChallengesAndSolutions.jsx";
+import AutomatingPRSummariesUsingLLMs from "./pages/blog/AutomatingPRSummariesUsingLLMs.jsx";
+import DeveloperProductivityWithAIReviewTools from "./pages/blog/DeveloperProductivityWithAIReviewTools.jsx";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import ErrorBoundary from "./Components/ErrorBoundary";
 
@@ -29,28 +40,37 @@ function App() {
       <Suspense fallback={<Loader />}>
         <ErrorBoundary>
           <Routes>
-            {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<GithubSignIn />} />
 
-            {/* SEO Landing Pages */}
             <Route path="/docs" element={<DocsPage />} />
             <Route path="/docs/getting-started" element={<GettingStartedPage />} />
             <Route path="/docs/features" element={<FeaturesPage />} />
             <Route path="/docs/faq" element={<FAQPage />} />
+
             <Route path="/ai-code-review" element={<AIReviewPage />} />
             <Route path="/github-pull-request-analysis" element={<GitHubPRAnalysisPage />} />
             <Route path="/pull-request-summary" element={<PRSummaryPage />} />
             <Route path="/code-review-automation" element={<CodeReviewAutomationPage />} />
 
-            {/* Protected Routes */}
+            <Route path="/blog" element={<BlogPage />} />
+            <Route path="/blog/how-to-review-pull-requests-faster-with-ai" element={<HowToReviewFasterWithAI />} />
+            <Route path="/blog/ai-code-review-vs-manual" element={<AICodeReviewVsManual />} />
+            <Route path="/blog/github-pull-request-best-practices" element={<GitHubPRBestPractices />} />
+            <Route path="/blog/common-security-issues-in-pr-reviews" element={<CommonSecurityIssuesInPRReviews />} />
+            <Route path="/blog/how-rag-improves-code-review-systems" element={<HowRAGImprovesCodeReviewSystems />} />
+            <Route path="/blog/building-an-ai-pull-request-review-tool" element={<BuildingAnAIPullRequestReviewTool />} />
+            <Route path="/blog/reducing-review-time-with-ai-assisted-analysis" element={<ReducingReviewTimeWithAIAssistedAnalysis />} />
+            <Route path="/blog/large-pull-requests-challenges-and-solutions" element={<LargePullRequestsChallengesAndSolutions />} />
+            <Route path="/blog/automating-pr-summaries-using-llms" element={<AutomatingPRSummariesUsingLLMs />} />
+            <Route path="/blog/developer-productivity-with-ai-review-tools" element={<DeveloperProductivityWithAIReviewTools />} />
+
             <Route element={<ProtectedRoute />}>
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/dashboard/:id" element={<FileExplanations />} />
               <Route path="/chat/:id" element={<ChatInterface />} />
             </Route>
 
-            {/* Catch-all 404 Route */}
             <Route path="*" element={
               <div className="min-h-screen flex flex-col items-center justify-center bg-[#0b1326] text-white">
                 <span className="material-symbols-outlined text-6xl text-slate-400 mb-4">route_off</span>

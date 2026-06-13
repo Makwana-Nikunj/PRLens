@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 
 const Navbar = () => {
@@ -21,6 +21,7 @@ const Navbar = () => {
   };
 
   const isDocsActive = location.pathname.startsWith('/docs');
+  const isBlogActive = location.pathname.startsWith('/blog');
 
   return (
     <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-[#0f0f13]/80 backdrop-blur-md transition-colors">
@@ -41,6 +42,14 @@ const Navbar = () => {
             }`}
           >
             Docs
+          </Link>
+          <Link
+            to="/blog"
+            className={`text-[14px] font-medium transition ${
+              isBlogActive ? 'text-white' : 'text-[#A1A1AA] hover:text-white'
+            }`}
+          >
+            Blog
           </Link>
           <button
             onClick={handleLoginClick}
