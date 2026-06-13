@@ -6,7 +6,7 @@ const PROVIDER_CONFIGS = [
     name: 'OpenRouter',
     baseUrl: (process.env.AI_BASE_URL || process.env.PROVIDER_1_BASE_URL || 'https://openrouter.ai/api/v1').replace(/\/$/, ''),
     apiKey: process.env.AI_API_KEY || process.env.PROVIDER_1_API_KEY || '',
-    model: process.env.AI_MODEL || process.env.PROVIDER_1_MODEL || 'gpt-4o-mini',
+    model: process.env.AI_MODEL || process.env.PROVIDER_1_MODEL || '',
     fallbackModel: process.env.PROVIDER_1_FALLBACK_MODEL || null,
   },
   {
