@@ -52,6 +52,11 @@ const chatService = {
                         }
                     }
                 }
+                if (buffer.trim() && onChunk) {
+                    onChunk(buffer);
+                    fullText += buffer;
+                    buffer = '';
+                }
             }
         } finally {
             reader.releaseLock().catch(() => void 0);
