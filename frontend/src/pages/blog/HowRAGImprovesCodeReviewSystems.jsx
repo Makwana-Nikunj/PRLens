@@ -9,7 +9,7 @@ const Article = () => (
       <meta name="description" content="How retrieval-augmented generation improves code review systems with grounded repository context." />
       <link rel="canonical" href="https://prlens-eight.vercel.app/blog/how-rag-improves-code-review-systems" />
     </Helmet>
-    <div className="max-w-3xl mx-auto px-6 py-20'>
+    <div className="max-w-3xl mx-auto px-6 py-20">
       <Link to="/blog" className="text-violet-400 hover:text-violet-300 mb-6 inline-block">&larr; Back to Blog</Link>
       <h1 className="text-4xl font-bold mb-6">How RAG Improves Code Review Systems</h1>
       <div className="prose prose-invert max-w-none text-[#A1A1AA] space-y-4">
