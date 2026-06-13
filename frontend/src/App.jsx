@@ -2,6 +2,14 @@ import { lazy, Suspense } from "react";
 import { Routes, Route } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import GithubSignIn from "./pages/GithubSignIn";
+import DocsPage from "./pages/DocsPage";
+import GettingStartedPage from "./pages/GettingStartedPage";
+import FeaturesPage from "./pages/FeaturesPage";
+import FAQPage from "./pages/FAQPage";
+import AIReviewPage from "./pages/AIReviewPage";
+import GitHubPRAnalysisPage from "./pages/GitHubPRAnalysisPage";
+import PRSummaryPage from "./pages/PRSummaryPage";
+import CodeReviewAutomationPage from "./pages/CodeReviewAutomationPage";
 import ProtectedRoute from "./Components/ProtectedRoute";
 import ErrorBoundary from "./Components/ErrorBoundary";
 
@@ -24,6 +32,16 @@ function App() {
             {/* Public Routes */}
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<GithubSignIn />} />
+
+            {/* SEO Landing Pages */}
+            <Route path="/docs" element={<DocsPage />} />
+            <Route path="/docs/getting-started" element={<GettingStartedPage />} />
+            <Route path="/docs/features" element={<FeaturesPage />} />
+            <Route path="/docs/faq" element={<FAQPage />} />
+            <Route path="/ai-code-review" element={<AIReviewPage />} />
+            <Route path="/github-pull-request-analysis" element={<GitHubPRAnalysisPage />} />
+            <Route path="/pull-request-summary" element={<PRSummaryPage />} />
+            <Route path="/code-review-automation" element={<CodeReviewAutomationPage />} />
 
             {/* Protected Routes */}
             <Route element={<ProtectedRoute />}>
