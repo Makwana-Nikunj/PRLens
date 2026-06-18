@@ -4,6 +4,7 @@ import LandingPage from "./pages/LandingPage";
 import GithubSignIn from "./pages/GithubSignIn";
 import DocsPage from "./pages/DocsPage";
 import GettingStartedPage from "./pages/GettingStartedPage";
+import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
 import FeaturesPage from "./pages/FeaturesPage";
 import FAQPage from "./pages/FAQPage";
 import AIReviewPage from "./pages/AIReviewPage";
@@ -47,6 +48,7 @@ function App() {
             <Route path="/docs/getting-started" element={<GettingStartedPage />} />
             <Route path="/docs/features" element={<FeaturesPage />} />
             <Route path="/docs/faq" element={<FAQPage />} />
+            <Route path="/privacy" element={<PrivacyPolicyPage />} />
 
             <Route path="/ai-code-review" element={<AIReviewPage />} />
             <Route path="/github-pull-request-analysis" element={<GitHubPRAnalysisPage />} />

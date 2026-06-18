@@ -26,6 +26,10 @@ const DocsPage = () => (
           <h2 className="text-xl font-semibold mb-2">FAQ</h2>
           <p className="text-[#A1A1AA]">Common questions and answers about PRLens.</p>
         </Link>
+        <Link to="/privacy" className="block bg-[#161618] border border-white/10 rounded-xl p-6 hover:border-violet-500/50 transition">
+          <h2 className="text-xl font-semibold mb-2">Privacy Policy</h2>
+          <p className="text-[#A1A1AA]">How PRLens handles your GitHub data, PR content, cookies, and personal information.</p>
+        </Link>
       </div>
 
       <div className="mt-12">
