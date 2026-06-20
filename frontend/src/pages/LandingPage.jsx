@@ -1,36 +1,47 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useRef } from 'react';
 import Navbar from '../Components/landing/Navbar';
 import Hero from '../Components/landing/Hero';
 import HowItWorks from '../Components/landing/HowItWorks';
-import Preview from '../Components/landing/Preview';
 import Features from '../Components/landing/Features';
-import Example from '../Components/landing/Example';
 import CTA from '../Components/landing/CTA';
 import Footer from '../Components/landing/Footer';
 
 const LandingPage = () => {
-  useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.classList.add('visible');
-          observer.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+  const containerRef = useRef(null);
 
-    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+  useEffect(() => {
+    const root = containerRef.current;
+    if (!root) return;
+
+    const elements = root.querySelectorAll('[data-reveal]');
+    if (!elements.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            const el = entry.target;
+            const delay = parseInt(el.getAttribute('data-delay') || '0', 10);
+            setTimeout(() => {
+              el.classList.add('is-revealed');
+            }, delay);
+            observer.unobserve(el);
+          }
+        });
+      },
+      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
+    );
+
+    elements.forEach((el) => observer.observe(el));
     return () => observer.disconnect();
   }, []);
 
   return (
-    <div className="w-full bg-[#0f0f13] text-white font-sans min-h-screen">
+    <div ref={containerRef} className="w-full bg-[#0a0a0d] text-white font-sans min-h-screen">
       <Navbar />
       <Hero />
       <HowItWorks />
-      <Preview />
       <Features />
-      <Example />
       <CTA />
       <Footer />
     </div>

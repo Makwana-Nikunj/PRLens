@@ -1,9 +1,11 @@
 import React, { useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 const isValidPR = (url) => /^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+/i.test(url.trim());
 
 const CTA = () => {
   const inputRef = useRef(null);
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [success, setSuccess] = useState(false);
   const [error, setError] = useState(false);
@@ -23,31 +25,54 @@ const CTA = () => {
     setTimeout(() => {
       setLoading(false);
       setSuccess(true);
-      setTimeout(() => setSuccess(false), 2000);
+      sessionStorage.setItem('pending_pr_analyze', url);
+      navigate('/login');
     }, 1600);
   };
 
   return (
-    <section className="py-[120px] text-center px-6">
-      <div className="max-w-[760px] mx-auto">
-        <h2 className="text-[40px] md:text-[48px] font-bold text-white tracking-tight mb-10 reveal opacity-0 leading-tight">Ready to review smarter?</h2>
-        <div className="relative max-w-[640px] mx-auto flex items-center bg-[#161618] border border-white/10 rounded-xl p-[6px] transition hover:border-white/20 focus-within:border-violet-500 focus-within:shadow-[0_0_20px_rgba(124,58,237,0.2)] reveal opacity-0">
-          <input
-            type="url"
-            ref={inputRef}
-            className="flex-1 bg-transparent border-none text-[15px] text-white px-4 py-2 outline-none w-full placeholder:text-[#A1A1AA]"
-            placeholder="https://github.com/owner/repo/pull/123"
-            autoComplete="off"
-            spellCheck={false}
-            onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
-          />
-          <button
-            className={`flex shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] rounded-lg text-white font-medium transition hover:-translate-y-px animate-none ${error ? 'bg-red-500' : success ? 'bg-green-600' : 'bg-violet-600'}`}
-            onClick={handleAnalyze}
-            disabled={loading}
+    <section className="py-[120px] bg-[#0a0a0d] text-center" aria-labelledby="cta-title">
+      <div className="w-full max-w-[1100px] mx-auto px-6 md:px-[60px] 2xl:px-[100px]">
+        <div className="max-w-[640px] mx-auto">
+          <h2
+            id="cta-title"
+            className="text-[clamp(28px,4vw,40px)] font-bold text-[#f3f3f6] tracking-tight mb-4"
           >
-            {loading ? "..." : error ? 'Invalid URL' : success ? 'Done ✓' : 'Analyze'}
-          </button>
+            Still reading diffs manually?
+          </h2>
+          <p className="text-[clamp(14px,2vw,16px)] text-[#9b9ba8] mb-10">
+            Try PRLens free — no setup required.
+          </p>
+
+          <div
+            className="relative flex items-center rounded-xl p-[6px] transition max-w-[640px] mx-auto"
+            style={{
+              background: '#131318',
+              border: '1px solid #232330',
+            }}
+          >
+            <input
+              type="url"
+              ref={inputRef}
+              className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-2 outline-none w-full placeholder:text-[#6b6b78]"
+              placeholder="https://github.com/owner/repo/pull/123"
+              autoComplete="off"
+              spellCheck={false}
+              onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
+              aria-label="GitHub Pull Request URL"
+            />
+            <button
+              className="flex shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] rounded-lg text-white font-medium transition hover:-translate-y-px active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
+              style={{
+                background: error ? '#ef4444' : success ? '#22c55e' : '#7c3aed',
+              }}
+              onClick={handleAnalyze}
+              disabled={loading}
+              aria-label="Analyze Pull Request"
+            >
+              {loading ? '...' : error ? 'Invalid URL' : success ? 'Done ✓' : 'Analyze'}
+            </button>
+          </div>
         </div>
       </div>
     </section>
