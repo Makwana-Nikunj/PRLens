@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import Button from '../ui/Button';
 import Input from '../ui/Input';
+import MouseGlow from './MouseGlow';
+import Typewriter from '../ui/Typewriter';
 
 const isValidPR = (url) => {
   return /^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+/i.test(url.trim());
@@ -52,6 +54,8 @@ const Hero = () => {
 
   return (
     <header className="relative pt-[180px] pb-[100px] text-center overflow-hidden bg-[#0a0a0d]">
+      <MouseGlow />
+      
       {/* Glow */}
       <div
         className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[1200px] h-[800px] pointer-events-none z-0"
@@ -77,26 +81,14 @@ const Hero = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="font-bold tracking-[-0.03em] leading-[1.1] mb-6 mx-auto text-balance break-words"
+        <h1 className="font-bold tracking-[-0.03em] leading-[1.1] mb-6 mx-auto text-balance break-words min-h-[3.3em] md:min-h-0"
           style={{
             ...fadeUpStyle(0.1),
             fontSize: 'clamp(32px, 8vw, 72px)',
             maxWidth: '900px',
           }}
         >
-          <span className="text-[#f3f3f6]">Understand any </span>
-          <span
-            className="font-bold"
-            style={{
-              background: 'linear-gradient(135deg, #9457f5, #7c3aed)',
-              WebkitBackgroundClip: 'text',
-              backgroundClip: 'text',
-              color: 'transparent',
-            }}
-          >
-            GitHub PR
-          </span>
-          <span className="text-[#f3f3f6]"> in seconds</span>
+          <Typewriter text="Understand any GitHub PR in seconds" delay={40} />
         </h1>
 
         {/* Subtext */}
@@ -155,7 +147,7 @@ const Hero = () => {
 
         {/* Preview Card */}
         <div
-          className="mt-16 mx-auto rounded-2xl overflow-hidden relative w-full max-w-[800px]"
+          className="mt-16 mx-auto rounded-2xl overflow-hidden relative w-full max-w-[800px] z-10"
           style={{
             ...fadeUpStyle(0.5),
             animation: `prl-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s, prl-float 6s ease-in-out infinite 1.6s`,
@@ -164,8 +156,8 @@ const Hero = () => {
             border: '1px solid #232330',
           }}
         >
-          {/* Top bar */}
-          <div className="flex items-center gap-[6px] px-5 py-3 bg-[#131318] border-b border-[#232330]">
+            {/* Top bar */}
+            <div className="flex items-center gap-[6px] px-5 py-3 bg-[#131318] border-b border-[#232330]">
             <span className="w-[10px] h-[10px] rounded-full bg-[#232330]" />
             <span className="w-[10px] h-[10px] rounded-full bg-[#232330]" />
             <span className="w-[10px] h-[10px] rounded-full bg-[#232330]" />

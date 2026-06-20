@@ -30,12 +30,7 @@ const HowItWorks = () => {
   const videoRef = useRef(null);
   const modalVideoRef = useRef(null);
 
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setActiveStep((s) => (s === 3 ? 1 : s + 1));
-    }, 2600);
-    return () => clearInterval(timer);
-  }, []);
+  // Remove setInterval, animation will be driven by video timeUpdate
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -65,7 +60,31 @@ const HowItWorks = () => {
   const handleTimeUpdate = () => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
-    setProgress((v.currentTime / v.duration) * 100);
+    
+    const currentProgress = (v.currentTime / v.duration) * 100;
+    setProgress(currentProgress);
+    
+    // Sync step with video progress (approximate thirds)
+    if (currentProgress < 33.33) {
+      setActiveStep(1);
+    } else if (currentProgress < 66.66) {
+      setActiveStep(2);
+    } else {
+      setActiveStep(3);
+    }
+  };
+
+  const handleStepClick = (stepNum) => {
+    const v = videoRef.current;
+    if (!v || !v.duration) return;
+    
+    // Seek to the corresponding third of the video
+    let targetTime = 0;
+    if (stepNum === 2) targetTime = v.duration * 0.334;
+    if (stepNum === 3) targetTime = v.duration * 0.667;
+    
+    v.currentTime = targetTime;
+    setActiveStep(stepNum);
   };
 
   const handleSeek = (e) => {
@@ -155,8 +174,11 @@ const HowItWorks = () => {
                 return (
                   <div
                     key={step.num}
-                    className="flex gap-5 items-start transition-all duration-500"
+                    className="flex gap-5 items-start transition-all duration-500 cursor-pointer group"
                     aria-label={`Step ${step.num}`}
+                    onClick={() => handleStepClick(parseInt(step.num))}
+                    role="button"
+                    tabIndex={0}
                   >
                     {/* Number circle with connecting line */}
                     <div className="relative flex flex-col items-center">
@@ -184,7 +206,7 @@ const HowItWorks = () => {
                     {/* Text content */}
                     <div className="pt-2">
                       <h3
-                        className="text-[17px] font-semibold mb-1 transition-colors duration-500"
+                        className="text-[17px] font-semibold mb-1 transition-colors duration-500 group-hover:text-white"
                         style={{ color: isActive ? '#f3f3f6' : '#9b9ba8' }}
                       >
                         {step.title}
@@ -221,6 +243,10 @@ const HowItWorks = () => {
               className="w-full h-full object-cover pointer-events-none"
               src="/PRLens.mp4"
               preload="metadata"
+              autoPlay
+              muted
+              loop
+              playsInline
               onTimeUpdate={handleTimeUpdate}
               onEnded={handleEnded}
               onError={() => setVideoError(true)}
