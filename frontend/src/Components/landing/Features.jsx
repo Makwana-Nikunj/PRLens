@@ -118,9 +118,8 @@ const Features = () => {
           What you get
         </h2>
         <div
-          className="grid gap-6"
+          className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
           style={{
-            gridTemplateColumns: 'repeat(3, 1fr)',
             maxWidth: '1100px',
             margin: '0 auto',
           }}

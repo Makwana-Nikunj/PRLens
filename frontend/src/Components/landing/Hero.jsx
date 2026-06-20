@@ -78,7 +78,7 @@ const Hero = () => {
         <h1 className="font-bold tracking-[-0.03em] leading-[1.1] mb-6 mx-auto"
           style={{
             ...fadeUpStyle(0.1),
-            fontSize: 'clamp(36px, 6vw, 72px)',
+            fontSize: 'clamp(32px, 8vw, 72px)',
             maxWidth: '900px',
           }}
         >

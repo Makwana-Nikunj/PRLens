@@ -37,7 +37,7 @@ const Navbar = () => {
         <div className="flex items-center gap-6">
           <Link
             to="/docs"
-            className={`text-[14px] font-medium transition ${
+            className={`hidden md:block text-[14px] font-medium transition ${
               isDocsActive ? 'text-white' : 'text-[#A1A1AA] hover:text-white'
             }`}
           >
@@ -45,7 +45,7 @@ const Navbar = () => {
           </Link>
           <Link
             to="/blog"
-            className={`text-[14px] font-medium transition ${
+            className={`hidden md:block text-[14px] font-medium transition ${
               isBlogActive ? 'text-white' : 'text-[#A1A1AA] hover:text-white'
             }`}
           >

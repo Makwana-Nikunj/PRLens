@@ -39,7 +39,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
 
   return (
     <aside
-      className={`flex flex-col bg-[#161618] border-l border-[#1a1a1f] absolute lg:static top-0 right-0 h-full z-20 transition-transform duration-300 ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full md:translate-x-0 w-[100vw] sm:w-[380px] lg:w-[360px]'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
+      className={`flex flex-col bg-[#161618] border-l border-[#1a1a1f] absolute lg:static top-0 right-0 h-full z-20 transition-transform duration-300 ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full lg:translate-x-0 w-full sm:w-[380px] lg:w-[360px]'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
       style={{ width: window.innerWidth >= 1024 && !chatCollapsed ? chatWidth + 'px' : undefined }}
     >
       <div
@@ -51,17 +51,16 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
           e.preventDefault();
         }}
       ></div>
-      <div className="relative h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-5 shrink-0" onClick={(e) => { if (window.innerWidth < 768 && !e.target.closest('button')) toggleChat(); }}>
-        <div className="flex items-center w-8">
-          <button className="md:hidden w-8 h-8 flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition -ml-1" onClick={() => toggleChat(false)} title="Close">
+      <div className="h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-5 shrink-0">
+        <div className="flex items-center justify-start w-10">
+          <button className="w-8 h-8 flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition -ml-1" onClick={() => toggleChat(false)} title="Back">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           </button>
         </div>
-        <div className="absolute left-1/2 -translate-x-1/2 text-[15px] font-semibold text-[#E4E4E7]">Ask PRLens</div>
-        <div className="flex items-center justify-end w-8 gap-1">
-          <button className="hidden md:flex w-8 h-8 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition -mr-1" onClick={() => toggleChat(false)} title="Collapse">
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
-          </button>
+        <div className="flex-1 flex justify-center text-[15px] font-semibold text-[#E4E4E7]">
+          Ask PRLens
+        </div>
+        <div className="flex items-center justify-end w-10">
         </div>
       </div>
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-5 scrollbar-hide">
