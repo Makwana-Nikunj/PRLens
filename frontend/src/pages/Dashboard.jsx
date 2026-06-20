@@ -144,8 +144,8 @@ const Dashboard = () => {
 
   const handleHistoryClick = (id) => {
     setActivePRId(id);
-    if (window.innerWidth < 1024) setChatOpenMobile(true);
-    else setChatCollapsed(false);
+    if (window.innerWidth < 1024) setChatOpenMobile(false);
+    else setChatCollapsed(true);
     const timer = setTimeout(() => setSidebarOpen(false), 400);
     timersRef.current.push(timer);
   };
@@ -247,13 +247,13 @@ const Dashboard = () => {
                       placeholder="https://github.com/owner/repo/pull/123"
                       value={newPrUrl}
                       onChange={(e) => setNewPrUrl(e.target.value)}
-                      className="flex-1 px-4 py-3.5 bg-[#1a1a1f] text-white text-[15px] rounded-xl border border-[#2a2a2f] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition shadow-inner"
+                      className="flex-1 px-4 py-3.5 bg-[#1a1a1f] text-white text-[16px] sm:text-[15px] rounded-xl border border-[#2a2a2f] focus:outline-none focus:border-violet-500 focus:ring-1 focus:ring-violet-500 transition shadow-inner min-w-0 w-full"
                       required
                     />
                     <button
                       type="submit"
                       disabled={isAnalyzing}
-                      className="flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black font-semibold text-[15px] rounded-xl transition hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
+                      className="w-full sm:w-auto flex items-center justify-center gap-2 px-6 py-3.5 bg-white text-black font-semibold text-[15px] rounded-xl transition hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed shrink-0"
                     >
                       {isAnalyzing ? (
                         <><span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></span> Analyzing...</>

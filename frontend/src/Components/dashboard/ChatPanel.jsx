@@ -29,9 +29,13 @@ const ChatMessage = memo(({ msg, isStreaming }) => {
 const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRef, toggleChat, messages, isTyping, streamingMsgId, messagesEndRef, chatInputRef, inputValue, autoResizeInput, handleSendMessage, onStopStreaming, onToggleSidebar }) => {
   useEffect(() => {
     if (messagesEndRef?.current) {
-      messagesEndRef.current.scrollIntoView({ behavior: streamingMsgId ? 'auto' : 'smooth' });
+      // Only scroll if the chat panel is actually open to prevent unwanted horizontal scrolling
+      const isChatVisible = (window.innerWidth < 1024 && chatOpenMobile) || (window.innerWidth >= 1024 && !chatCollapsed);
+      if (isChatVisible) {
+        messagesEndRef.current.scrollIntoView({ behavior: streamingMsgId ? 'auto' : 'smooth' });
+      }
     }
-  }, [messages, isTyping, streamingMsgId, messagesEndRef]);
+  }, [messages, isTyping, streamingMsgId, messagesEndRef, chatCollapsed, chatOpenMobile]);
 
   return (
     <aside

@@ -102,7 +102,7 @@ const Sidebar = memo(({
     <>
       <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
       <aside
-        className={`fixed md:static inset-y-0 left-0 bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${sidebarCollapsed ? 'md:w-[60px]' : 'md:w-[260px]'}`}
+        className={`fixed md:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${sidebarCollapsed ? 'md:w-[60px]' : 'md:w-[260px]'}`}
       >
         <div className="h-[60px] flex items-center px-4 border-b border-[#1a1a1f] gap-3 shrink-0">
           <div className="relative w-8 h-8 shrink-0">
