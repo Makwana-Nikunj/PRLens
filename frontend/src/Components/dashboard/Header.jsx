@@ -1,6 +1,8 @@
-import React from 'react';
+import React, { memo } from 'react';
+import useDashboardStore from '../../store/dashboardStore';
 
-const Header = ({ activePR, setSidebarOpen }) => {
+const Header = memo(({ activePR }) => {
+  const setSidebarOpen = useDashboardStore(state => state.setSidebarOpen);
   if (!activePR) {
     return (
       <div className="h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-6 bg-[#0f0f13] flex-shrink-0">

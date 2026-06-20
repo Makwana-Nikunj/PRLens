@@ -81,7 +81,21 @@ apiClient.interceptors.response.use(
             }
         }
 
-        return Promise.reject(error);
+        // Standardize the error response before rejecting
+        let errorMessage = 'An unexpected error occurred';
+        if (error.response?.data?.message) {
+            errorMessage = error.response.data.message;
+        } else if (error.response?.data?.error) {
+            errorMessage = error.response.data.error;
+        } else if (error.message) {
+            errorMessage = error.message;
+        }
+
+        const standardizedError = new Error(errorMessage);
+        standardizedError.status = error.response?.status;
+        standardizedError.originalError = error;
+
+        return Promise.reject(standardizedError);
     }
 );
 

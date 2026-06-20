@@ -1,17 +1,19 @@
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import useAuthStore from '../../store/authStore';
+import useDashboardStore from '../../store/dashboardStore';
 import apiClient from '../../lib/apiClient';
 
 function stop(e) { e.stopPropagation(); }
 
-const Sidebar = memo(({
-  sidebarOpen, setSidebarOpen, sidebarCollapsed, setSidebarCollapsed,
-  historyList, activePRId, handleHistoryClick, onNewClick,
-  isHistoryLoading, historyError, onRetryHistory,
-  onRenamePr, onDeletePr, isRenaming, isDeleting
-}) => {
+const Sidebar = memo(() => {
   const { user, logout } = useAuthStore();
+  const {
+    sidebarOpen, setSidebarOpen, sidebarCollapsed, setSidebarCollapsed,
+    historyList, activePRId, setActivePRId,
+    isHistoryLoading, historyError, fetchPRs,
+    renamePr, deletePr, isRenaming, isDeleting
+  } = useDashboardStore();
   const [searchTerm, setSearchTerm] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -86,7 +88,7 @@ const Sidebar = memo(({
   const confirmRename = () => {
     const trimmed = renameValue.trim();
     if (!trimmed || !renameTarget) return;
-    onRenamePr?.(renameTarget.pr_id, trimmed);
+    renamePr(renameTarget.pr_id, trimmed);
     setRenameTarget(null);
     setRenameValue('');
   };
@@ -99,7 +101,7 @@ const Sidebar = memo(({
   const startDelete = (prId) => { setOpenMenuId(null); setDeleteTarget(prId); };
   const confirmDelete = () => {
     if (!deleteTarget) return;
-    onDeletePr?.(deleteTarget);
+    deletePr(deleteTarget);
     setDeleteTarget(null);
   };
   const cancelDelete = () => setDeleteTarget(null);
@@ -136,7 +138,10 @@ const Sidebar = memo(({
         </div>
 
         <nav className={`shrink-0 ${sidebarCollapsed ? 'lg:p-2' : 'p-3'} flex flex-col gap-3`}>
-          <button type="button" onClick={onNewClick} className="w-full flex justify-center items-center gap-2 px-3 py-2 min-h-[44px] bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100">
+          <button type="button" onClick={() => {
+            setActivePRId(null);
+            if (window.innerWidth < 768) setSidebarOpen(false);
+          }} className="w-full flex justify-center items-center gap-2 px-3 py-2 min-h-[44px] bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
             <span className={sidebarCollapsed ? 'lg:hidden' : ''}>Analyze PR</span>
           </button>
@@ -168,7 +173,7 @@ const Sidebar = memo(({
             ) : historyError ? (
               <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
                 <p className="text-[12px] text-red-400 mb-2">Failed to load history</p>
-                {onRetryHistory && <button onClick={onRetryHistory} className="text-[12px] px-3 py-1.5 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 transition">Retry</button>}
+                <button onClick={fetchPRs} className="text-[12px] px-3 py-1.5 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 transition">Retry</button>
               </div>
             ) : filteredHistory.length > 0 ? (
               filteredHistory.map(item => {
@@ -184,7 +189,10 @@ const Sidebar = memo(({
                 const isOpen = openMenuId === item.pr_id;
 
                 return (
-                  <div key={item.pr_id} className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`} onClick={() => handleHistoryClick(item.pr_id)}>
+                  <div key={item.pr_id} className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`} onClick={() => {
+                    setActivePRId(item.pr_id);
+                    if (window.innerWidth < 1024) setSidebarOpen(false);
+                  }}>
                     {!sidebarCollapsed ? (
                       <div className="text-[13px] truncate font-medium flex items-center justify-between">
                         <span className="truncate min-h-[24px] flex items-center">{repoName}</span>

@@ -1,5 +1,7 @@
 import React, { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import Button from '../ui/Button';
+import Input from '../ui/Input';
 
 const isValidPR = (url) => /^https:\/\/github\.com\/[^/]+\/[^/]+\/pull\/\d+/i.test(url.trim());
 
@@ -51,27 +53,22 @@ const CTA = () => {
               border: '1px solid #232330',
             }}
           >
-            <input
-              type="url"
+            <Input
               ref={inputRef}
-              className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-3 sm:py-2 outline-none w-full placeholder:text-[#6b6b78]"
               placeholder="https://github.com/owner/repo/pull/123"
               autoComplete="off"
               spellCheck={false}
               onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
               aria-label="GitHub Pull Request URL"
             />
-            <button
-              className="flex shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] min-h-[44px] w-full sm:w-auto rounded-lg text-white font-medium transition hover:-translate-y-px active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
-              style={{
-                background: error ? '#ef4444' : success ? '#22c55e' : '#7c3aed',
-              }}
+            <Button
+              variant={error ? 'danger' : success ? 'success' : 'primary'}
               onClick={handleAnalyze}
               disabled={loading}
               aria-label="Analyze Pull Request"
             >
               {loading ? '...' : error ? 'Invalid URL' : success ? 'Done ✓' : 'Analyze'}
-            </button>
+            </Button>
           </div>
         </div>
       </div>

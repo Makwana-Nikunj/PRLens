@@ -11,7 +11,16 @@ const chatService = {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to send message: ${response.statusText}`);
+            let errorMsg = `Failed to send message: ${response.statusText}`;
+            try {
+                const errData = await response.json();
+                errorMsg = errData.message || errData.error || errorMsg;
+            } catch (e) {
+                // ignore json parse error
+            }
+            const error = new Error(errorMsg);
+            error.status = response.status;
+            throw error;
         }
 
         const reader = response.body.getReader();
@@ -71,7 +80,16 @@ const chatService = {
         });
 
         if (!response.ok) {
-            throw new Error(`Failed to fetch history: ${response.statusText}`);
+            let errorMsg = `Failed to fetch history: ${response.statusText}`;
+            try {
+                const errData = await response.json();
+                errorMsg = errData.message || errData.error || errorMsg;
+            } catch (e) {
+                // ignore json parse error
+            }
+            const error = new Error(errorMsg);
+            error.status = response.status;
+            throw error;
         }
 
         const data = await response.json();
