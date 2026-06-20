@@ -57,5 +57,5 @@ const Header = memo(({ activePR }) => {
       </div>
     </div>
   );
-};
+});
 export default Header;
