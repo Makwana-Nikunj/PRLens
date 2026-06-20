@@ -5,12 +5,9 @@ import useDashboardStore from '../../store/dashboardStore';
 
 const AnalyzeForm = () => {
   const [url, setUrl] = useState('');
-  const { isAnalyzing, historyError, analyzePr, setHistoryError } = useDashboardStore(state => ({
-    isAnalyzing: state.isAnalyzing,
-    historyError: state.historyError,
-    analyzePr: state.analyzePr,
-    setHistoryError: (err) => useDashboardStore.setState({ historyError: err })
-  }));
+  const isAnalyzing = useDashboardStore(state => state.isAnalyzing);
+  const historyError = useDashboardStore(state => state.historyError);
+  const analyzePr = useDashboardStore(state => state.analyzePr);
 
   const handleSubmit = (e) => {
     e.preventDefault();
