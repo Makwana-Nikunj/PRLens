@@ -32,7 +32,7 @@ const TabChecklist = ({ activePR }) => {
             {checklistItems.map((item, idx) => (
               <li key={idx} className="flex gap-3.5 p-4 sm:p-5 bg-emerald-500/5 border border-emerald-500/10 rounded-xl hover:bg-emerald-500/10 hover:border-emerald-500/30 transition-all duration-300 group">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400/70 shrink-0 mt-0.5 group-hover:text-emerald-400 group-hover:scale-110 transition-all duration-300" />
-                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors">{item.replace(/^[•\-*]\s*/, '')}</span>
+                <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors break-words min-w-0">{item.replace(/^[•\-*]\s*/, '')}</span>
               </li>
             ))}
           </ul>

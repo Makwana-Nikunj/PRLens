@@ -75,7 +75,7 @@ const Hero = () => {
         </div>
 
         {/* Headline */}
-        <h1 className="font-bold tracking-[-0.03em] leading-[1.1] mb-6 mx-auto"
+        <h1 className="font-bold tracking-[-0.03em] leading-[1.1] mb-6 mx-auto text-balance break-words"
           style={{
             ...fadeUpStyle(0.1),
             fontSize: 'clamp(32px, 8vw, 72px)',
@@ -109,7 +109,7 @@ const Hero = () => {
         </p>
 
         {/* Form */}
-        <div className="relative mx-auto flex items-center rounded-xl p-[6px] transition max-w-[640px]"
+        <div className="relative mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 rounded-xl p-[6px] transition max-w-[640px]"
           style={{
             ...fadeUpStyle(0.3),
             background: '#131318',
@@ -119,7 +119,7 @@ const Hero = () => {
           <input
             type="url"
             ref={inputRef}
-            className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-2 outline-none w-full placeholder:text-[#6b6b78]"
+            className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-3 sm:py-2 outline-none w-full placeholder:text-[#6b6b78]"
             placeholder="https://github.com/owner/repo/pull/123"
             autoComplete="off"
             spellCheck={false}
@@ -128,7 +128,7 @@ const Hero = () => {
             aria-label="GitHub Pull Request URL"
           />
           <button
-            className="flex flex-shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] rounded-lg text-white font-medium transition hover:-translate-y-px active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
+            className="flex flex-shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] min-h-[44px] w-full sm:w-auto rounded-lg text-white font-medium transition hover:-translate-y-px active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
             style={{
               background: error ? '#ef4444' : success ? '#22c55e' : '#7c3aed',
             }}
@@ -158,7 +158,7 @@ const Hero = () => {
 
         {/* Preview Card */}
         <div
-          className="mt-16 mx-auto rounded-2xl overflow-hidden relative max-w-[800px]"
+          className="mt-16 mx-auto rounded-2xl overflow-hidden relative w-full max-w-[800px]"
           style={{
             ...fadeUpStyle(0.5),
             animation: `prl-fade-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards 0.5s, prl-float 6s ease-in-out infinite 1.6s`,

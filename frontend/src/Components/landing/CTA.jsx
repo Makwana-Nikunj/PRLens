@@ -45,7 +45,7 @@ const CTA = () => {
           </p>
 
           <div
-            className="relative flex items-center rounded-xl p-[6px] transition max-w-[640px] mx-auto"
+            className="relative flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 rounded-xl p-[6px] transition max-w-[640px] mx-auto"
             style={{
               background: '#131318',
               border: '1px solid #232330',
@@ -54,7 +54,7 @@ const CTA = () => {
             <input
               type="url"
               ref={inputRef}
-              className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-2 outline-none w-full placeholder:text-[#6b6b78]"
+              className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-3 sm:py-2 outline-none w-full placeholder:text-[#6b6b78]"
               placeholder="https://github.com/owner/repo/pull/123"
               autoComplete="off"
               spellCheck={false}
@@ -62,7 +62,7 @@ const CTA = () => {
               aria-label="GitHub Pull Request URL"
             />
             <button
-              className="flex shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] rounded-lg text-white font-medium transition hover:-translate-y-px active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
+              className="flex shrink-0 items-center justify-center gap-2 px-[22px] py-[12px] min-h-[44px] w-full sm:w-auto rounded-lg text-white font-medium transition hover:-translate-y-px active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
               style={{
                 background: error ? '#ef4444' : success ? '#22c55e' : '#7c3aed',
               }}

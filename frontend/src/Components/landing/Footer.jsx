@@ -6,8 +6,8 @@ const Footer = () => (
     <h2 id="footer-heading" className="sr-only">Footer</h2>
     <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] max-w-[1100px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4 text-center md:text-left">
       <div>© 2026 PRLens. All rights reserved.</div>
-      <nav className="flex items-center gap-5" aria-label="Footer links">
-        <Link to="/privacy" className="text-[#9b9ba8] hover:text-[#f3f3f6] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed] rounded">
+      <nav className="flex flex-wrap justify-center items-center gap-5" aria-label="Footer links">
+        <Link to="/privacy" className="text-[#9b9ba8] hover:text-[#f3f3f6] min-h-[44px] flex items-center transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed] rounded">
           Privacy
         </Link>
         <a href="https://github.com" className="text-[#9b9ba8] hover:text-[#f3f3f6] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#7c3aed] rounded" aria-label="GitHub">

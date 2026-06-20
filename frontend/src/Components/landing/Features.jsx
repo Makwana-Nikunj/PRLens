@@ -71,7 +71,6 @@ const FeatureCard = ({ title, desc, icon, index }) => {
       style={{
         background: '#16161d',
         border: '1px solid #232330',
-        maxWidth: '320px',
         width: '100%',
         opacity: visible ? 1 : 0,
         transform: visible ? 'translateY(0)' : 'translateY(20px)',
@@ -117,13 +116,7 @@ const Features = () => {
         >
           What you get
         </h2>
-        <div
-          className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3"
-          style={{
-            maxWidth: '1100px',
-            margin: '0 auto',
-          }}
-        >
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1100px] mx-auto w-full">
           {features.map((f, i) => (
             <FeatureCard key={f.title} index={i} {...f} />
           ))}

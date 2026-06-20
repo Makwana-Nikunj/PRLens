@@ -60,6 +60,15 @@ const Sidebar = memo(({
     try { await apiClient.post('/auth/logout'); } catch (error) { console.error('Logout error:', error); } finally { logout(); }
   };
 
+  useEffect(() => {
+    if ((sidebarOpen && window.innerWidth < 1024) || renameTarget || deleteTarget) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [sidebarOpen, renameTarget, deleteTarget]);
+
   const filteredHistory = useMemo(() => {
     if (!historyList) return [];
     return historyList.filter(item => {
@@ -100,9 +109,9 @@ const Sidebar = memo(({
 
   return (
     <>
-      <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity md:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
+      <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity lg:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
       <aside
-        className={`fixed md:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} md:translate-x-0 ${sidebarCollapsed ? 'md:w-[60px]' : 'md:w-[260px]'}`}
+        className={`fixed lg:static inset-y-0 left-0 w-[260px] bg-[#0b0b0f] border-r border-[#1a1a1f] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${sidebarCollapsed ? 'lg:w-[60px]' : 'lg:w-[260px]'}`}
       >
         <div className="h-[60px] flex items-center px-4 border-b border-[#1a1a1f] gap-3 shrink-0">
           <div className="relative w-8 h-8 shrink-0">
@@ -110,29 +119,29 @@ const Sidebar = memo(({
               <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /></svg>
             </div>
             {sidebarCollapsed && (
-              <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden md:flex absolute inset-0 w-full h-full items-center justify-center bg-[#0b0b0f]/80 rounded-lg text-[#E4E4E7] opacity-0 hover:opacity-100 transition-opacity z-10" title="Expand">
+              <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden lg:flex absolute inset-0 w-full h-full items-center justify-center bg-[#0b0b0f]/80 rounded-lg text-[#E4E4E7] opacity-0 hover:opacity-100 transition-opacity z-10" title="Expand">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
               </button>
             )}
           </div>
-          <div className={`text-[15px] font-semibold tracking-tight text-white truncate ${sidebarCollapsed ? 'md:hidden' : ''}`}>PRLens</div>
+          <div className={`text-[15px] font-semibold tracking-tight text-white truncate ${sidebarCollapsed ? 'lg:hidden' : ''}`}>PRLens</div>
           <div className="flex ml-auto items-center gap-1">
-            <button type="button" onClick={() => setSidebarOpen(false)} className="md:hidden w-8 h-8 flex items-center justify-center rounded-lg hover:bg-white/10 text-[#A1A1AA]">
+            <button type="button" onClick={() => setSidebarOpen(false)} className="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 text-[#A1A1AA]">
               <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
             </button>
-            <button type="button" onClick={() => setSidebarCollapsed(true)} className={`hidden md:flex w-8 h-8 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition ${sidebarCollapsed ? 'md:hidden' : ''}`} title="Collapse sidebar">
+            <button type="button" onClick={() => setSidebarCollapsed(true)} className={`hidden lg:flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition ${sidebarCollapsed ? 'lg:hidden' : ''}`} title="Collapse sidebar">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
             </button>
           </div>
         </div>
 
-        <nav className={`shrink-0 ${sidebarCollapsed ? 'md:p-2' : 'p-3'} flex flex-col gap-3`}>
-          <button type="button" onClick={onNewClick} className="w-full flex justify-center items-center gap-2 px-3 py-2 bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100">
+        <nav className={`shrink-0 ${sidebarCollapsed ? 'lg:p-2' : 'p-3'} flex flex-col gap-3`}>
+          <button type="button" onClick={onNewClick} className="w-full flex justify-center items-center gap-2 px-3 py-2 min-h-[44px] bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
-            <span className={sidebarCollapsed ? 'md:hidden' : ''}>Analyze PR</span>
+            <span className={sidebarCollapsed ? 'lg:hidden' : ''}>Analyze PR</span>
           </button>
           {sidebarCollapsed ? (
-            <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden md:flex w-full justify-center items-center p-2 rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition" title="Search">
+            <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden lg:flex w-full min-h-[44px] justify-center items-center p-2 rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition" title="Search">
               <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
             </button>
           ) : (
@@ -140,12 +149,12 @@ const Sidebar = memo(({
               <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#71717A]">
                 <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
               </div>
-              <input type="text" placeholder="Search history..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-1.5 bg-[#1a1a1f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500" />
+              <input type="text" placeholder="Search history..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-2 min-h-[44px] bg-[#1a1a1f] text-white text-[13px] rounded-lg border border-[#2a2a2f] focus:outline-none focus:border-violet-500" />
             </div>
           )}
         </nav>
 
-        <div className={`shrink-0 ${sidebarCollapsed ? 'md:mx-2 md:my-2' : 'mx-4'}`}>
+        <div className={`shrink-0 ${sidebarCollapsed ? 'lg:mx-2 lg:my-2' : 'mx-4'}`}>
           <div className="h-px bg-[#1a1a1f]" />
         </div>
 
@@ -153,7 +162,7 @@ const Sidebar = memo(({
           {!sidebarCollapsed && (
             <div className="px-2 py-1.5 text-[11px] font-bold text-[#71717A] uppercase tracking-wider sticky top-0 bg-[#0b0b0f] z-10 mt-1">Recent Analyses</div>
           )}
-          <div className={`flex flex-col gap-1 ${sidebarCollapsed ? 'md:mt-2' : 'mt-1'}`}>
+          <div className={`flex flex-col gap-1 ${sidebarCollapsed ? 'lg:mt-2' : 'mt-1'}`}>
             {isHistoryLoading ? (
               <div className="flex flex-col gap-2 mt-2">{[0,1].map((i) => <div key={i} className="h-14 rounded-lg bg-[#1a1a1f] animate-pulse" />)}</div>
             ) : historyError ? (
@@ -178,8 +187,8 @@ const Sidebar = memo(({
                   <div key={item.pr_id} className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`} onClick={() => handleHistoryClick(item.pr_id)}>
                     {!sidebarCollapsed ? (
                       <div className="text-[13px] truncate font-medium flex items-center justify-between">
-                        <span className="truncate">{repoName}</span>
-                        <button type="button" data-menu-id={item.pr_id} onMouseDown={handleMenuMouseDown} onClick={(e) => handleMenuClick(e, item.pr_id)} className="w-6 h-6 flex items-center justify-center rounded opacity-100 md:opacity-0 md:group-hover:opacity-100 hover:bg-white/10 text-[#52525B] hover:text-[#A1A1AA] transition-opacity">
+                        <span className="truncate min-h-[24px] flex items-center">{repoName}</span>
+                        <button type="button" data-menu-id={item.pr_id} onMouseDown={handleMenuMouseDown} onClick={(e) => handleMenuClick(e, item.pr_id)} className="w-8 h-8 flex items-center justify-center rounded opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:bg-white/10 text-[#52525B] hover:text-[#A1A1AA] transition-opacity">
                           <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
                         </button>
                       </div>
@@ -203,7 +212,7 @@ const Sidebar = memo(({
 
         <div className="border-t border-[#1a1a1f] shrink-0 relative flex justify-center" ref={dropdownRef}>
           <div className={`w-full ${sidebarCollapsed ? 'max-w-[60px]' : 'max-w-[260px]'}`}>
-            <button onClick={(e) => { if (sidebarCollapsed) { setSidebarCollapsed(false); setSidebarOpen(true); } else { setProfileDropdownOpen(prev => !prev); } }} className={`w-full transition rounded-lg ${sidebarCollapsed ? 'flex flex-col items-center gap-2 p-3 text-center' : 'flex items-center gap-3 p-2 hover:bg-[#1a1a1f] text-left'}`}>
+            <button onClick={(e) => { if (sidebarCollapsed) { setSidebarCollapsed(false); setSidebarOpen(true); } else { setProfileDropdownOpen(prev => !prev); } }} className={`w-full min-h-[56px] transition rounded-lg ${sidebarCollapsed ? 'flex flex-col items-center gap-2 p-3 text-center' : 'flex items-center gap-3 p-2 hover:bg-[#1a1a1f] text-left'}`}>
               {user?.avatar ? (
                 <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400">
                   <img src={user.avatar} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />

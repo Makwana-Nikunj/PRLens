@@ -54,7 +54,7 @@ const Navbar = () => {
           <button
             onClick={handleLoginClick}
             disabled={isConnecting}
-            className="flex items-center gap-2 bg-transparent text-[#E4E4E7] border border-white/20 px-[18px] py-[10px] rounded-xl text-[14px] font-medium transition hover:border-white/40 hover:bg-white/5 active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
+            className="flex items-center gap-2 bg-transparent text-[#E4E4E7] border border-white/20 px-[18px] py-[10px] min-h-[44px] rounded-xl text-[14px] font-medium transition hover:border-white/40 hover:bg-white/5 active:scale-[0.98] disabled:opacity-80 disabled:cursor-not-allowed"
           >
             {isConnecting ? (
               <>

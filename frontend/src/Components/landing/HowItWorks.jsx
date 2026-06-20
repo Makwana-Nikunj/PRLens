@@ -39,11 +39,15 @@ const HowItWorks = () => {
 
   useEffect(() => {
     if (!modalOpen) return;
+    document.body.style.overflow = 'hidden';
     const onKey = (e) => {
       if (e.key === 'Escape') setModalOpen(false);
     };
     document.addEventListener('keydown', onKey);
-    return () => document.removeEventListener('keydown', onKey);
+    return () => {
+      document.body.style.overflow = '';
+      document.removeEventListener('keydown', onKey);
+    };
   }, [modalOpen]);
 
   const togglePlay = () => {
