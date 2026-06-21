@@ -170,27 +170,27 @@ export function useChatResize({ chatCollapsed, setChatCollapsed, chatOpenMobile,
             }
         };
         let resizeTimer;
-        let isDesktopLast = window.innerWidth >= 1024;
-        const handleResize = () => {
+        let lastWidth = window.innerWidth;
+        const handleResize = (e) => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                const isDesktopNow = window.innerWidth >= 1024;
-                if (isDesktopLast !== isDesktopNow) {
-                    if (!isDesktopNow) {
-                        setChatOpenMobile(!chatCollapsedRef.current);
-                        setChatCollapsed(false);
-                    } else {
-                        setChatCollapsed(!chatOpenMobileRef.current);
-                        setChatOpenMobile(false);
-                    }
-                    isDesktopLast = isDesktopNow;
+                // If it's a window resize event and the width hasn't changed, it's just a vertical scroll on mobile
+                if (e && window.innerWidth === lastWidth) return;
+                lastWidth = window.innerWidth;
+
+                if (window.innerWidth < 1024) {
+                    setChatOpenMobile(!chatCollapsedRef.current);
+                    setChatCollapsed(false);
+                } else {
+                    setChatCollapsed(!chatOpenMobileRef.current);
+                    setChatOpenMobile(false);
                 }
             }, 150);
         };
         window.addEventListener('mousemove', handleMouseMove);
         window.addEventListener('mouseup', handleMouseUp);
         window.addEventListener('resize', handleResize);
-        handleResize();
+        handleResize(); // Initial call (e is undefined)
         return () => {
             window.removeEventListener('mousemove', handleMouseMove);
             window.removeEventListener('mouseup', handleMouseUp);
