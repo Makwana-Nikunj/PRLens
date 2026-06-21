@@ -1,5 +1,10 @@
 User-agent: *
 Allow: /
-Disallow: /api/
 
+# Prevent indexing of authenticated routes and user-specific data
+Disallow: /pr/
+Disallow: /chat/
+Disallow: /dashboard/
+
+# Point search engines to the sitemap
 Sitemap: https://prlens-eight.vercel.app/sitemap.xml
