@@ -170,15 +170,20 @@ export function useChatResize({ chatCollapsed, setChatCollapsed, chatOpenMobile,
             }
         };
         let resizeTimer;
+        let isDesktopLast = window.innerWidth >= 1024;
         const handleResize = () => {
             clearTimeout(resizeTimer);
             resizeTimer = setTimeout(() => {
-                if (window.innerWidth < 1024) {
-                    setChatOpenMobile(!chatCollapsedRef.current);
-                    setChatCollapsed(false);
-                } else {
-                    setChatCollapsed(!chatOpenMobileRef.current);
-                    setChatOpenMobile(false);
+                const isDesktopNow = window.innerWidth >= 1024;
+                if (isDesktopLast !== isDesktopNow) {
+                    if (!isDesktopNow) {
+                        setChatOpenMobile(!chatCollapsedRef.current);
+                        setChatCollapsed(false);
+                    } else {
+                        setChatCollapsed(!chatOpenMobileRef.current);
+                        setChatOpenMobile(false);
+                    }
+                    isDesktopLast = isDesktopNow;
                 }
             }, 150);
         };
