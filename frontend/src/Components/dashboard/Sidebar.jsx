@@ -1,5 +1,6 @@
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { createPortal } from 'react-dom';
+import { useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import useDashboardStore from '../../store/dashboardStore';
 import apiClient from '../../lib/apiClient';
@@ -7,6 +8,7 @@ import apiClient from '../../lib/apiClient';
 function stop(e) { e.stopPropagation(); }
 
 const Sidebar = memo(() => {
+  const navigate = useNavigate();
   const { user, logout } = useAuthStore();
   const {
     sidebarOpen, setSidebarOpen, sidebarCollapsed, setSidebarCollapsed,
@@ -139,7 +141,7 @@ const Sidebar = memo(() => {
 
         <nav className={`shrink-0 ${sidebarCollapsed ? 'lg:p-2' : 'p-3'} flex flex-col gap-3`}>
           <button type="button" onClick={() => {
-            setActivePRId(null);
+            navigate('/pr/new');
             if (window.innerWidth < 768) setSidebarOpen(false);
           }} className="w-full flex justify-center items-center gap-2 px-3 py-2 min-h-[44px] bg-white text-black font-semibold text-[13px] rounded-lg transition hover:-translate-y-px hover:bg-gray-100">
             <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
@@ -190,7 +192,7 @@ const Sidebar = memo(() => {
 
                 return (
                   <div key={item.pr_id} className={`p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer ${activePRId === item.pr_id ? 'bg-violet-600/10 text-violet-400 border border-violet-500/20' : 'text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-[#E4E4E7] border border-transparent'}`} onClick={() => {
-                    setActivePRId(item.pr_id);
+                    navigate(`/pr/${item.pr_id}`);
                     if (window.innerWidth < 1024) setSidebarOpen(false);
                   }}>
                     {!sidebarCollapsed ? (

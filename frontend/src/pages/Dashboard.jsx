@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef, useCallback, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import Sidebar from '../Components/dashboard/Sidebar';
 import Header from '../Components/dashboard/Header';
 import TabSummary from '../Components/dashboard/TabSummary';
@@ -13,6 +14,8 @@ import { useChat, useChatResize } from '../hooks/useChat';
 import useDashboardStore from '../store/dashboardStore';
 
 const Dashboard = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('summary');
 
   const {
@@ -47,13 +50,37 @@ const Dashboard = () => {
     fetchPRs();
   }, []);
 
-  const handleHistoryClick = useCallback((id) => {
-    setActivePRId(id);
-    if (window.innerWidth < 1024) setChatOpenMobile(false);
-    else setChatCollapsed(true);
-    const timer = setTimeout(() => setSidebarOpen(false), 400);
-    timersRef.current.push(timer);
-  }, [setActivePRId, setChatOpenMobile, setChatCollapsed, setSidebarOpen]);
+  const lastId = useRef(id);
+  const lastActivePRId = useRef(activePRId);
+
+  useEffect(() => {
+    const prIdFromUrl = (id === 'new' || !id) ? null : id;
+
+    const urlChanged = id !== lastId.current;
+    const storeChanged = activePRId !== lastActivePRId.current;
+
+    lastId.current = id;
+    lastActivePRId.current = activePRId;
+
+    if (urlChanged && !storeChanged) {
+      // User navigated via URL/Link. Sync URL -> Store
+      setActivePRId(prIdFromUrl);
+    } else if (storeChanged && !urlChanged) {
+      // Store updated (e.g. analysis finished). Sync Store -> URL
+      const targetUrl = activePRId ? `/pr/${activePRId}` : '/pr/new';
+      navigate(targetUrl, { replace: true });
+    } else if (!urlChanged && !storeChanged) {
+      // Initial mount check
+      if (activePRId === null && prIdFromUrl !== null) {
+        setActivePRId(prIdFromUrl);
+      }
+    }
+  }, [id, activePRId, navigate, setActivePRId]);
+
+  useEffect(() => {
+    setChatOpenMobile(false);
+    setChatCollapsed(true);
+  }, [id]);
 
   useEffect(() => {
     return () => {
@@ -65,20 +92,11 @@ const Dashboard = () => {
   const isReopenShown = resize.isReopenShown;
 
   const handleChatToggleSidebar = useCallback(() => setSidebarOpen(prev => !prev), []);
-  const onNewClick = useCallback(() => {
-    setActivePRId(null);
-    setChatOpenMobile(false);
-    setChatCollapsed(true);
-    if (window.innerWidth < 768) setSidebarOpen(false);
-  }, [setActivePRId, setChatOpenMobile, setChatCollapsed, setSidebarOpen]);
 
   return (
     <div className="w-full h-[100dvh] bg-[#0f0f13] text-[#E4E4E7] font-sans flex overflow-hidden">
       <div className="flex w-full h-full relative overflow-hidden">
-        <Sidebar
-          handleHistoryClick={handleHistoryClick}
-          onNewClick={onNewClick}
-        />
+        <Sidebar />
         <main className="flex-1 min-w-0 flex flex-col bg-[#0f0f13] relative">
           <Header activePR={activePR} setSidebarOpen={setSidebarOpen} />
           <div className="flex border-b border-[#1a1a1f] px-2 sm:px-4 shrink-0 overflow-x-auto scrollbar-hide">

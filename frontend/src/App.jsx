@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import GithubSignIn from "./pages/GithubSignIn";
 import DocsPage from "./pages/DocsPage";
@@ -68,7 +68,8 @@ function App() {
             <Route path="/blog/developer-productivity-with-ai-review-tools" element={<DeveloperProductivityWithAIReviewTools />} />
 
             <Route element={<ProtectedRoute />}>
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/pr/:id?" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Navigate to="/pr/new" replace />} />
               <Route path="/dashboard/:id" element={<FileExplanations />} />
               <Route path="/chat/:id" element={<ChatInterface />} />
             </Route>
