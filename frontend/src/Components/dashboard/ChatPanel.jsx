@@ -51,7 +51,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
           e.preventDefault();
         }}
       ></div>
-      <div className="h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-5 shrink-0">
+      <div className="sticky top-0 z-10 bg-[#161618] h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-5 shrink-0">
         <div className="flex items-center justify-start w-10">
           <button className="w-8 h-8 flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition -ml-1" onClick={() => toggleChat(false)} title="Back">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
@@ -80,7 +80,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
         )}
         <div ref={messagesEndRef} />
       </div>
-       <div className="p-4 bg-[#161618] border-t border-[#1a1a1f] shrink-0">
+       <div className="sticky bottom-0 z-10 p-4 bg-[#161618] border-t border-[#1a1a1f] shrink-0">
          <div className="relative flex items-end bg-[#0b0b0f] border border-[#1a1a1f] rounded-xl focus-within:border-violet-500/50 transition overflow-hidden">
            <textarea
              className="w-full bg-transparent border-none text-[14px] text-white p-3 md:pr-12 pr-10 focus:outline-none resize-none min-h-[44px] max-h-[120px] scrollbar-hide leading-relaxed placeholder-[#71717A]"
