@@ -41,18 +41,20 @@ const AnalyzeForm = () => {
             {historyError.message}
           </p>
         )}
-        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3">
+        <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 w-full">
           <Input
             variant="secondary"
             type="url"
             placeholder="https://github.com/owner/repo/pull/123"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
+            className="w-full"
             required
           />
           <Button
             variant="secondary"
             type="submit"
+            className="w-full sm:w-auto shrink-0"
             disabled={isAnalyzing}
           >
             {isAnalyzing ? (

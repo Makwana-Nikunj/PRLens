@@ -23,7 +23,7 @@ const TabSummary = ({ activePR }) => {
           </div>
         </div>
 
-        <div className="text-[15px] text-[#E4E4E7] leading-relaxed whitespace-pre-wrap break-words bg-[#0f0f13]/50 p-5 sm:p-6 rounded-xl border border-white/5">
+        <div className="text-[15px] text-[#E4E4E7] leading-relaxed whitespace-pre-wrap break-words overflow-x-auto bg-[#0f0f13]/50 p-5 sm:p-6 rounded-xl border border-white/5">
           {summaryText}
         </div>
       </div>

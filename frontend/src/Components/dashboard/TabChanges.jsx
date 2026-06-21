@@ -33,7 +33,7 @@ const TabChanges = ({ activePR }) => {
         {changesList.length > 0 ? (
           <ul className="space-y-3">
             {changesList.map((change, idx) => (
-              <li key={idx} className="flex gap-3.5 p-4 sm:p-5 bg-[#0f0f13]/50 border border-white/5 rounded-xl hover:border-blue-500/30 hover:bg-[#1a1a24] transition-all group">
+              <li key={idx} className="flex gap-3.5 p-4 sm:p-5 bg-[#0f0f13]/50 border border-white/5 rounded-xl hover:border-blue-500/30 hover:bg-[#1a1a24] transition-all group overflow-x-auto">
                 <CheckCircle2 className="w-5 h-5 text-blue-400/70 shrink-0 mt-0.5 group-hover:text-blue-400 group-hover:scale-110 transition-all duration-300" />
                 <span className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed group-hover:text-white transition-colors break-words min-w-0">{typeof change === 'string' ? change.replace(/^[•\-*]\s*/, '') : JSON.stringify(change)}</span>
               </li>

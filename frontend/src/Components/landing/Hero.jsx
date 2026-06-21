@@ -53,7 +53,7 @@ const Hero = () => {
   };
 
   return (
-    <header className="relative pt-[180px] pb-[100px] text-center overflow-hidden bg-[#0a0a0d]">
+    <header className="relative pt-[120px] md:pt-[180px] pb-[100px] text-center overflow-hidden bg-[#0a0a0d]">
       <MouseGlow />
       
       {/* Glow */}

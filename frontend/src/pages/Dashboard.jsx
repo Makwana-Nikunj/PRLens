@@ -110,7 +110,7 @@ const Dashboard = () => {
               </button>
             ))}
           </div>
-          <div className="flex-1 overflow-y-auto bg-[#0b0b0f] p-4 sm:p-6 lg:p-8 scrollbar-hide">
+          <div className="flex-1 overflow-y-auto bg-[#0b0b0f] p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8 lg:pb-24 scrollbar-hide">
             <div className="max-w-[760px] mx-auto w-full">
               {!activePR ? (
                 <AnalyzeForm />

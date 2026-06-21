@@ -47,7 +47,7 @@ const TabFileExplanations = ({ activePR }) => {
                   </button>
                   {isOpen && (
                     <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-1">
-                      <p className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed whitespace-pre-wrap break-words min-w-0 bg-[#0f0f13]/50 p-4 rounded-lg border border-white/5">
+                      <p className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed whitespace-pre-wrap break-words overflow-x-auto min-w-0 bg-[#0f0f13]/50 p-4 rounded-lg border border-white/5">
                         {explanation}
                       </p>
                     </div>
