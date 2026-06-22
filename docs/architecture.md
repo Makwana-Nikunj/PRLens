@@ -2,8 +2,7 @@
 
 ```mermaid
 flowchart TB
-    subgraph Client
-["🖥 Frontend — React + Vite"]
+    subgraph Client["🖥 Frontend — React + Vite"]
         UI["React Pages & Components"]
         Store["Zustand Store (auth, history)"]
         Services["Service Layer (Axios)"]
@@ -32,15 +31,25 @@ flowchart TB
 
 ### Request Flow
 
-```
-Client Request (PR URL)
-  → Express Router
-    → Auth Middleware (JWT verify)
-      → PR Controller (business logic)
-        → Octokit (fetch PR diff, files, metadata)
-        → AI Service (analyze diff + context)
-        → PostgreSQL (save analysis to history)
-      ← Analysis Result
-    ← JSON Response
-  ← Client renders Summary / Changes / Risks
+```mermaid
+sequenceDiagram
+    participant Client
+    participant Router as "Express Router"
+    participant Auth as "Auth Middleware"
+    participant Controller as "PR Controller"
+    participant Octokit
+    participant AI as "AI Service"
+    participant DB as "PostgreSQL"
+    
+    Client->>Router: Client Request (PR URL)
+    Router->>Auth: JWT verify
+    Auth->>Controller: business logic
+    
+    Controller->>Octokit: fetch PR diff, files, metadata
+    Controller->>AI: analyze diff + context
+    Controller->>DB: save analysis to history
+    
+    Controller-->>Auth: Analysis Result
+    Auth-->>Router: JSON Response
+    Router-->>Client: Client renders Summary / Changes / Risks
 ```
