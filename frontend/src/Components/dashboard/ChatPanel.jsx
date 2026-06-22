@@ -66,7 +66,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
         <div className="flex items-center justify-end w-10">
         </div>
       </div>
-      <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 flex flex-col gap-5 scrollbar-hide">
+      <div className="flex-1 overflow-y-auto overscroll-contain overflow-x-hidden p-4 flex flex-col gap-5 scrollbar-hide">
         {messages.map(msg => (
           <ChatMessage key={msg.id} msg={msg} isStreaming={msg.id === streamingMsgId} />
         ))}
