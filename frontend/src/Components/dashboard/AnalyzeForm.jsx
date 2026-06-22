@@ -9,6 +9,9 @@ const AnalyzeForm = () => {
   const historyError = useDashboardStore(state => state.historyError);
   const analyzePr = useDashboardStore(state => state.analyzePr);
 
+  const analysisPhase = useDashboardStore(state => state.analysisPhase);
+  const analysisProgress = useDashboardStore(state => state.analysisProgress);
+
   const handleSubmit = (e) => {
     e.preventDefault();
     const cleanUrl = url.trim();
@@ -54,11 +57,20 @@ const AnalyzeForm = () => {
           <Button
             variant="secondary"
             type="submit"
-            className="w-full sm:w-auto shrink-0"
+            className="w-full sm:w-auto shrink-0 relative overflow-hidden"
             disabled={isAnalyzing}
           >
             {isAnalyzing ? (
-              <><span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></span> Analyzing...</>
+              <>
+                <div 
+                  className="absolute left-0 top-0 h-full bg-violet-200/50 transition-all duration-700 ease-out z-0" 
+                  style={{ width: `${analysisProgress}%` }}
+                />
+                <div className="relative z-10 flex items-center justify-center gap-2">
+                  <span className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin"></span> 
+                  {analysisProgress > 0 ? `${analysisProgress}% - ` : ''}{analysisPhase || "Analyzing..."}
+                </div>
+              </>
             ) : (
               <><svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg> Analyze PR</>
             )}

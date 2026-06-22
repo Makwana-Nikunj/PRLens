@@ -10,6 +10,8 @@ const useDashboardStore = create((set, get) => ({
   isRenaming: null,
   isDeleting: null,
   isAnalyzing: false,
+  analysisPhase: null,
+  analysisProgress: 0,
 
   // Sidebar Layout State
   sidebarOpen: false,
@@ -86,34 +88,36 @@ const useDashboardStore = create((set, get) => ({
   },
 
   analyzePr: async (url) => {
-    set({ isAnalyzing: true, historyError: null });
+    set({ isAnalyzing: true, analysisPhase: null, analysisProgress: 0, historyError: null });
     try {
-      await prService.analyzePr(url);
+      const result = await prService.analyzePr(url, ({ phase, progress }) => set({ analysisPhase: phase, analysisProgress: progress }));
       await get().fetchPRs();
-      set({ activePRId: null, isAnalyzing: false });
+      const newPrId = result?.analysis?.pr_id || result?.pullRequest?.id || null;
+      set({ activePRId: newPrId, isAnalyzing: false, analysisPhase: null, analysisProgress: 0 });
     } catch (error) {
       console.warn('Initial analyze failed, polling for result...', error);
       const rateLimit = error?.status === 429 || /rate limit/i.test(error?.message || '');
       if (rateLimit) {
-        set({ historyError: new Error('Rate limit hit. Please wait a moment and try again.'), isAnalyzing: false });
+        set({ historyError: new Error('Rate limit hit. Please wait a moment and try again.'), isAnalyzing: false, analysisPhase: null, analysisProgress: 0 });
         throw error;
       }
       try {
-        await get().pollForAnalysis(url);
+        const match = await get().pollForAnalysis(url);
         await get().fetchPRs();
-        set({ activePRId: null, isAnalyzing: false });
+        const newPrId = match?.pr_id || null;
+        set({ activePRId: newPrId, isAnalyzing: false, analysisPhase: null, analysisProgress: 0 });
       } catch (pollError) {
         console.error(pollError);
-        set({ historyError: pollError, isAnalyzing: false });
+        set({ historyError: pollError, isAnalyzing: false, analysisPhase: null, analysisProgress: 0 });
         throw pollError;
       }
     }
   },
 
   analyzePendingPr: async (pendingPrUrl) => {
-    set({ isAnalyzing: true, historyError: null });
+    set({ isAnalyzing: true, analysisPhase: null, analysisProgress: 0, historyError: null });
     try {
-      const result = await prService.analyzePr(pendingPrUrl);
+      const result = await prService.analyzePr(pendingPrUrl, ({ phase, progress }) => set({ analysisPhase: phase, analysisProgress: progress }));
       await get().fetchPRs();
       if (result?.analysis?.pr_id) {
         set({ activePRId: result.analysis.pr_id });
@@ -128,7 +132,7 @@ const useDashboardStore = create((set, get) => ({
         set({ historyError: pollError });
       }
     } finally {
-      set({ isAnalyzing: false });
+      set({ isAnalyzing: false, analysisPhase: null, analysisProgress: 0 });
     }
   }
 }));
