@@ -6,7 +6,7 @@ const ChatMessage = memo(({ msg, isStreaming }) => {
   const userBubble = 'bg-violet-600 text-white rounded-2xl rounded-br-sm shadow-md shadow-violet-900/30 p-2 sm:p-3 max-w-[75%] sm:max-w-[70%]';
   const aiBase = 'rounded-2xl rounded-bl-sm p-2 sm:p-3 max-w-[100%] sm:max-w-[100%]';
   const aiBubble = `text-[#E4E4E7] ${aiBase}`;
-  const proseBase = 'break-words min-w-0 prose prose-invert prose-sm max-w-none prose-sm:leading-snug prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-pre:bg-[#0f0f13] prose-pre:border prose-pre:border-[#1a1a1f] prose-pre:rounded-xl prose-pre:p-3 prose-pre:text-[13px] prose-code:text-[13px] prose-code:bg-[#0b0b0f] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-[#1a1a1f] prose-h1:text-[15px] prose-h1:font-semibold prose-h2:text-[13px] prose-h2:font-semibold prose-h3:text-[13px] prose-h3:font-semibold prose-strong:text-white prose-headings:text-white prose-li:marker:text-violet-400 prose-a:text-violet-400 hover:prose-a:text-violet-300';
+  const proseBase = 'break-words min-w-0 prose prose-invert prose-sm max-w-none prose-sm:leading-snug prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-pre:bg-[#0f0f13] prose-pre:border prose-pre:border-[#1a1a1f] prose-pre:rounded-xl prose-pre:p-3 prose-pre:text-[13px] prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:text-[13px] prose-code:bg-[#0b0b0f] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-[#1a1a1f] prose-h1:text-[15px] prose-h1:font-semibold prose-h2:text-[13px] prose-h2:font-semibold prose-h3:text-[13px] prose-h3:font-semibold prose-strong:text-white prose-headings:text-white prose-li:marker:text-violet-400 prose-a:text-violet-400 hover:prose-a:text-violet-300';
 
   return (
     <div className={msg.who === 'user' ? 'flex justify-end' : 'w-full'}>
@@ -42,7 +42,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
 
   return (
     <aside
-      className={`flex flex-col bg-[#161618] border-l border-[#1a1a1f] absolute lg:static top-0 right-0 h-full z-20 transition-transform duration-300 ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full lg:translate-x-0 w-full sm:w-[380px] lg:w-[360px]'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
+      className={`flex flex-col bg-[#161618] border-l border-[#1a1a1f] absolute lg:static top-0 right-0 h-full z-20 transition-all duration-300 w-full sm:w-[380px] lg:w-[360px] ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full lg:translate-x-0'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
       style={{ width: window.innerWidth >= 1024 && !chatCollapsed ? chatWidth + 'px' : undefined }}
     >
       <div
