@@ -27,7 +27,7 @@
 ---
 
 ## 🔗 Demo
-[Add Demo Link Here]
+https://prlens-eight.vercel.app/
 
 ## ✨ Key Features
 
@@ -48,9 +48,6 @@
 | ⚡ **Fast Analysis** | Caching and optimized GitHub API calls for quick results |
 | 📡 **Real-time Progress** | Live UI updates during PR analysis via Server-Sent Events (SSE) |
 
-## 📸 Screenshots
-
-*(Add screenshots here)*
 
 ## 🛠 Tech Stack
 
