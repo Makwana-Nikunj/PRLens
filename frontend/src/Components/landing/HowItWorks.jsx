@@ -3,21 +3,27 @@ import SectionHeading from './SectionHeading';
 
 const steps = [
   {
-    num: '1',
+    num: 1,
     title: 'Paste a GitHub PR URL',
     desc: 'Copy any public pull request link',
   },
   {
-    num: '2',
+    num: 2,
     title: 'AI analyzes the diff in seconds',
     desc: 'Understands code changes and context',
   },
   {
-    num: '3',
+    num: 3,
     title: 'Read insights or chat for deeper understanding',
     desc: 'Ask follow-up questions instantly',
   },
 ];
+
+const CheckIcon = () => (
+  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+    <path d="m5 13 4 4L19 7" />
+  </svg>
+);
 
 const HowItWorks = () => {
   const [activeStep, setActiveStep] = useState(1);
@@ -30,8 +36,6 @@ const HowItWorks = () => {
   const [modalSpeed, setModalSpeed] = useState(1);
   const videoRef = useRef(null);
   const modalVideoRef = useRef(null);
-
-  // Remove setInterval, animation will be driven by video timeUpdate
 
   useEffect(() => {
     if (!modalOpen) return;
@@ -61,10 +65,10 @@ const HowItWorks = () => {
   const handleTimeUpdate = () => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
-    
+
     const currentProgress = (v.currentTime / v.duration) * 100;
     setProgress(currentProgress);
-    
+
     // Sync step with video progress (approximate thirds)
     if (currentProgress < 33.33) {
       setActiveStep(1);
@@ -75,15 +79,22 @@ const HowItWorks = () => {
     }
   };
 
+  // How much of a step's third of the video has played (0-100), for the per-card fill bar
+  const stepFill = (stepNum) => {
+    const start = ((stepNum - 1) / 3) * 100;
+    const end = (stepNum / 3) * 100;
+    return Math.min(100, Math.max(0, ((progress - start) / (end - start)) * 100));
+  };
+
   const handleStepClick = (stepNum) => {
     const v = videoRef.current;
     if (!v || !v.duration) return;
-    
+
     // Seek to the corresponding third of the video
     let targetTime = 0;
     if (stepNum === 2) targetTime = v.duration * 0.334;
     if (stepNum === 3) targetTime = v.duration * 0.667;
-    
+
     v.currentTime = targetTime;
     setActiveStep(stepNum);
   };
@@ -166,122 +177,153 @@ const HowItWorks = () => {
           subtitle="Three steps from a pull request URL to a full AI breakdown — watch it in action."
         />
 
-        <div className="flex flex-col lg:flex-row items-start gap-10 lg:gap-14 max-w-[1100px] mx-auto">
+        <div className="flex flex-col lg:flex-row items-center lg:items-start gap-8 lg:gap-14 max-w-[1100px] mx-auto">
           {/* Left: Steps */}
-          <div className="w-full lg:w-[300px] shrink-0">
-            <div className="flex flex-col gap-8">
+          <div className="w-full lg:w-[340px] shrink-0">
+            <div className="flex flex-col gap-3" role="tablist" aria-label="Demo steps">
               {steps.map((step) => {
-                const isActive = activeStep === parseInt(step.num);
+                const num = parseInt(step.num);
+                const isActive = activeStep === num;
+                const isDone = activeStep > num;
                 return (
-                  <div
+                  <button
                     key={step.num}
-                    className="flex gap-5 items-start transition-all duration-500 cursor-pointer group"
-                    aria-label={`Step ${step.num}`}
-                    onClick={() => handleStepClick(parseInt(step.num))}
-                    role="button"
-                    tabIndex={0}
+                    type="button"
+                    onClick={() => handleStepClick(num)}
+                    aria-current={isActive}
+                    className="group relative w-full text-left rounded-xl px-5 py-4 overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5]"
+                    style={{
+                      background: isActive ? 'rgba(124,58,237,0.08)' : '#131318',
+                      border: `1px solid ${isActive ? 'rgba(124,58,237,0.4)' : '#232330'}`,
+                      boxShadow: isActive ? '0 0 40px rgba(124,58,237,0.1)' : 'none',
+                    }}
+                    title={`Jump to step ${step.num} in the demo`}
                   >
-                    {/* Number circle with connecting line */}
-                    <div className="relative flex flex-col items-center">
-                      <div
-                        className="w-[44px] h-[44px] rounded-full flex items-center justify-center text-[18px] font-bold shrink-0 transition-all duration-500"
+                    <div className="flex items-center gap-4">
+                      {/* Number / done circle */}
+                      <span
+                        className="w-9 h-9 rounded-full flex items-center justify-center text-[15px] font-bold shrink-0 transition-all duration-300"
                         style={{
-                          background: isActive ? 'rgba(124,58,237,0.15)' : 'transparent',
-                          border: `1px solid ${isActive ? 'rgba(124,58,237,0.5)' : '#232330'}`,
-                          color: isActive ? '#9457f5' : '#6b6b78',
+                          background: isDone ? 'rgba(124,58,237,0.25)' : isActive ? 'rgba(124,58,237,0.18)' : 'transparent',
+                          border: `1px solid ${isDone || isActive ? 'rgba(148,87,245,0.5)' : '#232330'}`,
+                          color: isDone || isActive ? '#9457f5' : '#6b6b78',
+                          boxShadow: isActive ? '0 0 20px rgba(124,58,237,0.25)' : 'none',
                         }}
                       >
-                        {step.num}
-                      </div>
-                      {/* Connecting line */}
-                      {parseInt(step.num) < 3 && (
-                        <div
-                          className="w-px h-[56px] mt-2 transition-colors duration-500"
-                          style={{
-                            background: activeStep > parseInt(step.num) ? 'linear-gradient(to bottom, #9457f5, #232330)' : '#232330',
-                          }}
-                        />
-                      )}
+                        {isDone ? <CheckIcon /> : step.num}
+                      </span>
+
+                      {/* Text */}
+                      <span className="min-w-0">
+                        <span
+                          className="block text-[16px] font-semibold leading-snug transition-colors duration-300"
+                          style={{ color: isActive ? '#f3f3f6' : '#9b9ba8' }}
+                        >
+                          {step.title}
+                        </span>
+                        <span className="block text-[13px] leading-relaxed text-[#6b6b78] mt-[3px]">{step.desc}</span>
+                      </span>
+
+                      {/* Jump hint */}
+                      <svg
+                        className="w-4 h-4 shrink-0 ml-auto text-[#9457f5] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        strokeWidth="2"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        aria-hidden="true"
+                      >
+                        <path d="m9 18 6-6-6-6" />
+                      </svg>
                     </div>
 
-                    {/* Text content */}
-                    <div className="pt-2">
-                      <h3
-                        className="text-[17px] font-semibold mb-1 transition-colors duration-500 group-hover:text-white"
-                        style={{ color: isActive ? '#f3f3f6' : '#9b9ba8' }}
-                      >
-                        {step.title}
-                      </h3>
-                      <p className="text-[14px] leading-relaxed text-[#6b6b78]">{step.desc}</p>
-                    </div>
-                  </div>
+                    {/* Per-step progress fill */}
+                    <span
+                      className="absolute bottom-0 left-0 h-[2px] rounded-full transition-[width] duration-200"
+                      style={{
+                        width: `${stepFill(num)}%`,
+                        background: 'linear-gradient(90deg, #7c3aed, #9457f5)',
+                        opacity: isActive ? 1 : 0.35,
+                      }}
+                      aria-hidden="true"
+                    />
+                  </button>
                 );
               })}
             </div>
+            <p className="mt-4 text-[12px] text-[#6b6b78] text-center lg:text-left">
+              Click a step to jump to that moment in the demo.
+            </p>
           </div>
 
           {/* Right: Video */}
-          <div
-            className="flex-1 w-full relative rounded-2xl overflow-hidden cursor-pointer group"
-            style={{
-              background: '#16161d',
-              border: '1px solid #232330',
-              aspectRatio: '16 / 9',
-            }}
-            onClick={openModal}
-            role="button"
-            tabIndex={0}
-            aria-label="Open demo video"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' || e.key === ' ') {
-                e.preventDefault();
-                openModal();
-              }
-            }}
-          >
-            <video
-              ref={videoRef}
-              className="w-full h-full object-cover pointer-events-none"
-              src="/PRLens.mp4"
-              preload="metadata"
-              autoPlay
-              muted
-              loop
-              playsInline
-              onTimeUpdate={handleTimeUpdate}
-              onEnded={handleEnded}
-              onError={() => setVideoError(true)}
+          <div className="flex-1 w-full relative">
+            {/* Glow behind the video card */}
+            <div
+              className="absolute -inset-6 pointer-events-none"
+              style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 40%, rgba(124,58,237,0.14) 0%, transparent 70%)', filter: 'blur(30px)' }}
               aria-hidden="true"
             />
-
-            {/* Hover overlay with play affordance */}
-            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-              style={{ background: 'rgba(10,10,13,0.35)' }}
+            <div
+              className="relative w-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300"
+              style={{
+                background: '#16161d',
+                border: '1px solid #232330',
+                aspectRatio: '16 / 9',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+              }}
+              onClick={openModal}
+              role="button"
+              tabIndex={0}
+              aria-label="Open demo video"
+              onKeyDown={(e) => {
+                if (e.key === 'Enter' || e.key === ' ') {
+                  e.preventDefault();
+                  openModal();
+                }
+              }}
             >
-              <div
-                className="flex items-center justify-center rounded-full w-[72px] h-[72px] transition-transform duration-300 group-hover:scale-105"
-                style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(148,87,245,0.5)' }}
-              >
-                <svg
-                  className="w-9 h-9 text-[#f3f3f6]"
-                  viewBox="0 0 24 24"
-                  fill="currentColor"
-                  aria-hidden="true"
-                >
-                  <path d="M8 5v14l11-7z" />
-                </svg>
-              </div>
-              <span className="text-[13px] font-semibold text-[#f3f3f6]">Watch full demo</span>
-            </div>
+              <video
+                ref={videoRef}
+                className="w-full h-full object-cover pointer-events-none"
+                src="/PRLens.mp4"
+                preload="metadata"
+                autoPlay
+                muted
+                loop
+                playsInline
+                onTimeUpdate={handleTimeUpdate}
+                onEnded={handleEnded}
+                onError={() => setVideoError(true)}
+                aria-hidden="true"
+              />
 
-            {videoError && (
-              <div className="absolute inset-0 flex flex-col items-center justify-center">
+              {/* Corner chip */}
+              <div className="absolute top-3 left-3 pointer-events-none">
+                <span
+                  className="inline-flex items-center gap-[6px] text-[11px] font-semibold px-3 py-[5px] rounded-full backdrop-blur-sm"
+                  style={{ background: 'rgba(10,10,13,0.65)', border: '1px solid rgba(255,255,255,0.12)', color: '#d4d4d8' }}
+                >
+                  <span
+                    className="w-[6px] h-[6px] rounded-full bg-[#9457f5]"
+                    style={{ animation: 'prl-pulse 2s ease-in-out infinite' }}
+                  />
+                  Product demo
+                </span>
+              </div>
+
+              {/* Hover overlay with play affordance */}
+              <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+                style={{ background: 'rgba(10,10,13,0.35)' }}
+              >
                 <div
-                  className="flex flex-col items-center justify-center rounded-full w-16 h-16 mb-3"
-                  style={{ background: 'rgba(124,58,237,0.2)' }}
+                  className="flex items-center justify-center rounded-full w-[72px] h-[72px] transition-transform duration-300 group-hover:scale-105"
+                  style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(148,87,245,0.5)' }}
                 >
                   <svg
-                    className="w-8 h-8 text-[#9457f5]"
+                    className="w-9 h-9 text-[#f3f3f6]"
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     aria-hidden="true"
@@ -289,9 +331,28 @@ const HowItWorks = () => {
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>
-                <p className="text-[13px] text-[#6b6b78]">Video unavailable</p>
+                <span className="text-[13px] font-semibold text-[#f3f3f6]">Watch full demo</span>
               </div>
-            )}
+
+              {videoError && (
+                <div className="absolute inset-0 flex flex-col items-center justify-center">
+                  <div
+                    className="flex flex-col items-center justify-center rounded-full w-16 h-16 mb-3"
+                    style={{ background: 'rgba(124,58,237,0.2)' }}
+                  >
+                    <svg
+                      className="w-8 h-8 text-[#9457f5]"
+                      viewBox="0 0 24 24"
+                      fill="currentColor"
+                      aria-hidden="true"
+                    >
+                      <path d="M8 5v14l11-7z" />
+                    </svg>
+                  </div>
+                  <p className="text-[13px] text-[#6b6b78]">Video unavailable</p>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

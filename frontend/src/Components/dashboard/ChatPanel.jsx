@@ -6,7 +6,7 @@ const ChatMessage = memo(({ msg, isStreaming }) => {
   const userBubble = 'bg-violet-600 text-white rounded-2xl rounded-br-sm shadow-md shadow-violet-900/30 p-2 sm:p-3 max-w-[75%] sm:max-w-[70%]';
   const aiBase = 'rounded-2xl rounded-bl-sm p-2 sm:p-3 max-w-[100%] sm:max-w-[100%]';
   const aiBubble = `text-[#E4E4E7] ${aiBase}`;
-  const proseBase = 'break-words min-w-0 prose prose-invert prose-sm max-w-none prose-sm:leading-snug prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-pre:bg-[#0f0f13] prose-pre:border prose-pre:border-[#1a1a1f] prose-pre:rounded-xl prose-pre:p-3 prose-pre:text-[13px] prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:text-[13px] prose-code:bg-[#0b0b0f] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-[#1a1a1f] prose-h1:text-[15px] prose-h1:font-semibold prose-h2:text-[13px] prose-h2:font-semibold prose-h3:text-[13px] prose-h3:font-semibold prose-strong:text-white prose-headings:text-white prose-li:marker:text-violet-400 prose-a:text-violet-400 hover:prose-a:text-violet-300';
+  const proseBase = 'break-words min-w-0 prose prose-invert prose-sm max-w-none prose-sm:leading-snug prose-headings:mt-2 prose-headings:mb-1 prose-p:my-1 prose-ul:my-1 prose-ol:my-1 prose-li:my-0 prose-pre:my-2 prose-pre:bg-[#0d0d12] prose-pre:border prose-pre:border-[#232330] prose-pre:rounded-xl prose-pre:p-3 prose-pre:text-[13px] prose-pre:overflow-x-auto prose-pre:max-w-full prose-code:text-[13px] prose-code:bg-[#0d0d12] prose-code:px-1 prose-code:py-0.5 prose-code:rounded prose-code:border prose-code:border-[#232330] prose-h1:text-[15px] prose-h1:font-semibold prose-h2:text-[13px] prose-h2:font-semibold prose-h3:text-[13px] prose-h3:font-semibold prose-strong:text-white prose-headings:text-white prose-li:marker:text-[#9457f5] prose-a:text-[#9457f5] hover:prose-a:text-[#b08bff]';
 
   return (
     <div className={msg.who === 'user' ? 'flex justify-end' : 'w-full'}>
@@ -42,7 +42,7 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
 
   return (
     <aside
-      className={`flex flex-col bg-[#161618] border-l border-[#1a1a1f] absolute lg:static top-0 right-0 h-full z-20 transition-all duration-300 w-full sm:w-[380px] lg:w-[360px] ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full lg:translate-x-0'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
+      className={`flex flex-col bg-[#16161d] border-l border-[#232330] absolute lg:static top-0 right-0 h-full z-20 transition-all duration-300 w-full sm:w-[380px] lg:w-[360px] ${chatCollapsed ? 'translate-x-[110%] lg:w-0 lg:border-none lg:opacity-0' : 'translate-x-full lg:translate-x-0'} ${chatOpenMobile ? '!translate-x-0' : ''}`}
       style={{ width: window.innerWidth >= 1024 && !chatCollapsed ? chatWidth + 'px' : undefined }}
     >
       <div
@@ -54,13 +54,13 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
           e.preventDefault();
         }}
       ></div>
-      <div className="sticky top-0 z-10 bg-[#161618] h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-5 shrink-0">
+      <div className="sticky top-0 z-10 bg-[#16161d] h-[60px] border-b border-[#232330] flex items-center justify-between px-4 sm:px-5 shrink-0">
         <div className="flex items-center justify-start w-10">
-          <button className="w-8 h-8 flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition -ml-1" onClick={() => toggleChat(false)} title="Back">
+          <button className="w-8 h-8 flex shrink-0 items-center justify-center rounded-lg text-[#9b9ba8] hover:bg-[#131318] hover:text-[#f3f3f6] transition -ml-1" onClick={() => toggleChat(false)} title="Back">
             <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="19" y1="12" x2="5" y2="12" /><polyline points="12 19 5 12 12 5" /></svg>
           </button>
         </div>
-        <div className="flex-1 flex justify-center text-[15px] font-semibold text-[#E4E4E7]">
+        <div className="flex-1 flex justify-center text-[15px] font-semibold text-[#f3f3f6]" style={{ fontFamily: 'var(--font-display)' }}>
           Ask PRLens
         </div>
         <div className="flex items-center justify-end w-10">
@@ -83,20 +83,20 @@ const ChatPanel = memo(({ chatCollapsed, chatOpenMobile, chatWidth, isResizingRe
         )}
         <div ref={messagesEndRef} />
       </div>
-       <div className="sticky bottom-0 z-10 p-4 bg-[#161618] border-t border-[#1a1a1f] shrink-0">
-         <div className="relative flex items-end bg-[#0b0b0f] border border-[#1a1a1f] rounded-xl focus-within:border-violet-500/50 transition overflow-hidden">
+       <div className="sticky bottom-0 z-10 p-4 bg-[#16161d] border-t border-[#232330] shrink-0">
+         <div className="relative flex items-end bg-[#131318] border border-[#232330] rounded-xl focus-within:border-[#9457f5]/60 transition overflow-hidden">
            <textarea
-             className="w-full bg-transparent border-none text-[14px] text-white p-3 md:pr-12 pr-10 focus:outline-none resize-none min-h-[44px] max-h-[120px] scrollbar-hide leading-relaxed placeholder-[#71717A]"
+             className="w-full bg-transparent border-none text-[14px] text-white p-3 md:pr-12 pr-10 focus:outline-none resize-none min-h-[44px] max-h-[120px] scrollbar-hide leading-relaxed placeholder-[#6b6b78]"
              ref={chatInputRef} value={inputValue} onChange={autoResizeInput}
              onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); if (streamingMsgId || isTyping) { onStopStreaming?.(); } else { handleSendMessage(); } } }}
              placeholder="Ask anything..." rows="1"
            ></textarea>
            {streamingMsgId || isTyping ? (
-             <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#1a1a1f] text-white hover:bg-violet-600 transition" onClick={onStopStreaming} title="Stop generating">
+             <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#232330] text-white hover:bg-[#7c3aed] transition" onClick={onStopStreaming} title="Stop generating">
                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><rect x="6" y="6" width="12" height="12" rx="2" /></svg>
              </button>
            ) : (
-             <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#1a1a1f] text-white hover:bg-violet-600 transition disabled:opacity-50 disabled:bg-[#1a1a1f]" onClick={handleSendMessage} disabled={!inputValue.trim()}>
+             <button className="absolute right-2 bottom-2 w-[28px] md:w-[32px] h-[28px] md:h-[32px] shrink-0 flex items-center justify-center rounded-lg bg-[#232330] text-white hover:bg-[#7c3aed] transition disabled:opacity-50 disabled:bg-[#232330]" onClick={handleSendMessage} disabled={!inputValue.trim()}>
                <svg className="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round"><path d="m22 2-7 20-4-9-9-4 20-7Z" /></svg>
              </button>
            )}

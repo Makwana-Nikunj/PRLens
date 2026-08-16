@@ -30,8 +30,8 @@ const ChatInterface = lazy(() => import("./pages/ChatInterface"));
 const FileExplanations = lazy(() => import("./pages/FileExplanations"));
 
 const Loader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#0b1326] text-white">
-    <span className="material-symbols-outlined text-4xl animate-spin text-violet-400">progress_activity</span>
+  <div className="min-h-screen flex items-center justify-center bg-[#0a0a0d] text-white">
+    <span className="material-symbols-outlined text-4xl animate-spin text-[#9457f5]">progress_activity</span>
   </div>
 );
 
@@ -75,11 +75,11 @@ function App() {
             </Route>
 
             <Route path="*" element={
-              <div className="min-h-screen flex flex-col items-center justify-center bg-[#0b1326] text-white">
-                <span className="material-symbols-outlined text-6xl text-slate-400 mb-4">route_off</span>
-                <h1 className="text-3xl font-bold mb-2">404 - Page Not Found</h1>
-                <p className="text-slate-400 mb-6">The page you're looking for doesn't exist.</p>
-                <a href="/" className="px-6 py-2 bg-primary rounded-md text-white font-medium hover:bg-primary/90 transition-colors">
+              <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0d] text-white">
+                <span className="material-symbols-outlined text-6xl text-[#6b6b78] mb-4">route_off</span>
+                <h1 className="text-3xl font-bold mb-2 text-[#f3f3f6] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>404 - Page Not Found</h1>
+                <p className="text-[#9b9ba8] mb-6">The page you're looking for doesn't exist.</p>
+                <a href="/" className="px-6 py-2 rounded-lg text-white font-medium hover:bg-[#8b5cf6] transition" style={{ background: '#7c3aed' }}>
                   Go Home
                 </a>
               </div>

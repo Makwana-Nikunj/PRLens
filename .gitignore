@@ -197,3 +197,6 @@ dist-ssr
 # Claude Code local config
 .claude/
 CLAUDE.md
+
+# ZCode agent artifacts
+.zcode/

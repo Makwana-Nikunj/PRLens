@@ -15,15 +15,15 @@ const TabFileExplanations = ({ activePR }) => {
 
   return (
     <div className="animate-[reveal-up_0.4s_ease-out_forwards] space-y-6">
-      <div className="bg-[#161618] border border-[#1a1a1f] rounded-2xl p-6 shadow-xl relative overflow-hidden transition-all duration-300 hover:shadow-indigo-500/5 hover:border-[#2a2a2f]">
-        <div className="absolute top-0 left-0 w-full h-1 bg-indigo-500 opacity-70"></div>
+      <div className="bg-[#16161d] border border-[#232330] rounded-2xl p-6 relative overflow-hidden transition-all duration-300 hover:border-[#2a2a38]">
+        <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: 'linear-gradient(90deg, #6366f1, transparent)', opacity: 0.8 }}></div>
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-10 h-10 rounded-xl bg-indigo-500/20 flex items-center justify-center text-indigo-400 shrink-0">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-indigo-400 shrink-0 bg-indigo-500/10 border border-indigo-500/25">
             <FileCode2 className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-white tracking-tight">File Explanations</h3>
-            <p className="text-xs text-[#A1A1AA] mt-1">AI-generated explanations for each changed file.</p>
+            <h3 className="text-lg font-bold text-[#f3f3f6] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>File Explanations</h3>
+            <p className="text-xs text-[#9b9ba8] mt-1">AI-generated explanations for each changed file.</p>
           </div>
         </div>
 
@@ -32,7 +32,7 @@ const TabFileExplanations = ({ activePR }) => {
             {entries.map(([filename, explanation]) => {
               const isOpen = openFiles[filename] !== false;
               return (
-                <div key={filename} className="border border-indigo-500/10 bg-indigo-500/5 rounded-xl overflow-hidden transition-all duration-200 hover:border-indigo-500/20">
+                <div key={filename} className="border border-indigo-500/15 bg-indigo-500/5 rounded-xl overflow-hidden transition-all duration-200 hover:border-indigo-500/30">
                   <button
                     onClick={() => toggleFile(filename)}
                     className="w-full flex items-center gap-3 p-4 sm:p-5 text-left transition-colors hover:bg-indigo-500/10"
@@ -43,11 +43,11 @@ const TabFileExplanations = ({ activePR }) => {
                       <ChevronRight className="w-4 h-4 text-indigo-400 shrink-0" />
                     )}
                     <FileCode2 className="w-4 h-4 text-indigo-400/70 shrink-0" />
-                    <span className="text-[14px] sm:text-[15px] text-white font-medium truncate">{filename}</span>
+                    <span className="text-[14px] sm:text-[15px] text-[#f3f3f6] font-medium truncate">{filename}</span>
                   </button>
                   {isOpen && (
                     <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-1">
-                      <p className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed whitespace-pre-wrap break-words overflow-x-auto min-w-0 bg-[#0f0f13]/50 p-4 rounded-lg border border-white/5">
+                      <p className="text-[14px] sm:text-[15px] text-[#E4E4E7] leading-relaxed whitespace-pre-wrap break-words overflow-x-auto min-w-0 bg-[#0d0d12] p-4 rounded-lg border border-[#232330]">
                         {explanation}
                       </p>
                     </div>
@@ -57,7 +57,7 @@ const TabFileExplanations = ({ activePR }) => {
             })}
           </div>
         ) : (
-          <div className="p-5 bg-[#0f0f13]/50 border border-white/5 rounded-xl text-[14px] text-[#A1A1AA] flex items-center justify-center">
+          <div className="p-5 bg-[#0d0d12] border border-[#232330] rounded-xl text-[14px] text-[#9b9ba8] flex items-center justify-center">
             No file explanations available.
           </div>
         )}
@@ -65,5 +65,4 @@ const TabFileExplanations = ({ activePR }) => {
     </div>
   );
 };
-
 export default TabFileExplanations;

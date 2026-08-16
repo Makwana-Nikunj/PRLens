@@ -3,15 +3,20 @@ import useDashboardStore from '../../store/dashboardStore';
 
 const Header = memo(({ activePR }) => {
   const setSidebarOpen = useDashboardStore(state => state.setSidebarOpen);
+
+  const hamburger = (
+    <button className="lg:hidden min-w-[44px] min-h-[44px] flex shrink-0 items-center justify-center rounded-lg text-[#9b9ba8] hover:bg-[#131318] hover:text-[#f3f3f6] transition" onClick={() => setSidebarOpen(true)}>
+      <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>
+    </button>
+  );
+
   if (!activePR) {
     return (
-      <div className="h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-6 bg-[#0f0f13] flex-shrink-0">
+      <div className="h-[60px] border-b border-[#232330] flex items-center justify-between px-4 sm:px-6 bg-[#0a0a0d] flex-shrink-0">
         <div className="flex items-center gap-2 sm:gap-4 min-w-0 pr-4">
-          <button className="lg:hidden min-w-[44px] min-h-[44px] flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition" onClick={() => setSidebarOpen(true)}>
-            <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>
-          </button>
+          {hamburger}
           <div className="flex flex-col min-w-0 leading-tight">
-            <h1 className="text-[16px] font-semibold text-[#E4E4E7] m-0 truncate">Welcome to PRLens</h1>
+            <h1 className="text-[16px] font-semibold text-[#f3f3f6] m-0 truncate" style={{ fontFamily: 'var(--font-display)' }}>Welcome to PRLens</h1>
           </div>
         </div>
       </div>
@@ -30,29 +35,16 @@ const Header = memo(({ activePR }) => {
     // Ignore parsing errors
   }
 
+  const prTitle = activePR.title?.trim() || (prNumDisplay ? `Pull Request ${prNumDisplay}` : 'Pull Request');
+
+  // On desktop the in-content PRPageHeader replaces this bar; keep it on mobile for the sidebar trigger
   return (
-    <div className="h-[60px] border-b border-[#1a1a1f] flex items-center justify-between px-4 sm:px-6 bg-[#0f0f13] flex-shrink-0">
+    <div className="lg:hidden h-[60px] border-b border-[#232330] flex items-center justify-between px-4 sm:px-6 bg-[#0a0a0d] flex-shrink-0">
       <div className="flex items-center gap-2 sm:gap-4 min-w-0 pr-4">
-        <button className="lg:hidden min-w-[44px] min-h-[44px] flex shrink-0 items-center justify-center rounded-lg text-[#A1A1AA] hover:bg-[#1a1a1f] hover:text-white transition" onClick={() => setSidebarOpen(true)}>
-          <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.75"><line x1="4" y1="6" x2="20" y2="6" /><line x1="4" y1="12" x2="20" y2="12" /><line x1="4" y1="18" x2="20" y2="18" /></svg>
-        </button>
+        {hamburger}
         <div className="flex flex-col min-w-0 leading-tight">
-          <h1 className="text-[16px] font-semibold text-[#E4E4E7] m-0 truncate">PR Insights</h1>
-          <div className="text-[13px] text-[#A1A1AA] truncate">{repoDisplay} {prNumDisplay}</div>
-        </div>
-      </div>
-      <div className="flex items-center gap-3 shrink-0">
-        <div className="hidden sm:flex items-center gap-3">
-          <a href={activePR.github_pr_url} target="_blank" rel="noreferrer" className="px-2 py-0.5 rounded-md bg-violet-600/10 text-violet-400 hover:text-white hover:bg-violet-600/30 transition border border-violet-500/20 text-[12px] font-medium flex items-center gap-1.5 whitespace-nowrap">
-            View on GitHub
-          </a>
-        </div>
-        <div className="w-8 h-8 rounded-full overflow-hidden border border-white/10 shrink-0 bg-[#1a1a1f] flex items-center justify-center text-[#A1A1AA] text-xs font-semibold" title={activePR.author ? `PR by ${activePR.author}` : "Unknown Author"}>
-          {activePR.author ? (
-            <img src={`https://github.com/${activePR.author}.png`} alt={activePR.author} className="w-full h-full object-cover" />
-          ) : (
-            <span className="uppercase">{prNumDisplay?.replace('#', '') || '?'}</span>
-          )}
+          <div className="text-[11px] font-semibold uppercase tracking-[0.12em] text-[#9457f5] truncate">{repoDisplay} {prNumDisplay}</div>
+          <h1 className="text-[15px] font-semibold text-[#f3f3f6] m-0 truncate" title={prTitle}>{prTitle}</h1>
         </div>
       </div>
     </div>
