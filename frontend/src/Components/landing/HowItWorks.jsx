@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import SectionHeading from './SectionHeading';
 
 const steps = [
   {
@@ -155,15 +156,15 @@ const HowItWorks = () => {
   };
 
   return (
-    <section id="how-it-works" className="py-[120px] bg-[#0a0a0d]" aria-labelledby="how-it-works-title">
+    <section id="how-it-works" className="py-[120px] bg-[#0a0a0d] scroll-mt-[80px]" aria-labelledby="how-it-works-title">
       <div className="w-full px-6 md:px-[60px] 2xl:px-[100px]">
         {/* Heading */}
-        <h2
+        <SectionHeading
           id="how-it-works-title"
-          className="text-[clamp(32px,5vw,48px)] font-bold text-[#f3f3f6] tracking-tight mb-[100px] text-center"
-        >
-          How it works
-        </h2>
+          eyebrow="Demo"
+          title="How it works"
+          subtitle="Three steps from a pull request URL to a full AI breakdown — watch it in action."
+        />
 
         <div className="flex flex-col lg:flex-row items-start gap-10 lg:gap-14 max-w-[1100px] mx-auto">
           {/* Left: Steps */}
@@ -253,14 +254,16 @@ const HowItWorks = () => {
               aria-hidden="true"
             />
 
-            {/* Hover + centered play icon */}
-            <div className="absolute inset-0 flex items-center justify-center">
+            {/* Hover overlay with play affordance */}
+            <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300"
+              style={{ background: 'rgba(10,10,13,0.35)' }}
+            >
               <div
-                className="flex items-center justify-center rounded-full w-20 h-20 transition-transform duration-300 group-hover:scale-110"
-                style={{ background: 'rgba(124,58,237,0.2)' }}
+                className="flex items-center justify-center rounded-full w-[72px] h-[72px] transition-transform duration-300 group-hover:scale-105"
+                style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(148,87,245,0.5)' }}
               >
                 <svg
-                  className="w-10 h-10 text-[#9457f5]"
+                  className="w-9 h-9 text-[#f3f3f6]"
                   viewBox="0 0 24 24"
                   fill="currentColor"
                   aria-hidden="true"
@@ -268,6 +271,7 @@ const HowItWorks = () => {
                   <path d="M8 5v14l11-7z" />
                 </svg>
               </div>
+              <span className="text-[13px] font-semibold text-[#f3f3f6]">Watch full demo</span>
             </div>
 
             {videoError && (

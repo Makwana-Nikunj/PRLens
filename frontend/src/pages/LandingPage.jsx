@@ -1,47 +1,32 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 import Navbar from '../Components/landing/Navbar';
 import Hero from '../Components/landing/Hero';
 import HowItWorks from '../Components/landing/HowItWorks';
 import Features from '../Components/landing/Features';
+import WhoItsFor from '../Components/landing/WhoItsFor';
+import FAQ from '../Components/landing/FAQ';
 import CTA from '../Components/landing/CTA';
 import Footer from '../Components/landing/Footer';
 
 const LandingPage = () => {
-  const containerRef = useRef(null);
+  const { hash } = useLocation();
 
+  // Scroll to anchored sections for SPA navigations like /#faq from the footer
   useEffect(() => {
-    const root = containerRef.current;
-    if (!root) return;
-
-    const elements = root.querySelectorAll('[data-reveal]');
-    if (!elements.length) return;
-
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const el = entry.target;
-            const delay = parseInt(el.getAttribute('data-delay') || '0', 10);
-            setTimeout(() => {
-              el.classList.add('is-revealed');
-            }, delay);
-            observer.unobserve(el);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-
-    elements.forEach((el) => observer.observe(el));
-    return () => observer.disconnect();
-  }, []);
+    if (!hash) return;
+    const target = document.querySelector(hash);
+    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }, [hash]);
 
   return (
-    <div ref={containerRef} className="w-full bg-[#0a0a0d] text-white font-sans min-h-screen">
+    <div className="w-full bg-[#0a0a0d] text-white font-sans min-h-screen">
       <Navbar />
       <Hero />
       <HowItWorks />
       <Features />
+      <WhoItsFor />
+      <FAQ />
       <CTA />
       <Footer />
     </div>

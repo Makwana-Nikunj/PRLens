@@ -1,4 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
+import SectionHeading from './SectionHeading';
 
 const features = [
   {
@@ -108,14 +109,14 @@ const FeatureCard = ({ title, desc, icon, index }) => {
 
 const Features = () => {
   return (
-    <section id="what-you-get" className="py-[120px] bg-[#0a0a0d]" aria-labelledby="what-you-get-title">
+    <section id="what-you-get" className="py-[120px] bg-[#0a0a0d] scroll-mt-[80px]" aria-labelledby="what-you-get-title">
       <div className="w-full px-6 md:px-[60px] 2xl:px-[100px]">
-        <h2
+        <SectionHeading
           id="what-you-get-title"
-          className="text-[clamp(28px,4vw,40px)] font-bold text-[#f3f3f6] tracking-tight mb-[80px] text-center"
-        >
-          What you get
-        </h2>
+          eyebrow="Features"
+          title="What you get"
+          subtitle="Everything you need to review a pull request with confidence — in one place."
+        />
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1100px] mx-auto w-full">
           {features.map((f, i) => (
             <FeatureCard key={f.title} index={i} {...f} />

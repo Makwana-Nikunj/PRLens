@@ -14,6 +14,7 @@
   --color-accent-2: #8b5cf6;
 
   --font-inter: "Inter", sans-serif;
+  --font-display: "Space Grotesk", "Inter", sans-serif;
 }
 
 @layer base {
@@ -31,6 +32,15 @@
   .hero-glow {
     background: radial-gradient(circle at top, rgba(124, 58, 237, 0.15) 0%, transparent 60%);
     filter: blur(80px);
+  }
+
+  .hero-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 30%, transparent 75%);
+    mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 30%, transparent 75%);
   }
 
   .reveal {
@@ -94,10 +104,6 @@
   @keyframes prl-float {
     0%, 100% { transform: translateY(0); }
     50% { transform: translateY(-8px); }
-  }
-
-  @keyframes prl-grow-bar {
-    to { width: var(--bar-width); }
   }
 
   @keyframes prl-pulse {
