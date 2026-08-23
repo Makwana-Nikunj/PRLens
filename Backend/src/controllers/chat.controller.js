@@ -142,6 +142,7 @@ export const chatController = asyncHandler(async (req, res) => {
   let fullResponse = "";
   try {
     fullResponse = await streamChat({
+      prId,
       message,
       analysis: cappedAnalysis,
       ragContext: cappedRag,
