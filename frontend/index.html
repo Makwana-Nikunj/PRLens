@@ -2,6 +2,19 @@
 <html lang="en" class="dark">
 <head>
   <meta charset="UTF-8" />
+  <script>
+    // Apply the persisted theme before first paint to avoid a flash of the
+    // wrong theme. Must stay in sync with themeStore.js (key + values).
+    (function () {
+      try {
+        var theme = localStorage.getItem('prlens-theme');
+        var isLight = theme === 'light';
+        var root = document.documentElement;
+        root.classList.toggle('dark', !isLight);
+        root.classList.toggle('light', isLight);
+      } catch (e) { /* default: dark (already on <html>) */ }
+    })();
+  </script>
   <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
   <title>PRLens - AI Code Review & GitHub Pull Request Analysis</title>

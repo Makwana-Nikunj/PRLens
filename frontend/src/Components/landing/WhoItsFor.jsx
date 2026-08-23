@@ -37,9 +37,17 @@ const audiences = [
 
 const AudienceCard = ({ title, desc, icon }) => (
   <div
-    className="group rounded-xl p-8 text-left cursor-default"
-    style={{ background: '#16161d', border: '1px solid #232330' }}
+    className="group grid-shine relative rounded-xl p-8 text-left cursor-default overflow-hidden"
+    style={{ background: 'var(--prl-panel-2)', border: '1px solid var(--prl-border)' }}
+    onMouseMove={(e) => {
+      const rect = e.currentTarget.getBoundingClientRect();
+      e.currentTarget.style.setProperty('--mx', `${e.clientX - rect.left}px`);
+      e.currentTarget.style.setProperty('--my', `${e.clientY - rect.top}px`);
+    }}
   >
+    {/* Animated grid backdrop + corner orbit */}
+    <div className="absolute inset-0 grid-animated-fine opacity-40 pointer-events-none [mask-image:radial-gradient(ellipse_at_bottom_left,black_15%,transparent_70%)]" aria-hidden="true" />
+    <div className="absolute -top-10 -left-10 w-28 h-28 grid-orbit opacity-35 pointer-events-none" aria-hidden="true" />
     <div
       className="w-10 h-10 rounded-xl flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110"
       style={{ background: 'rgba(124,58,237,0.1)', color: '#9457f5' }}
@@ -48,13 +56,15 @@ const AudienceCard = ({ title, desc, icon }) => (
         {icon}
       </svg>
     </div>
-    <h3 className="text-[18px] font-semibold text-[#f3f3f6] mb-2">{title}</h3>
-    <p className="text-[15px] text-[#9b9ba8] leading-relaxed">{desc}</p>
+    <h3 className="text-[18px] font-semibold text-[#f3f3f6] light:text-[#18181f] mb-2">{title}</h3>
+    <p className="text-[15px] text-[#9b9ba8] light:text-[#5d5d6a] leading-relaxed">{desc}</p>
   </div>
 );
 
 const WhoItsFor = () => (
-  <section id="who-its-for" className="py-[120px] bg-[#0a0a0d]" aria-labelledby="who-its-for-title">
+  <section id="who-its-for" className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] relative overflow-hidden" aria-labelledby="who-its-for-title">
+    <div className="absolute inset-0 grid-animated-wide pointer-events-none opacity-30 [mask-image:radial-gradient(ellipse_at_top,black_25%,transparent_80%)]" aria-hidden="true" />
+    <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] relative z-10">
     <div className="w-full px-6 md:px-[60px] 2xl:px-[100px]">
       <SectionHeading
         id="who-its-for-title"
@@ -67,6 +77,7 @@ const WhoItsFor = () => (
           <AudienceCard key={a.title} {...a} />
         ))}
       </div>
+    </div>
     </div>
   </section>
 );

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import useAuthStore from '../../store/authStore';
 import Button from '../ui/Button';
+import ThemeToggle from '../ui/ThemeToggle';
 
 const GithubIcon = () => (
   <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
@@ -41,14 +42,14 @@ const Navbar = () => {
   const isBlogActive = location.pathname.startsWith('/blog');
 
   const navLinkClasses = (isActive) =>
-    `text-[14px] font-medium transition ${isActive ? 'text-white' : 'text-[#A1A1AA] hover:text-white'}`;
+    `text-[14px] font-medium transition ${isActive ? 'text-white light:text-[#18181f]' : 'text-[#A1A1AA] light:text-[#565662] hover:text-white light:text-[#565662] light:hover:text-[#18181f]'}`;
 
   return (
     <>
-      <nav className="fixed top-0 w-full z-50 border-b border-white/10 bg-[#0f0f13]/80 backdrop-blur-md transition-colors">
+      <nav className="fixed top-0 w-full z-50 border-b border-white/10 light:border-black/10 bg-[#0f0f13]/80 light:bg-white/80 backdrop-blur-md transition-colors">
         <div className="max-w-[1100px] mx-auto px-6 h-[72px] flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-3 text-white font-semibold text-lg no-underline pt-1 pb-1 px-1">
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 text-purple-400">
+          <Link to="/" className="flex items-center gap-3 text-white light:text-[#18181f] font-semibold text-lg no-underline pt-1 pb-1 px-1">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 text-purple-400 light:text-purple-600">
               <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v12" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M13 15c-2.5 0-4.5 0-6 0" />
               </svg>
@@ -81,9 +82,11 @@ const Navbar = () => {
               )}
             </Button>
 
+            <ThemeToggle />
+
             {/* Mobile hamburger */}
             <button
-              className="md:hidden flex items-center justify-center w-[44px] h-[44px] text-[#E4E4E7] transition hover:text-white"
+              className="md:hidden flex items-center justify-center w-[44px] h-[44px] text-[#E4E4E7] light:text-[#2a2a33] transition hover:text-white light:hover:text-[#18181f]"
               onClick={() => setMenuOpen((v) => !v)}
               aria-expanded={menuOpen}
               aria-label={menuOpen ? 'Close menu' : 'Open menu'}
@@ -108,7 +111,7 @@ const Navbar = () => {
 
         {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-white/10 bg-[#0f0f13]/95 backdrop-blur-md">
+          <div className="md:hidden border-t border-white/10 light:border-black/10 bg-[#0f0f13]/95 light:bg-white/95 backdrop-blur-md">
             <div className="max-w-[1100px] mx-auto px-6 py-4 flex flex-col gap-1">
               <Link to="/docs" className={`${navLinkClasses(isDocsActive)} py-3 min-h-[44px] flex items-center`}>
                 Docs

@@ -8,8 +8,8 @@ const ProtectedRoute = () => {
 
   if (!isHydrated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0d] text-white">
-        <span className="material-symbols-outlined text-4xl animate-spin text-[#9457f5]">progress_activity</span>
+      <div className="min-h-screen flex items-center justify-center bg-[#0a0a0d] light:bg-[#ffffff] text-white light:text-[#18181f]">
+        <span className="material-symbols-outlined text-4xl animate-spin text-[#9457f5] light:text-[#7c3aed]">progress_activity</span>
       </div>
     );
   }

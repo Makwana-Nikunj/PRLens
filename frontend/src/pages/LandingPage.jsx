@@ -8,6 +8,7 @@ import WhoItsFor from '../Components/landing/WhoItsFor';
 import FAQ from '../Components/landing/FAQ';
 import CTA from '../Components/landing/CTA';
 import Footer from '../Components/landing/Footer';
+import GridBackdrop from '../Components/landing/GridBackdrop';
 
 const LandingPage = () => {
   const { hash } = useLocation();
@@ -20,7 +21,8 @@ const LandingPage = () => {
   }, [hash]);
 
   return (
-    <div className="w-full bg-[#0a0a0d] text-white font-sans min-h-screen">
+    <div className="w-full bg-[#0a0a0d] light:bg-[#ffffff] text-white light:text-[#18181f] font-sans min-h-screen relative">
+      <GridBackdrop />
       <Navbar />
       <Hero />
       <HowItWorks />

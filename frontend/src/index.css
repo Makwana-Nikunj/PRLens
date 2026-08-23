@@ -1,6 +1,11 @@
 @import "tailwindcss";
 @plugin "@tailwindcss/typography";
 
+/* Class-based dark mode (Tailwind v4). The app ships a dark-first design:
+   `:root` keeps the dark palette, and `html.light` swaps the tokens below. */
+@custom-variant dark (&:where(.dark, .dark *));
+@custom-variant light (&:where(.light, .light *));
+
 @theme {
   --color-bg-theme: #0f0f13;
   --color-surface-1: #161618;
@@ -26,6 +31,23 @@
     font-family: var(--font-inter);
     @apply m-0 p-0 box-border antialiased overflow-x-hidden;
   }
+
+  /* Smooth cross-fade when switching themes. The class is added by the theme
+     store for ~400ms so it never interferes with other transitions. */
+  html.theme-transition,
+  html.theme-transition body,
+  html.theme-transition *,
+  html.theme-transition *::before,
+  html.theme-transition *::after {
+    transition:
+      background-color 300ms ease,
+      border-color 300ms ease,
+      color 300ms ease,
+      fill 300ms ease,
+      stroke 300ms ease,
+      box-shadow 300ms ease !important;
+    transition-delay: 0ms !important;
+  }
 }
 
 @layer utilities {
@@ -34,13 +56,275 @@
     filter: blur(80px);
   }
 
+  /* Grid drift runs on the compositor: the repeating pattern sits on an
+     oversized ::before that translates exactly one tile per loop (seamless),
+     so the browser composites transforms instead of repainting
+     background-position every frame. The host keeps whatever mask/opacity
+     utilities are applied in markup. */
   .hero-grid {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .hero-grid::before {
+    content: "";
+    position: absolute;
+    inset: -56px;
     background-image:
       linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
       linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
     background-size: 56px 56px;
-    -webkit-mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 30%, transparent 75%);
-    mask-image: radial-gradient(ellipse 90% 70% at 50% 20%, black 30%, transparent 75%);
+    animation: grid-drift 28s linear infinite;
+    will-change: transform;
+  }
+
+  /* Ambient graph-paper grid for the hero — very subtle, fades at the edges.
+     The soft pulse (opacity) stays on the host so it composites too. */
+  .hero-grid-bg {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    animation: grid-soft-pulse 8s ease-in-out infinite;
+  }
+
+  .hero-grid-bg::before {
+    content: "";
+    position: absolute;
+    inset: -48px;
+    background-image:
+      linear-gradient(rgba(148, 87, 245, 0.10) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(148, 87, 245, 0.10) 1px, transparent 1px);
+    background-size: 48px 48px;
+    animation: grid-drift-48 24s linear infinite;
+    will-change: transform;
+  }
+
+  html.light .hero-grid::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.05) 1px, transparent 1px);
+  }
+
+  html.light .hero-grid-bg::before {
+    background-image:
+      linear-gradient(rgba(124, 58, 237, 0.08) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(124, 58, 237, 0.08) 1px, transparent 1px);
+  }
+
+  /* Single-element stagger reveal — opacity 0->1 + translateY 20px->0.
+     Each element gets animation-delay via inline style or .stagger-N utility. */
+  .stagger-item {
+    opacity: 0;
+    animation: hero-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .stagger-0 { animation-delay: 0s; }
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.22s; }
+  .stagger-3 { animation-delay: 0.34s; }
+  .stagger-4 { animation-delay: 0.46s; }
+
+  /* The headline gradient accent (already in design, now wrapped in a soft glow) */
+  .hero-headline-accent {
+    background: linear-gradient(135deg, #a78bfa 0%, #7c3aed 50%, #9457f5 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+    color: transparent;
+  }
+
+  .mouse-glow {
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.15) 0%, transparent 70%);
+    filter: blur(40px);
+    mix-blend-mode: screen;
+    will-change: transform;
+  }
+
+  /* ===== Animated grid design system =====
+     Reuses the hero-grid look: drifting grid lines, a sweeping light beam,
+     and a pulsing accent glow. All respect prefers-reduced-motion. */
+
+  .grid-animated {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .grid-animated::before {
+    content: "";
+    position: absolute;
+    inset: -56px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.035) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+    background-size: 56px 56px;
+    animation: grid-drift 28s linear infinite;
+    will-change: transform;
+  }
+
+  html.light .grid-animated::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.055) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.055) 1px, transparent 1px);
+  }
+
+  /* Sweeping light beam across a grid/section (place in an overflow-hidden parent) */
+  .grid-beam {
+    background: linear-gradient(105deg, transparent 35%, rgba(148, 87, 245, 0.10) 48%, rgba(148, 87, 245, 0.16) 50%, rgba(148, 87, 245, 0.10) 52%, transparent 65%);
+    animation: beam-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    will-change: transform;
+  }
+
+  html.light .grid-beam {
+    background: linear-gradient(105deg, transparent 35%, rgba(124, 58, 237, 0.06) 48%, rgba(124, 58, 237, 0.10) 50%, rgba(124, 58, 237, 0.06) 52%, transparent 65%);
+  }
+
+  /* Pulsing accent halo behind focal content */
+  .grid-pulse {
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.16) 0%, transparent 65%);
+    filter: blur(50px);
+    animation: grid-halo 5s ease-in-out infinite;
+  }
+
+  html.light .grid-pulse {
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.10) 0%, transparent 65%);
+  }
+
+  /* ===== Extended grid design system ===== */
+
+  /* Denser variant of the animated grid for tighter sections */
+  .grid-animated-fine {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .grid-animated-fine::before {
+    content: "";
+    position: absolute;
+    inset: -28px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+    background-size: 28px 28px;
+    animation: grid-drift-fine 18s linear infinite;
+    will-change: transform;
+  }
+
+  html.light .grid-animated-fine::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.06) 1px, transparent 1px);
+  }
+
+  /* Wider grid for expansive sections */
+  .grid-animated-wide {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+  }
+
+  .grid-animated-wide::before {
+    content: "";
+    position: absolute;
+    inset: -88px;
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+    background-size: 88px 88px;
+    animation: grid-drift-wide 40s linear infinite;
+    will-change: transform;
+  }
+
+  html.light .grid-animated-wide::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.05) 1px, transparent 1px);
+  }
+
+  /* Drift modifiers — stack after the grid classes above so they win the cascade */
+  .grid-drift-reverse::before { animation-direction: reverse; }
+  .grid-drift-paused::before { animation-play-state: paused; }
+
+  /* Horizontal laser scan line that sweeps top-to-bottom repeatedly */
+  .grid-scan {
+    background: linear-gradient(to bottom, transparent 0%, rgba(148, 87, 245, 0.25) 50%, transparent 100%);
+    height: 60px;
+    filter: blur(12px);
+    animation: scan-vertical 6s ease-in-out infinite;
+    will-change: transform, opacity;
+  }
+
+  html.light .grid-scan {
+    background: linear-gradient(to bottom, transparent 0%, rgba(124, 58, 237, 0.18) 50%, transparent 100%);
+  }
+
+  /* Glowing intersection dot that pulses at random-feeling intervals */
+  .grid-nodes {
+    background-image:
+      radial-gradient(circle, rgba(148, 87, 245, 0.5) 1.5px, transparent 2px);
+    background-size: 56px 56px;
+    animation: node-twinkle 4s ease-in-out infinite;
+  }
+
+  html.light .grid-nodes {
+    background-image:
+      radial-gradient(circle, rgba(124, 58, 237, 0.45) 1.5px, transparent 2px);
+  }
+
+  /* Floating grid-bounded orbit rings */
+  .grid-orbit {
+    border: 1px solid rgba(148, 87, 245, 0.18);
+    border-radius: 50%;
+    animation: orbit-spin 22s linear infinite;
+  }
+
+  html.light .grid-orbit {
+    border: 1px solid rgba(124, 58, 237, 0.22);
+  }
+
+  /* Subtle grid-tile-shine that follows the cursor (use inside a relative parent) */
+  .grid-shine::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle 280px at var(--mx, 50%) var(--my, 50%), rgba(148, 87, 245, 0.10), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    pointer-events: none;
+  }
+
+  .grid-shine:hover::before {
+    opacity: 1;
+  }
+
+  html.light .grid-shine::before {
+    background: radial-gradient(circle 280px at var(--mx, 50%) var(--my, 50%), rgba(124, 58, 237, 0.07), transparent 70%);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .grid-animated::before,
+    .grid-animated-fine::before,
+    .grid-animated-wide::before,
+    .hero-grid::before,
+    .hero-grid-bg::before,
+    .hero-grid-bg,
+    .grid-beam,
+    .grid-pulse,
+    .grid-scan,
+    .grid-nodes,
+    .grid-orbit {
+      animation: none;
+    }
+    .grid-shine:hover::before {
+      opacity: 0;
+    }
+    .stagger-item {
+      animation: none;
+      opacity: 1;
+      transform: none;
+    }
   }
 
   .reveal {
@@ -92,6 +376,71 @@
     --prl-accent: #7c3aed;
     --prl-accent-2: #9457f5;
     --prl-accent-glow: rgba(124,58,237,0.35);
+    --prl-ok: #34d399;
+    color-scheme: dark;
+  }
+
+  /* Light theme token overrides. Mirrors the dark palette 1:1 so every
+     var-driven surface flips automatically when html.light is applied. */
+  html.light {
+    --prl-bg: #ffffff;
+    --prl-bg-soft: #f4f4f9;
+    --prl-panel: #ffffff;
+    --prl-panel-2: #f1f1f6;
+    --prl-border: #e3e3ec;
+    --prl-text: #18181f;
+    --prl-text-dim: #5d5d6a;
+    --prl-text-faint: #82828e;
+    --prl-accent: #7c3aed;
+    --prl-accent-2: #7c3aed;
+    --prl-accent-glow: rgba(124,58,237,0.18);
+    --prl-ok: #059669;
+    color-scheme: light;
+
+    /* Tailwind @theme tokens (bg-theme / surface-* / text-* / border-* utilities) */
+    --color-bg-theme: #fafaff;
+    --color-surface-1: #ffffff;
+    --color-surface-2: #f1f1f6;
+    --color-text-primary: #1c1c24;
+    --color-text-secondary: #565662;
+    --color-text-muted: #82828e;
+    --color-border-subtle: rgba(15, 15, 25, 0.08);
+    --color-border-strong: rgba(15, 15, 25, 0.14);
+  }
+}
+
+/* Light-mode variants of the decorative background effects */
+@layer utilities {
+  html.light .hero-glow {
+    background: radial-gradient(circle at top, rgba(124, 58, 237, 0.10) 0%, transparent 60%);
+  }
+
+  html.light .mouse-glow {
+    background: radial-gradient(circle, rgba(124, 58, 237, 0.10) 0%, transparent 70%);
+    mix-blend-mode: multiply;
+  }
+}
+
+/* Blog articles & AI chat bubbles use `prose prose-invert`; in light mode the
+   typography plugin's default (light) palette is restored centrally here. */
+@layer components {
+  html.light .prose-invert {
+    --tw-prose-body: #3f3f4a;
+    --tw-prose-headings: #18181f;
+    --tw-prose-lead: #3f3f4a;
+    --tw-prose-links: #7c3aed;
+    --tw-prose-bold: #18181f;
+    --tw-prose-counters: #7c3aed;
+    --tw-prose-bullets: #a78bfa;
+    --tw-prose-hr: #e3e3ec;
+    --tw-prose-quotes: #3f3f4a;
+    --tw-prose-quote-borders: #e3e3ec;
+    --tw-prose-captions: #82828e;
+    --tw-prose-code: #6d28d9;
+    --tw-prose-pre-code: #e4e4e7;
+    --tw-prose-pre-bg: #f4f4f9;
+    --tw-prose-th-borders: #d9d9e3;
+    --tw-prose-td-borders: #e3e3ec;
   }
 }
 
@@ -109,5 +458,157 @@
   @keyframes prl-pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.5; }
+  }
+
+  /* Each drift keyframe translates exactly one tile (seamless loop) and runs
+     as a composited transform — no per-frame background-position repaints.
+     The ::before layers are oversized by one tile (inset: -Npx) so the host
+     stays covered for the whole translation range. */
+  @keyframes grid-drift {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(56px, 56px, 0); }
+  }
+
+  @keyframes grid-drift-fine {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(28px, 28px, 0); }
+  }
+
+  @keyframes grid-drift-wide {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(88px, 88px, 0); }
+  }
+
+  @keyframes grid-drift-48 {
+    from { transform: translate3d(0, 0, 0); }
+    to { transform: translate3d(48px, 48px, 0); }
+  }
+
+  @keyframes beam-sweep {
+    0% { transform: translateX(-120%) skewX(-8deg); }
+    55%, 100% { transform: translateX(220%) skewX(-8deg); }
+  }
+
+  @keyframes grid-halo {
+    0%, 100% { opacity: 0.55; transform: scale(1); }
+    50% { opacity: 1; transform: scale(1.12); }
+  }
+
+  /* Top-down laser scan that pauses between sweeps */
+  @keyframes scan-vertical {
+    0% { transform: translateY(-10%); opacity: 0; }
+    15% { opacity: 1; }
+    85% { opacity: 1; }
+    100% { transform: translateY(110vh); opacity: 0; }
+  }
+
+  /* Subtle dot-twinkle staggered across the grid */
+  @keyframes node-twinkle {
+    0%, 100% { opacity: 0.3; }
+    50% { opacity: 1; }
+  }
+
+  /* Slow rotation for orbit rings */
+  @keyframes orbit-spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+/* Staggered reveal-up for grid cards */
+@keyframes card-rise {
+  from { opacity: 0; transform: translateY(24px) scale(0.96); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* Hero content stagger: opacity 0->1, translateY 20px->0 */
+@keyframes hero-fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Subtle ambient breathing for the hero grid backdrop */
+@keyframes grid-soft-pulse {
+  0%, 100% { opacity: 0.75; }
+  50% { opacity: 1; }
+}
+
+/* ===== GridBackdrop (landing-page background world) ===== */
+
+.grid-world {
+  color: #a78bfa; /* SVG stroke/fill via currentColor (dark) */
+}
+
+html.light .grid-world {
+  color: #7c3aed;
+}
+
+.grid-world .gw-links line {
+  vector-effect: non-scaling-stroke;
+}
+
+/* Flowing dashes along the connection lines */
+@keyframes gw-flow {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -90; }
+}
+
+@keyframes gw-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+/* Soft cursor light (follows --mx / --my) */
+.grid-world .gw-cursor {
+  background: radial-gradient(
+    circle 420px at var(--mx) var(--my),
+    rgba(124, 58, 237, 0.18),
+    transparent 70%
+  );
+  animation: gw-cursor-drift 14s ease-in-out infinite;
+}
+
+html.light .grid-world .gw-cursor {
+  background: radial-gradient(
+    circle 420px at var(--mx) var(--my),
+    rgba(124, 58, 237, 0.10),
+    transparent 70%
+  );
+}
+
+@keyframes gw-cursor-drift {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
+
+/* Vignette so the grid blends into the page bg at the edges */
+.grid-world .gw-vignette {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, transparent 60%, var(--color-bg-theme) 100%);
+}
+
+html.light .grid-world .gw-vignette {
+  background:
+    radial-gradient(ellipse 90% 60% at 50% 0%, transparent 60%, #fafaff 100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .grid-world svg line,
+  .grid-world svg circle,
+  .grid-world .gw-cursor {
+    animation: none;
+  }
+}
+}
+
+/* Card grid reveal helper: pair with style={{animationDelay: ...}} per child */
+.prl-card-rise {
+  animation: card-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Heavy dark drop-shadows (inline styles) look harsh on light backgrounds;
+   soften them centrally when the light theme is active. */
+@layer utilities {
+  html.light .prl-shadow-card {
+    box-shadow: 0 24px 80px rgba(100, 100, 150, 0.16), 0 0 120px rgba(124, 58, 237, 0.05) !important;
   }
 }

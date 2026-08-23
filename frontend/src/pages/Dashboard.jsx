@@ -138,12 +138,12 @@ const Dashboard = () => {
   const handleChatToggleSidebar = useCallback(() => setSidebarOpen(prev => !prev), []);
 
   return (
-    <div className="fixed inset-0 w-full h-[100dvh] bg-[#0a0a0d] text-[#E4E4E7] font-sans flex overflow-hidden">
+    <div className="fixed inset-0 w-full h-[100dvh] bg-[#0a0a0d] light:bg-[#ffffff] text-[#E4E4E7] light:text-[#2a2a33] font-sans flex overflow-hidden">
       <div className="flex w-full h-full relative overflow-hidden">
         <Sidebar />
-        <main className="flex-1 min-w-0 flex flex-col bg-[#0a0a0d] relative">
+        <main className="flex-1 min-w-0 flex flex-col bg-[#0a0a0d] light:bg-[#ffffff] relative">
           <Header activePR={activePR} setSidebarOpen={setSidebarOpen} />
-          <div className="flex-1 overflow-y-auto overscroll-contain bg-[#0a0a0d] p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8 lg:pb-24 scrollbar-hide">
+          <div className="flex-1 overflow-y-auto overscroll-contain bg-[#0a0a0d] light:bg-[#ffffff] p-4 pb-24 sm:p-6 sm:pb-24 lg:p-8 lg:pb-24 scrollbar-hide">
             <div className="max-w-[760px] mx-auto w-full">
               {!activePR ? (
                 <AnalyzeForm />
@@ -152,10 +152,10 @@ const Dashboard = () => {
                   <PRPageHeader activePR={activePR} />
 
                   {/* Sticky segmented tabs (bleed matches the scroller's padding) */}
-                  <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 -mt-2 pt-4 pb-4 bg-[#0a0a0d]">
+                  <div className="sticky top-0 z-20 -mx-4 sm:-mx-6 lg:-mx-8 px-4 sm:px-6 lg:px-8 -mt-2 pt-4 pb-4 bg-[#0a0a0d] light:bg-[#ffffff]">
                     <div
                       className="inline-flex gap-1 overflow-x-auto scrollbar-hide rounded-xl p-1 max-w-full"
-                      style={{ background: '#131318', border: '1px solid #232330' }}
+                      style={{ background: 'var(--prl-panel)', border: '1px solid var(--prl-border)' }}
                       role="tablist"
                       aria-label="PR insights"
                     >
@@ -167,7 +167,7 @@ const Dashboard = () => {
                             key={id}
                             role="tab"
                             aria-selected={isActive}
-                            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-200 shrink-0 ${isActive ? 'text-white' : 'text-[#9b9ba8] hover:text-[#f3f3f6] hover:bg-white/5'}`}
+                            className={`flex items-center gap-2 px-3.5 py-2 rounded-lg text-[13px] font-medium whitespace-nowrap transition-all duration-200 shrink-0 ${isActive ? 'text-white' : 'text-[#9b9ba8] light:text-[#5d5d6a] hover:text-[#f3f3f6] hover:light:text-[#18181f] hover:bg-white/5 hover:light:bg-black/5'}`}
                             style={isActive ? { background: '#7c3aed', boxShadow: '0 4px 16px rgba(124,58,237,0.3)' } : undefined}
                             onClick={() => setActiveTab(id)}
                           >
@@ -175,7 +175,7 @@ const Dashboard = () => {
                             {label}
                             {count > 0 && (
                               <span
-                                className={`ml-0.5 min-w-[20px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold flex items-center justify-center tabular-nums ${isActive ? 'bg-white/20 text-white' : 'bg-[#232330] text-[#9b9ba8]'}`}
+                                className={`ml-0.5 min-w-[20px] h-[18px] px-1.5 rounded-full text-[11px] font-semibold flex items-center justify-center tabular-nums ${isActive ? 'bg-white/20 text-white' : 'bg-[#232330] light:bg-[#e5e5ee] text-[#9b9ba8] light:text-[#5d5d6a]'}`}
                               >
                                 {count}
                               </span>

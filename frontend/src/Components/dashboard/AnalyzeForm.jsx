@@ -43,10 +43,10 @@ const AnalyzeForm = () => {
           <svg className="w-8 h-8" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /><path d="M13 15c-2.5 0-4.5 0-6 0" /></svg>
         </div>
 
-        <h2 className="text-[clamp(28px,4vw,40px)] font-bold text-[#f3f3f6] mb-4 tracking-tight animate-[reveal-up_0.5s_ease-out_forwards]" style={{ fontFamily: 'var(--font-display)' }}>
+        <h2 className="text-[clamp(28px,4vw,40px)] font-bold text-[#f3f3f6] light:text-[#18181f] mb-4 tracking-tight animate-[reveal-up_0.5s_ease-out_forwards]" style={{ fontFamily: 'var(--font-display)' }}>
           Analyze a Pull Request
         </h2>
-        <p className="text-[15px] text-[#9b9ba8] max-w-lg mb-10 leading-relaxed animate-[reveal-up_0.6s_ease-out_forwards]">
+        <p className="text-[15px] text-[#9b9ba8] light:text-[#5d5d6a] max-w-lg mb-10 leading-relaxed animate-[reveal-up_0.6s_ease-out_forwards]">
           Paste a GitHub Pull Request URL below to generate an AI-powered summary, review key file changes, and detect potential risks before merging.
         </p>
 
@@ -57,13 +57,13 @@ const AnalyzeForm = () => {
             </p>
           )}
           <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 w-full rounded-xl p-[6px]"
-            style={{ background: '#131318', border: '1px solid #232330' }}>
+            style={{ background: 'var(--prl-panel)', border: '1px solid var(--prl-border)' }}>
             <input
               type="url"
               placeholder="https://github.com/owner/repo/pull/123"
               value={url}
               onChange={(e) => setUrl(e.target.value)}
-              className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] px-4 py-3 sm:py-2 outline-none w-full placeholder:text-[#6b6b78] rounded-lg min-w-0"
+              className="flex-1 bg-transparent border-none text-[15px] text-[#f3f3f6] light:text-[#18181f] px-4 py-3 sm:py-2 outline-none w-full placeholder:text-[#6b6b78] placeholder:light:text-[#82828e] rounded-lg min-w-0"
               autoComplete="off"
               spellCheck={false}
               required
@@ -94,10 +94,10 @@ const AnalyzeForm = () => {
               )}
             </button>
           </form>
-          <p className="mt-5 text-[13px] font-medium text-[#6b6b78]">
-            Free to use <span className="mx-2 text-[#232330]">·</span>
-            Works with public repos <span className="mx-2 text-[#232330]">·</span>
-            <span className="text-[#9b9ba8] font-semibold">Login for private repos</span>
+          <p className="mt-5 text-[13px] font-medium text-[#6b6b78] light:text-[#82828e]">
+            Free to use <span className="mx-2 text-[#232330] light:text-[#c1c1cd]">·</span>
+            Works with public repos <span className="mx-2 text-[#232330] light:text-[#c1c1cd]">·</span>
+            <span className="text-[#9b9ba8] light:text-[#5d5d6a] font-semibold">Login for private repos</span>
           </p>
         </div>
       </div>

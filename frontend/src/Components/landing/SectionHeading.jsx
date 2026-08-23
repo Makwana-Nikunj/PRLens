@@ -16,13 +16,13 @@ const SectionHeading = ({ eyebrow, title, subtitle, id }) => (
     )}
     <h2
       id={id}
-      className="text-[clamp(28px,5vw,44px)] font-bold text-[#f3f3f6] tracking-tight mb-4"
+      className="text-[clamp(28px,5vw,44px)] font-bold text-[#f3f3f6] light:text-[#18181f] tracking-tight mb-4"
       style={{ fontFamily: 'var(--font-display)' }}
     >
       {title}
     </h2>
     {subtitle && (
-      <p className="text-[clamp(15px,2vw,17px)] text-[#9b9ba8] leading-relaxed max-w-[560px] mx-auto">
+      <p className="text-[clamp(15px,2vw,17px)] text-[#9b9ba8] light:text-[#5d5d6a] leading-relaxed max-w-[560px] mx-auto">
         {subtitle}
       </p>
     )}

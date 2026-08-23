@@ -7,18 +7,23 @@ const GithubSignIn = () => {
   const { handleGithubLogin, isGithubLoading, oauthError } = useGithubOAuth({ redirectPath: '/dashboard' });
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f13] text-[#E4E4E7] font-sans relative overflow-hidden">
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:w-[600px] md:h-[600px] w-[300px] h-[300px] bg-violet-600/10 blur-[40px] md:blur-[60px] pointer-events-none z-0"></div>
+    <div className="min-h-screen flex items-center justify-center bg-[#0f0f13] light:bg-[#fafaff] text-[#E4E4E7] light:text-[#2a2a33] font-sans relative overflow-hidden">
+      {/* Animated grid backdrop with pulsing halo */}
+      <div
+        className="absolute inset-0 grid-animated pointer-events-none z-0 [mask-image:radial-gradient(ellipse_at_center,black_20%,transparent_70%)]"
+        aria-hidden="true"
+      />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:w-[600px] md:h-[600px] w-[300px] h-[300px] grid-pulse pointer-events-none z-0"></div>
 
-      <div className="relative z-10 w-[90%] max-w-[400px] bg-[#161618] border border-white/10 rounded-2xl p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] text-center animate-reveal-up">
-        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-violet-600/30 border border-violet-600/30 rounded-xl text-purple-400">
+      <div className="relative z-10 w-[90%] max-w-[400px] bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 prl-shadow-card rounded-2xl p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] text-center animate-reveal-up">
+        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-violet-600/30 border border-violet-600/30 rounded-xl text-purple-400 light:text-purple-600">
           <svg className="w-6 h-6" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v12" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M13 15c-2.5 0-4.5 0-6 0" />
           </svg>
         </div>
 
-        <h1 className="text-2xl font-semibold tracking-tight mb-2 text-white">Sign in to PRLens</h1>
-        <p className="text-[14px] text-[#A1A1AA] leading-relaxed mb-8">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2 text-white light:text-[#18181f]">Sign in to PRLens</h1>
+        <p className="text-[14px] text-[#A1A1AA] light:text-[#565662] leading-relaxed mb-8">
           Connect your GitHub account to analyze pull requests and get smarter code reviews.
         </p>
 
@@ -47,7 +52,7 @@ const GithubSignIn = () => {
             {oauthError}
           </p>
         )}
-        <a onClick={() => navigate('/')} className="inline-block mt-6 text-[13px] text-[#A1A1AA] no-underline transition-colors hover:text-white cursor-pointer">
+        <a onClick={() => navigate('/')} className="inline-block mt-6 text-[13px] text-[#A1A1AA] light:text-[#565662] no-underline transition-colors hover:text-white light:hover:text-[#18181f] cursor-pointer">
           &larr; Back to home
         </a>
       </div>

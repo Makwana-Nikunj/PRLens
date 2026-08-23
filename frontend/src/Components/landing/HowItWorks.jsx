@@ -167,8 +167,11 @@ const HowItWorks = () => {
   };
 
   return (
-    <section id="how-it-works" className="py-[120px] bg-[#0a0a0d] scroll-mt-[80px]" aria-labelledby="how-it-works-title">
-      <div className="w-full px-6 md:px-[60px] 2xl:px-[100px]">
+    <section id="how-it-works" className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="how-it-works-title">
+      {/* Wider drifting grid + scan line backdrop for the whole section */}
+      <div className="absolute inset-0 grid-animated-wide pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" aria-hidden="true" />
+      <div className="absolute left-0 right-0 top-0 grid-scan pointer-events-none" aria-hidden="true" />
+      <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] relative z-10">
         {/* Heading */}
         <SectionHeading
           id="how-it-works-title"
@@ -193,8 +196,8 @@ const HowItWorks = () => {
                     aria-current={isActive}
                     className="group relative w-full text-left rounded-xl px-5 py-4 overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5]"
                     style={{
-                      background: isActive ? 'rgba(124,58,237,0.08)' : '#131318',
-                      border: `1px solid ${isActive ? 'rgba(124,58,237,0.4)' : '#232330'}`,
+                      background: isActive ? 'rgba(124,58,237,0.08)' : 'var(--prl-panel)',
+                      border: `1px solid ${isActive ? 'rgba(124,58,237,0.4)' : 'var(--prl-border)'}`,
                       boxShadow: isActive ? '0 0 40px rgba(124,58,237,0.1)' : 'none',
                     }}
                     title={`Jump to step ${step.num} in the demo`}
@@ -205,8 +208,8 @@ const HowItWorks = () => {
                         className="w-9 h-9 rounded-full flex items-center justify-center text-[15px] font-bold shrink-0 transition-all duration-300"
                         style={{
                           background: isDone ? 'rgba(124,58,237,0.25)' : isActive ? 'rgba(124,58,237,0.18)' : 'transparent',
-                          border: `1px solid ${isDone || isActive ? 'rgba(148,87,245,0.5)' : '#232330'}`,
-                          color: isDone || isActive ? '#9457f5' : '#6b6b78',
+                          border: `1px solid ${isDone || isActive ? 'rgba(148,87,245,0.5)' : 'var(--prl-border)'}`,
+                          color: isDone || isActive ? '#9457f5' : 'var(--prl-text-faint)',
                           boxShadow: isActive ? '0 0 20px rgba(124,58,237,0.25)' : 'none',
                         }}
                       >
@@ -217,16 +220,16 @@ const HowItWorks = () => {
                       <span className="min-w-0">
                         <span
                           className="block text-[16px] font-semibold leading-snug transition-colors duration-300"
-                          style={{ color: isActive ? '#f3f3f6' : '#9b9ba8' }}
+                          style={{ color: isActive ? 'var(--prl-text)' : 'var(--prl-text-dim)' }}
                         >
                           {step.title}
                         </span>
-                        <span className="block text-[13px] leading-relaxed text-[#6b6b78] mt-[3px]">{step.desc}</span>
+                        <span className="block text-[13px] leading-relaxed text-[#6b6b78] light:text-[#82828e] mt-[3px]">{step.desc}</span>
                       </span>
 
                       {/* Jump hint */}
                       <svg
-                        className="w-4 h-4 shrink-0 ml-auto text-[#9457f5] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+                        className="w-4 h-4 shrink-0 ml-auto text-[#9457f5] light:text-[#7c3aed] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -253,7 +256,7 @@ const HowItWorks = () => {
                 );
               })}
             </div>
-            <p className="mt-4 text-[12px] text-[#6b6b78] text-center lg:text-left">
+            <p className="mt-4 text-[12px] text-[#6b6b78] light:text-[#82828e] text-center lg:text-left">
               Click a step to jump to that moment in the demo.
             </p>
           </div>
@@ -269,10 +272,10 @@ const HowItWorks = () => {
             <div
               className="relative w-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300"
               style={{
-                background: '#16161d',
-                border: '1px solid #232330',
+                background: 'var(--prl-panel-2)',
+                border: '1px solid var(--prl-border)',
                 aspectRatio: '16 / 9',
-                boxShadow: '0 24px 80px rgba(0,0,0,0.5)',
+                boxShadow: '0 24px 80px rgba(0,0,0,0.5)', /* softened by .prl-shadow-card in light */
               }}
               onClick={openModal}
               role="button"
@@ -323,7 +326,7 @@ const HowItWorks = () => {
                   style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(148,87,245,0.5)' }}
                 >
                   <svg
-                    className="w-9 h-9 text-[#f3f3f6]"
+                    className="w-9 h-9 text-[#f3f3f6] light:text-[#18181f]"
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     aria-hidden="true"
@@ -331,7 +334,7 @@ const HowItWorks = () => {
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>
-                <span className="text-[13px] font-semibold text-[#f3f3f6]">Watch full demo</span>
+                <span className="text-[13px] font-semibold text-[#f3f3f6] light:text-[#18181f]">Watch full demo</span>
               </div>
 
               {videoError && (
@@ -341,7 +344,7 @@ const HowItWorks = () => {
                     style={{ background: 'rgba(124,58,237,0.2)' }}
                   >
                     <svg
-                      className="w-8 h-8 text-[#9457f5]"
+                      className="w-8 h-8 text-[#9457f5] light:text-[#7c3aed]"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                       aria-hidden="true"
@@ -349,7 +352,7 @@ const HowItWorks = () => {
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
-                  <p className="text-[13px] text-[#6b6b78]">Video unavailable</p>
+                  <p className="text-[13px] text-[#6b6b78] light:text-[#82828e]">Video unavailable</p>
                 </div>
               )}
             </div>
@@ -395,7 +398,7 @@ const HowItWorks = () => {
             >
               <button
                 onClick={toggleModalPlay}
-                className="text-white hover:text-[#9457f5] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5] rounded p-1"
+                className="text-white hover:text-[#9457f5] hover:light:text-[#7c3aed] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5] rounded p-1"
                 aria-label={modalPlaying ? 'Pause' : 'Play'}
               >
                 {modalPlaying ? (
@@ -412,7 +415,7 @@ const HowItWorks = () => {
 
               <button
                 onClick={() => changeSpeed(modalSpeed === 1 ? 1.5 : modalSpeed === 1.5 ? 2 : modalSpeed === 2 ? 0.5 : 1)}
-                className="text-white hover:text-[#9457f5] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5] rounded px-2 py-1 text-xs font-semibold"
+                className="text-white hover:text-[#9457f5] hover:light:text-[#7c3aed] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5] rounded px-2 py-1 text-xs font-semibold"
                 aria-label="Playback speed"
               >
                 {modalSpeed}x
