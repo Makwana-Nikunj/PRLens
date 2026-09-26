@@ -14,22 +14,22 @@ const AIReviewPage = () => (
       <p className="text-[#A1A1AA] light:text-[#565662] text-lg mb-10">Use AI to review code faster and catch issues earlier in the pull request process.</p>
 
       <div className="space-y-6">
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">Automated Summaries</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Get concise PR summaries so reviewers understand the change set immediately.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">Risk Detection</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Highlight breaking changes, security risks, and performance regressions before merge.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">Faster Reviews</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Reduce review time by focusing on high-signal areas instead of reading every diff.</p>
         </div>
       </div>
 
       <div className="mt-12">
-        <Link to="/" className="text-violet-400 light:text-violet-600 hover:text-violet-300 hover:light:text-violet-500">&larr; Back to Home</Link>
+        <Link to="/" className="text-[#ccff00] light:text-[#ccff00] hover:text-[#ccff00] hover:light:text-[#ccff00]">&larr; Back to Home</Link>
       </div>
     </div>
   </div>

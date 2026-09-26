@@ -1,9 +1,47 @@
 import { Octokit } from "@octokit/rest";
 import { ApiError } from "../utils/ApiError.js";
 import NodeCache from "node-cache";
+import { sql } from "../db/index.js";
+import { decryptToken } from "../utils/crypto.util.js";
 
 // Cache GitHub responses for 5 minutes to reduce API quota consumption
 const githubCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
+
+/**
+ * Fetch the GitHub access token for a logged-in user from `github_connections`,
+ * decrypt it with the current `GITHUB_TOKEN_ENCRYPTION_KEY`, and return the
+ * plaintext. Returns null when the user has no GitHub connection — callers
+ * fall back to `process.env.GITHUB_TOKEN` in that case.
+ *
+ * Why a separate helper: the access token used to live on `users.github_token`
+ * (plaintext) and was cached on `req.user`. After the auth rebuild it lives
+ * encrypted in `github_connections` and is fetched on demand.
+ *
+ * @param {string} userId - the PRLens user id
+ * @returns {Promise<string|null>} the plaintext token, or null if not connected
+ */
+export const getGitHubTokenForUser = async (userId) => {
+  if (!userId) return null;
+  const rows = await sql`
+    SELECT access_token_encrypted
+    FROM github_connections
+    WHERE user_id = ${userId}
+    LIMIT 1
+  `;
+  if (rows.length === 0) return null;
+  try {
+    return decryptToken(rows[0].access_token_encrypted);
+  } catch (err) {
+    // Bad ciphertext, missing/wrong key, or corrupted row. Log and treat as
+    // "not connected" so the caller falls back to the env-var token rather
+    // than 500-ing the whole request.
+    console.error(
+      `[github] Failed to decrypt GitHub token for user ${userId}:`,
+      err.message
+    );
+    return null;
+  }
+};
 
 /**
  * Parses a GitHub PR URL into owner, repo, and prNumber

@@ -15,8 +15,8 @@ const GithubSignIn = () => {
       />
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 md:w-[600px] md:h-[600px] w-[300px] h-[300px] grid-pulse pointer-events-none z-0"></div>
 
-      <div className="relative z-10 w-[90%] max-w-[400px] bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 prl-shadow-card rounded-2xl p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] text-center animate-reveal-up">
-        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-violet-600/30 border border-violet-600/30 rounded-xl text-purple-400 light:text-purple-600">
+      <div className="relative z-10 w-[90%] max-w-[400px] bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 prl-shadow-card rounded-lg p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] text-[#ccff00]enter animate-reveal-up">
+        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-[#ccff00]/20 border border-[#ccff00]/30 rounded-md text-[#ccff00] light:text-[#ccff00]">
           <svg className="w-6 h-6" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
             <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v12" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M13 15c-2.5 0-4.5 0-6 0" />
           </svg>
@@ -28,7 +28,7 @@ const GithubSignIn = () => {
         </p>
 
         <button
-          className="w-full flex items-center justify-center gap-3 bg-white text-black py-3.5 px-4 rounded-xl text-[15px] font-semibold border-none cursor-pointer transition-all hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(255,255,255,0.1)] active:translate-y-0 disabled:opacity-80 disabled:cursor-not-allowed disabled:transform-none"
+          className="w-full flex items-center justify-center gap-3 bg-white text-[#ccff00]lack py-3.5 px-4 rounded-md text-[15px] font-semibold border-none cursor-pointer transition-all hover:-translate-y-px hover:shadow-[0_4px_12px_rgba(255,255,255,0.1)] active:translate-y-0 disabled:opacity-80 disabled:cursor-not-allowed disabled:transform-none"
           onClick={handleGithubLogin}
           disabled={isGithubLoading}
         >
@@ -48,10 +48,25 @@ const GithubSignIn = () => {
         </button>
 
         {oauthError && (
-          <p className="mt-4 text-[13px] text-red-400 text-center">
+          <p className="mt-4 text-[13px] text-red-400 text-[#ccff00]enter">
             {oauthError}
           </p>
         )}
+
+        <div className="mt-6 flex items-center gap-3 text-[12px] text-[#71717a] light:text-[#565662]">
+          <div className="flex-1 h-px bg-white/10 light:bg-black/10" />
+          <span>OR</span>
+          <div className="flex-1 h-px bg-white/10 light:bg-black/10" />
+        </div>
+
+        <button
+          type="button"
+          onClick={() => navigate('/email-login')}
+          className="mt-4 w-full bg-[#0f0f13] light:bg-[#fafaff] border border-white/10 light:border-black/10 text-white light:text-[#18181f] py-3 px-4 rounded-md text-[14px] font-medium cursor-pointer transition-colors hover:bg-[#1c1c20] light:hover:bg-[#f1f1f7]"
+        >
+          Continue with email
+        </button>
+
         <a onClick={() => navigate('/')} className="inline-block mt-6 text-[13px] text-[#A1A1AA] light:text-[#565662] no-underline transition-colors hover:text-white light:hover:text-[#18181f] cursor-pointer">
           &larr; Back to home
         </a>

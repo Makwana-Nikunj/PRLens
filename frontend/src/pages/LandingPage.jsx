@@ -21,7 +21,7 @@ const LandingPage = () => {
   }, [hash]);
 
   return (
-    <div className="w-full bg-[#0a0a0d] light:bg-[#ffffff] text-white light:text-[#18181f] font-sans min-h-screen relative">
+    <div className="w-full bg-[#09090b] light:bg-[#ffffff] text-white light:text-[#18181f] font-sans min-h-screen relative">
       <GridBackdrop />
       <Navbar />
       <Hero />

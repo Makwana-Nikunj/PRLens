@@ -196,9 +196,9 @@ const HowItWorks = () => {
                     aria-current={isActive}
                     className="group relative w-full text-left rounded px-5 py-4 overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
                     style={{
-                      background: isActive ? 'rgba(124,58,237,0.08)' : 'var(--prl-panel)',
-                      border: `1px solid ${isActive ? 'rgba(124,58,237,0.4)' : 'var(--prl-border)'}`,
-                      boxShadow: isActive ? '0 0 40px rgba(124,58,237,0.1)' : 'none',
+                      background: isActive ? 'rgba(204,255,0,0.08)' : 'var(--prl-panel)',
+                      border: `1px solid ${isActive ? 'rgba(204,255,0,0.4)' : 'var(--prl-border)'}`,
+                      boxShadow: isActive ? '0 0 40px rgba(204,255,0,0.1)' : 'none',
                     }}
                     title={`Jump to step ${step.num} in the demo`}
                   >
@@ -207,10 +207,10 @@ const HowItWorks = () => {
                       <span
                         className="w-9 h-9 rounded-sm flex items-center justify-center text-[15px] font-bold shrink-0 transition-all duration-300"
                         style={{
-                          background: isDone ? 'rgba(124,58,237,0.25)' : isActive ? 'rgba(124,58,237,0.18)' : 'transparent',
-                          border: `1px solid ${isDone || isActive ? 'rgba(148,87,245,0.5)' : 'var(--prl-border)'}`,
-                          color: isDone || isActive ? '#ccff00' : 'var(--prl-text-faint)',
-                          boxShadow: isActive ? '0 0 20px rgba(124,58,237,0.25)' : 'none',
+                          background: isDone ? 'rgba(204,255,0,0.25)' : isActive ? 'rgba(204,255,0,0.18)' : 'transparent',
+                          border: `1px solid ${isDone || isActive ? 'rgba(163,204,0,0.5)' : 'var(--prl-border)'}`,
+                          color: isDone || isActive ? '#ccff00' : 'var(--prl-text-[#ccff00]aint)',
+                          boxShadow: isActive ? '0 0 20px rgba(204,255,0,0.25)' : 'none',
                         }}
                       >
                         {isDone ? <CheckIcon /> : step.num}
@@ -220,7 +220,7 @@ const HowItWorks = () => {
                       <span className="min-w-0">
                         <span
                           className="block text-[16px] font-semibold leading-snug transition-colors duration-300"
-                          style={{ color: isActive ? 'var(--prl-text)' : 'var(--prl-text-dim)' }}
+                          style={{ color: isActive ? 'var(--prl-text)' : 'var(--prl-text-[#ccff00]im)' }}
                         >
                           {step.title}
                         </span>
@@ -256,7 +256,7 @@ const HowItWorks = () => {
                 );
               })}
             </div>
-            <p className="mt-4 text-[12px] text-[var(--text-muted)] light:text-[#82828e] text-center lg:text-left">
+            <p className="mt-4 text-[12px] text-[var(--text-muted)] light:text-[#82828e] text-[#ccff00]enter lg:text-left">
               Click a step to jump to that moment in the demo.
             </p>
           </div>
@@ -266,7 +266,7 @@ const HowItWorks = () => {
             {/* Glow behind the video card */}
             <div
               className="absolute -inset-6 pointer-events-none"
-              style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 40%, rgba(124,58,237,0.14) 0%, transparent 70%)', filter: 'blur(30px)' }}
+              style={{ background: 'radial-gradient(ellipse 60% 60% at 50% 40%, rgba(204,255,0,0.14) 0%, transparent 70%)', filter: 'blur(30px)' }}
               aria-hidden="true"
             />
             <div
@@ -323,7 +323,7 @@ const HowItWorks = () => {
               >
                 <div
                   className="flex items-center justify-center rounded-sm w-[72px] h-[72px] transition-transform duration-300 group-hover:scale-105"
-                  style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(148,87,245,0.5)' }}
+                  style={{ background: 'rgba(204,255,0,0.35)', border: '1px solid rgba(163,204,0,0.5)' }}
                 >
                   <svg
                     className="w-9 h-9 text-[var(--text-primary)] light:text-[#18181f]"
@@ -341,7 +341,7 @@ const HowItWorks = () => {
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <div
                     className="flex flex-col items-center justify-center rounded-sm w-16 h-16 mb-3"
-                    style={{ background: 'rgba(124,58,237,0.2)' }}
+                    style={{ background: 'rgba(204,255,0,0.2)' }}
                   >
                     <svg
                       className="w-8 h-8 text-[#ccff00] light:text-[#ccff00]"

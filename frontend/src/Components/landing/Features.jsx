@@ -84,8 +84,8 @@ const FeatureCard = ({ title, desc, icon, index }) => {
       }}
       onMouseEnter={(e) => {
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        e.currentTarget.style.borderColor = 'rgba(124,58,237,0.5)';
-        e.currentTarget.style.boxShadow = '0 8px 32px rgba(124,58,237,0.1)';
+        e.currentTarget.style.borderColor = 'rgba(204,255,0,0.5)';
+        e.currentTarget.style.boxShadow = '0 8px 32px rgba(204,255,0,0.1)';
         e.currentTarget.style.transform = 'translateY(-6px)';
       }}
       onMouseLeave={(e) => {
@@ -103,7 +103,7 @@ const FeatureCard = ({ title, desc, icon, index }) => {
       <div
         className="w-10 h-10 rounded flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6"
         style={{
-          background: 'rgba(124,58,237,0.1)',
+          background: 'rgba(204,255,0,0.1)',
           color: '#ccff00',
         }}
       >

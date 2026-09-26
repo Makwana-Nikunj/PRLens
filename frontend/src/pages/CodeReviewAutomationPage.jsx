@@ -14,18 +14,18 @@ const CodeReviewAutomationPage = () => (
       <p className="text-[#A1A1AA] light:text-[#565662] text-lg mb-10">Automate repetitive review tasks and focus on what matters most.</p>
 
       <div className="space-y-6">
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">Consistent Reviews</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Apply the same review criteria across every pull request.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">Faster Turnaround</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Reduce review cycles with instant AI-generated insights.</p>
         </div>
       </div>
 
       <div className="mt-12">
-        <Link to="/" className="text-violet-400 light:text-violet-600 hover:text-violet-300 hover:light:text-violet-500">&larr; Back to Home</Link>
+        <Link to="/" className="text-[#ccff00] light:text-[#ccff00] hover:text-[#ccff00] hover:light:text-[#ccff00]">&larr; Back to Home</Link>
       </div>
     </div>
   </div>

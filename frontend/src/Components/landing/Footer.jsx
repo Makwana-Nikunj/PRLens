@@ -12,14 +12,14 @@ const FooterLink = ({ to, children, ...props }) => (
 );
 
 const Footer = () => (
-  <footer className="border-t border-[#232330] light:border-[#e3e3ec] pt-16 pb-10 text-[14px] bg-[var(--bg-primary)] light:bg-[#ffffff]" aria-labelledby="footer-heading">
+  <footer className="border-t border-[#27272a] light:border-[#27272a] pt-16 pb-10 text-[14px] bg-[var(--bg-primary)] light:bg-[#ffffff]" aria-labelledby="footer-heading">
     <h2 id="footer-heading" className="sr-only">Footer</h2>
     <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] max-w-[1100px] mx-auto">
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr] gap-10 mb-12">
         {/* Brand */}
         <div>
           <Link to="/" className="flex items-center gap-3 text-white light:text-[#18181f] font-semibold text-lg no-underline mb-3">
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 text-purple-400 light:text-purple-600">
+            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#ccff00]/20 border border-[#ccff00]/30 text-[#ccff00] light:text-[#ccff00]">
               <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
                 <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v12" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M13 15c-2.5 0-4.5 0-6 0" />
               </svg>
@@ -59,7 +59,7 @@ const Footer = () => (
         </nav>
       </div>
 
-      <div className="border-t border-[#232330] light:border-[#e3e3ec] pt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-4">
+      <div className="border-t border-[#27272a] light:border-[#27272a] pt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-4">
         <div className="text-[var(--text-muted)] light:text-[#82828e]">&copy; 2026 PRLens. All rights reserved.</div>
         <div className="flex items-center gap-2">
           <a href="https://github.com" className="text-[var(--text-muted)] light:text-[#5d5d6a] hover:text-[var(--text-primary)] hover:light:text-[#18181f] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] rounded p-2" aria-label="GitHub">

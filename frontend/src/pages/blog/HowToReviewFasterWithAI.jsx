@@ -10,7 +10,7 @@ const Article = () => (
       <link rel="canonical" href="https://prlens-eight.vercel.app/blog/how-to-review-pull-requests-faster-with-ai" />
     </Helmet>
     <div className="max-w-3xl mx-auto px-6 py-20">
-      <Link to="/blog" className="text-violet-400 light:text-violet-600 hover:text-violet-300 hover:light:text-violet-500 mb-6 inline-block">&larr; Back to Blog</Link>
+      <Link to="/blog" className="text-[#ccff00] light:text-[#ccff00] hover:text-[#ccff00] hover:light:text-[#ccff00] mb-6 inline-block">&larr; Back to Blog</Link>
       <h1 className="text-4xl font-bold mb-6">How to Review Pull Requests Faster with AI</h1>
       <div className="prose prose-invert max-w-none text-[#A1A1AA] light:text-[#565662] space-y-4">
         <p>Reviewing large pull requests is one of the biggest bottlenecks in modern development. AI tools can help summarize changes, surface risks, and answer follow-up questions without replacing human judgment.</p>

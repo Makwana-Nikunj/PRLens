@@ -30,7 +30,7 @@ const FAQItem = ({ q, a, isOpen, onToggle }) => (
     className="relative rounded overflow-hidden transition-colors duration-300"
     style={{
       background: 'var(--prl-panel-2)',
-      border: `1px solid ${isOpen ? 'rgba(124,58,237,0.4)' : 'var(--prl-border)'}`,
+      border: `1px solid ${isOpen ? 'rgba(204,255,0,0.4)' : 'var(--prl-border)'}`,
     }}
   >
     {isOpen && (
@@ -90,7 +90,7 @@ const FAQ = () => {
             />
           ))}
         </div>
-        <p className="mt-8 text-center text-[14px] text-[var(--text-muted)] light:text-[#82828e]">
+        <p className="mt-8 text-[#ccff00]enter text-[14px] text-[var(--text-muted)] light:text-[#82828e]">
           Still have questions?{' '}
           <Link to="/docs/faq" className="text-[#ccff00] light:text-[#ccff00] font-medium hover:text-[#b08bff] hover:light:text-[#ccff00] transition">
             Read the full FAQ &rarr;

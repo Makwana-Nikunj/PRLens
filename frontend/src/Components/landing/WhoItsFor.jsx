@@ -50,7 +50,7 @@ const AudienceCard = ({ title, desc, icon }) => (
     <div className="absolute -top-10 -left-10 w-28 h-28 grid-orbit opacity-35 pointer-events-none" aria-hidden="true" />
     <div
       className="w-10 h-10 rounded flex items-center justify-center mb-6 transition-transform duration-300 group-hover:scale-110"
-      style={{ background: 'rgba(124,58,237,0.1)', color: '#ccff00' }}
+      style={{ background: 'rgba(204,255,0,0.1)', color: '#ccff00' }}
     >
       <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
         {icon}

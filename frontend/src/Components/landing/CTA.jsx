@@ -3,10 +3,10 @@ import { Link } from 'react-router-dom';
 import PRInputForm from './PRInputForm';
 
 const CTA = () => (
-  <section className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] text-center" aria-labelledby="cta-title">
+  <section className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] text-[#ccff00]enter" aria-labelledby="cta-title">
     <div className="w-full max-w-[1100px] mx-auto px-6 md:px-[60px] 2xl:px-[100px]">
       <div
-        className="relative max-w-[880px] mx-auto rounded-3xl px-6 py-16 md:px-16 md:py-20 overflow-hidden"
+        className="relative max-w-[880px] mx-auto rounded-lg px-6 py-16 md:px-16 md:py-20 overflow-hidden"
         style={{ background: 'var(--prl-panel)', border: '1px solid var(--prl-border)' }}
       >
         {/* Animated grid + sweeping beam backdrop */}
@@ -20,16 +20,16 @@ const CTA = () => (
 
         {/* Gradient border glow */}
         <div
-          className="absolute inset-0 pointer-events-none rounded-3xl"
+          className="absolute inset-0 pointer-events-none rounded-lg"
           style={{
             background:
-              'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%)',
+              'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(204,255,0,0.18) 0%, transparent 70%)',
           }}
           aria-hidden="true"
         />
         <div
           className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[1px]"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(148,87,245,0.6), transparent)' }}
+          style={{ background: 'linear-gradient(90deg, transparent, rgba(163,204,0,0.6), transparent)' }}
           aria-hidden="true"
         />
 

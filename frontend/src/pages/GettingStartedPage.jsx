@@ -14,22 +14,22 @@ const GettingStartedPage = () => (
       <p className="text-[#A1A1AA] light:text-[#565662] text-lg mb-10">Follow these steps to start analyzing GitHub pull requests with PRLens.</p>
 
       <div className="space-y-6">
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">1. Connect GitHub</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Sign in with your GitHub account to grant PRLens access to your repositories.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">2. Analyze Your First PR</h2>
-          <p className="text-[#A1A1AA] light:text-[#565662]">Paste a GitHub pull request URL into the home page input and click <span className="text-violet-400 light:text-violet-600 font-medium">Analyze PR</span>.</p>
+          <p className="text-[#A1A1AA] light:text-[#565662]">Paste a GitHub pull request URL into the home page input and click <span className="text-[#ccff00] light:text-[#ccff00] font-medium">Analyze PR</span>.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-xl p-6">
+        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
           <h2 className="text-xl font-semibold mb-2">3. View AI Results</h2>
           <p className="text-[#A1A1AA] light:text-[#565662]">Review the generated summary, risk assessment, file breakdown, and use the AI chat to ask follow-up questions.</p>
         </div>
       </div>
 
       <div className="mt-12">
-        <Link to="/docs" className="text-violet-400 light:text-violet-600 hover:text-violet-300 hover:light:text-violet-500">&larr; Back to Docs</Link>
+        <Link to="/docs" className="text-[#ccff00] light:text-[#ccff00] hover:text-[#ccff00] hover:light:text-[#ccff00]">&larr; Back to Docs</Link>
       </div>
     </div>
   </div>

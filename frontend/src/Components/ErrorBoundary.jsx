@@ -30,12 +30,12 @@ class ErrorBoundary extends Component {
         return this.props.fallback;
       }
       return (
-        <div className={`flex flex-col items-center justify-center bg-[#0a0a0d] light:bg-[#ffffff] text-white light:text-[#18181f] px-4 ${this.props.inline ? 'h-full w-full py-12' : 'min-h-screen'}`}>
-          <div className="w-16 h-16 bg-red-500/20 rounded-xl flex items-center justify-center text-red-400 mb-4 border border-red-500/20">
+        <div className={`flex flex-col items-center justify-center bg-[#09090b] light:bg-[#ffffff] text-white light:text-[#18181f] px-4 ${this.props.inline ? 'h-full w-full py-12' : 'min-h-screen'}`}>
+          <div className="w-16 h-16 bg-red-500/20 rounded-md flex items-center justify-center text-red-400 mb-4 border border-red-500/20">
              <svg className="w-8 h-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" /><line x1="12" y1="9" x2="12" y2="13" /><line x1="12" y1="17" x2="12.01" y2="17" /></svg>
           </div>
-          <h1 className="text-xl sm:text-2xl font-bold mb-2 text-[#f3f3f6] light:text-[#18181f]">Something went wrong</h1>
-          <p className="text-[#9b9ba8] light:text-[#5d5d6a] mb-6 max-w-md text-center text-[14px]">
+          <h1 className="text-xl sm:text-2xl font-bold mb-2 text-[#fafafa] light:text-[#18181f]">Something went wrong</h1>
+          <p className="text-[#a1a1aa] light:text-[#5d5d6a] mb-6 max-w-md text-[#ccff00]enter text-[14px]">
             {this.props.inline ? 'This component encountered an error.' : 'The app hit an unexpected error. Reloading will restore your session.'}
           </p>
           <Button variant="secondary" onClick={this.handleReload}>
