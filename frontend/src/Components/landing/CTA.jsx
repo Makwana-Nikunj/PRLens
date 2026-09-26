@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import PRInputForm from './PRInputForm';
 
 const CTA = () => (
-  <section className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] text-center" aria-labelledby="cta-title">
+  <section className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] text-center" aria-labelledby="cta-title">
     <div className="w-full max-w-[1100px] mx-auto px-6 md:px-[60px] 2xl:px-[100px]">
       <div
         className="relative max-w-[880px] mx-auto rounded-3xl px-6 py-16 md:px-16 md:py-20 overflow-hidden"
@@ -36,20 +36,20 @@ const CTA = () => (
         <div className="relative">
           <h2
             id="cta-title"
-            className="text-[clamp(28px,4vw,42px)] font-bold text-[#f3f3f6] light:text-[#18181f] tracking-tight mb-4"
+            className="text-[clamp(28px,4vw,42px)] font-bold text-[var(--text-primary)] light:text-[#18181f] tracking-tight mb-4"
             style={{ fontFamily: 'var(--font-display)' }}
           >
             Still reading diffs manually?
           </h2>
-          <p className="text-[clamp(15px,2vw,17px)] text-[#9b9ba8] light:text-[#5d5d6a] mb-10 max-w-[480px] mx-auto">
+          <p className="text-[clamp(15px,2vw,17px)] text-[var(--text-muted)] light:text-[#5d5d6a] mb-10 max-w-[480px] mx-auto">
             Analyze your next pull request with PRLens — free, no setup required.
           </p>
 
           <PRInputForm buttonLabel="Analyze" />
 
-          <p className="mt-5 text-[13px] font-medium text-[#6b6b78] light:text-[#82828e]">
+          <p className="mt-5 text-[13px] font-medium text-[var(--text-muted)] light:text-[#82828e]">
             Or read the{' '}
-            <Link to="/docs" className="text-[#9b9ba8] light:text-[#5d5d6a] font-semibold hover:text-[#f3f3f6] hover:light:text-[#18181f] transition">
+            <Link to="/docs" className="text-[var(--text-muted)] light:text-[#5d5d6a] font-semibold hover:text-[var(--text-primary)] hover:light:text-[#18181f] transition">
               docs
             </Link>{' '}
             first.

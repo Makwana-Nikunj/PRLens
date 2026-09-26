@@ -167,7 +167,7 @@ const HowItWorks = () => {
   };
 
   return (
-    <section id="how-it-works" className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="how-it-works-title">
+    <section id="how-it-works" className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="how-it-works-title">
       {/* Wider drifting grid + scan line backdrop for the whole section */}
       <div className="absolute inset-0 grid-animated-wide pointer-events-none opacity-50 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" aria-hidden="true" />
       <div className="absolute left-0 right-0 top-0 grid-scan pointer-events-none" aria-hidden="true" />
@@ -194,7 +194,7 @@ const HowItWorks = () => {
                     type="button"
                     onClick={() => handleStepClick(num)}
                     aria-current={isActive}
-                    className="group relative w-full text-left rounded-xl px-5 py-4 overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5]"
+                    className="group relative w-full text-left rounded px-5 py-4 overflow-hidden transition-all duration-300 cursor-pointer focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00]"
                     style={{
                       background: isActive ? 'rgba(124,58,237,0.08)' : 'var(--prl-panel)',
                       border: `1px solid ${isActive ? 'rgba(124,58,237,0.4)' : 'var(--prl-border)'}`,
@@ -205,11 +205,11 @@ const HowItWorks = () => {
                     <div className="flex items-center gap-4">
                       {/* Number / done circle */}
                       <span
-                        className="w-9 h-9 rounded-full flex items-center justify-center text-[15px] font-bold shrink-0 transition-all duration-300"
+                        className="w-9 h-9 rounded-sm flex items-center justify-center text-[15px] font-bold shrink-0 transition-all duration-300"
                         style={{
                           background: isDone ? 'rgba(124,58,237,0.25)' : isActive ? 'rgba(124,58,237,0.18)' : 'transparent',
                           border: `1px solid ${isDone || isActive ? 'rgba(148,87,245,0.5)' : 'var(--prl-border)'}`,
-                          color: isDone || isActive ? '#9457f5' : 'var(--prl-text-faint)',
+                          color: isDone || isActive ? '#ccff00' : 'var(--prl-text-faint)',
                           boxShadow: isActive ? '0 0 20px rgba(124,58,237,0.25)' : 'none',
                         }}
                       >
@@ -224,12 +224,12 @@ const HowItWorks = () => {
                         >
                           {step.title}
                         </span>
-                        <span className="block text-[13px] leading-relaxed text-[#6b6b78] light:text-[#82828e] mt-[3px]">{step.desc}</span>
+                        <span className="block text-[13px] leading-relaxed text-[var(--text-muted)] light:text-[#82828e] mt-[3px]">{step.desc}</span>
                       </span>
 
                       {/* Jump hint */}
                       <svg
-                        className="w-4 h-4 shrink-0 ml-auto text-[#9457f5] light:text-[#7c3aed] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
+                        className="w-4 h-4 shrink-0 ml-auto text-[#ccff00] light:text-[#ccff00] opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-300"
                         viewBox="0 0 24 24"
                         fill="none"
                         stroke="currentColor"
@@ -244,10 +244,10 @@ const HowItWorks = () => {
 
                     {/* Per-step progress fill */}
                     <span
-                      className="absolute bottom-0 left-0 h-[2px] rounded-full transition-[width] duration-200"
+                      className="absolute bottom-0 left-0 h-[2px] rounded-sm transition-[width] duration-200"
                       style={{
                         width: `${stepFill(num)}%`,
-                        background: 'linear-gradient(90deg, #7c3aed, #9457f5)',
+                        background: 'linear-gradient(90deg, #ccff00, #ccff00)',
                         opacity: isActive ? 1 : 0.35,
                       }}
                       aria-hidden="true"
@@ -256,7 +256,7 @@ const HowItWorks = () => {
                 );
               })}
             </div>
-            <p className="mt-4 text-[12px] text-[#6b6b78] light:text-[#82828e] text-center lg:text-left">
+            <p className="mt-4 text-[12px] text-[var(--text-muted)] light:text-[#82828e] text-center lg:text-left">
               Click a step to jump to that moment in the demo.
             </p>
           </div>
@@ -270,7 +270,7 @@ const HowItWorks = () => {
               aria-hidden="true"
             />
             <div
-              className="relative w-full rounded-2xl overflow-hidden cursor-pointer group transition-all duration-300"
+              className="relative w-full rounded-md overflow-hidden cursor-pointer group transition-all duration-300"
               style={{
                 background: 'var(--prl-panel-2)',
                 border: '1px solid var(--prl-border)',
@@ -306,11 +306,11 @@ const HowItWorks = () => {
               {/* Corner chip */}
               <div className="absolute top-3 left-3 pointer-events-none">
                 <span
-                  className="inline-flex items-center gap-[6px] text-[11px] font-semibold px-3 py-[5px] rounded-full backdrop-blur-sm"
+                  className="inline-flex items-center gap-[6px] text-[11px] font-semibold px-3 py-[5px] rounded-sm backdrop-blur-sm"
                   style={{ background: 'rgba(10,10,13,0.65)', border: '1px solid rgba(255,255,255,0.12)', color: '#d4d4d8' }}
                 >
                   <span
-                    className="w-[6px] h-[6px] rounded-full bg-[#9457f5]"
+                    className="w-[6px] h-[6px] rounded-sm bg-[#ccff00]"
                     style={{ animation: 'prl-pulse 2s ease-in-out infinite' }}
                   />
                   Product demo
@@ -322,11 +322,11 @@ const HowItWorks = () => {
                 style={{ background: 'rgba(10,10,13,0.35)' }}
               >
                 <div
-                  className="flex items-center justify-center rounded-full w-[72px] h-[72px] transition-transform duration-300 group-hover:scale-105"
+                  className="flex items-center justify-center rounded-sm w-[72px] h-[72px] transition-transform duration-300 group-hover:scale-105"
                   style={{ background: 'rgba(124,58,237,0.35)', border: '1px solid rgba(148,87,245,0.5)' }}
                 >
                   <svg
-                    className="w-9 h-9 text-[#f3f3f6] light:text-[#18181f]"
+                    className="w-9 h-9 text-[var(--text-primary)] light:text-[#18181f]"
                     viewBox="0 0 24 24"
                     fill="currentColor"
                     aria-hidden="true"
@@ -334,17 +334,17 @@ const HowItWorks = () => {
                     <path d="M8 5v14l11-7z" />
                   </svg>
                 </div>
-                <span className="text-[13px] font-semibold text-[#f3f3f6] light:text-[#18181f]">Watch full demo</span>
+                <span className="text-[13px] font-semibold text-[var(--text-primary)] light:text-[#18181f]">Watch full demo</span>
               </div>
 
               {videoError && (
                 <div className="absolute inset-0 flex flex-col items-center justify-center">
                   <div
-                    className="flex flex-col items-center justify-center rounded-full w-16 h-16 mb-3"
+                    className="flex flex-col items-center justify-center rounded-sm w-16 h-16 mb-3"
                     style={{ background: 'rgba(124,58,237,0.2)' }}
                   >
                     <svg
-                      className="w-8 h-8 text-[#9457f5] light:text-[#7c3aed]"
+                      className="w-8 h-8 text-[#ccff00] light:text-[#ccff00]"
                       viewBox="0 0 24 24"
                       fill="currentColor"
                       aria-hidden="true"
@@ -352,7 +352,7 @@ const HowItWorks = () => {
                       <path d="M8 5v14l11-7z" />
                     </svg>
                   </div>
-                  <p className="text-[13px] text-[#6b6b78] light:text-[#82828e]">Video unavailable</p>
+                  <p className="text-[13px] text-[var(--text-muted)] light:text-[#82828e]">Video unavailable</p>
                 </div>
               )}
             </div>
@@ -398,7 +398,7 @@ const HowItWorks = () => {
             >
               <button
                 onClick={toggleModalPlay}
-                className="text-white hover:text-[#9457f5] hover:light:text-[#7c3aed] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5] rounded p-1"
+                className="text-white hover:text-[#ccff00] hover:light:text-[#ccff00] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] rounded p-1"
                 aria-label={modalPlaying ? 'Pause' : 'Play'}
               >
                 {modalPlaying ? (
@@ -415,14 +415,14 @@ const HowItWorks = () => {
 
               <button
                 onClick={() => changeSpeed(modalSpeed === 1 ? 1.5 : modalSpeed === 1.5 ? 2 : modalSpeed === 2 ? 0.5 : 1)}
-                className="text-white hover:text-[#9457f5] hover:light:text-[#7c3aed] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#9457f5] rounded px-2 py-1 text-xs font-semibold"
+                className="text-white hover:text-[#ccff00] hover:light:text-[#ccff00] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] rounded px-2 py-1 text-xs font-semibold"
                 aria-label="Playback speed"
               >
                 {modalSpeed}x
               </button>
 
               <div
-                className="flex-1 h-1 rounded-full cursor-pointer"
+                className="flex-1 h-1 rounded-sm cursor-pointer"
                 style={{ background: 'rgba(255,255,255,0.2)' }}
                 onClick={handleModalSeek}
                 role="slider"
@@ -433,10 +433,10 @@ const HowItWorks = () => {
                 tabIndex={0}
               >
                 <div
-                  className="h-full rounded-full"
+                  className="h-full rounded-sm"
                   style={{
                     width: `${modalProgress}%`,
-                    background: '#9457f5',
+                    background: '#ccff00',
                     transition: 'width 0.1s linear',
                   }}
                 />

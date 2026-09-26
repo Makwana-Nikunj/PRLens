@@ -27,7 +27,7 @@ const faqs = [
 
 const FAQItem = ({ q, a, isOpen, onToggle }) => (
   <div
-    className="relative rounded-xl overflow-hidden transition-colors duration-300"
+    className="relative rounded overflow-hidden transition-colors duration-300"
     style={{
       background: 'var(--prl-panel-2)',
       border: `1px solid ${isOpen ? 'rgba(124,58,237,0.4)' : 'var(--prl-border)'}`,
@@ -41,9 +41,9 @@ const FAQItem = ({ q, a, isOpen, onToggle }) => (
       className="w-full flex items-center justify-between gap-4 px-6 py-5 text-left min-h-[44px]"
       aria-expanded={isOpen}
     >
-      <span className="text-[16px] font-semibold text-[#f3f3f6] light:text-[#18181f]">{q}</span>
+      <span className="text-[16px] font-semibold text-[var(--text-primary)] light:text-[#18181f]">{q}</span>
       <svg
-        className="w-4 h-4 shrink-0 text-[#9b9ba8] light:text-[#5d5d6a] transition-transform duration-300"
+        className="w-4 h-4 shrink-0 text-[var(--text-muted)] light:text-[#5d5d6a] transition-transform duration-300"
         style={{ transform: isOpen ? 'rotate(180deg)' : 'rotate(0deg)' }}
         viewBox="0 0 24 24"
         fill="none"
@@ -61,7 +61,7 @@ const FAQItem = ({ q, a, isOpen, onToggle }) => (
       style={{ gridTemplateRows: isOpen ? '1fr' : '0fr' }}
     >
       <div className="overflow-hidden min-h-0">
-        <p className="px-6 pb-5 text-[15px] text-[#9b9ba8] light:text-[#5d5d6a] leading-relaxed">{a}</p>
+        <p className="px-6 pb-5 text-[15px] text-[var(--text-muted)] light:text-[#5d5d6a] leading-relaxed">{a}</p>
       </div>
     </div>
   </div>
@@ -71,7 +71,7 @@ const FAQ = () => {
   const [openIndex, setOpenIndex] = useState(0);
 
   return (
-    <section id="faq" className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="faq-title">
+    <section id="faq" className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="faq-title">
       <div className="absolute inset-0 grid-animated-fine pointer-events-none opacity-30 [mask-image:radial-gradient(ellipse_at_center,black_30%,transparent_80%)]" aria-hidden="true" />
       <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] relative z-10">
         <SectionHeading
@@ -90,9 +90,9 @@ const FAQ = () => {
             />
           ))}
         </div>
-        <p className="mt-8 text-center text-[14px] text-[#6b6b78] light:text-[#82828e]">
+        <p className="mt-8 text-center text-[14px] text-[var(--text-muted)] light:text-[#82828e]">
           Still have questions?{' '}
-          <Link to="/docs/faq" className="text-[#9457f5] light:text-[#7c3aed] font-medium hover:text-[#b08bff] hover:light:text-[#8b5cf6] transition">
+          <Link to="/docs/faq" className="text-[#ccff00] light:text-[#ccff00] font-medium hover:text-[#b08bff] hover:light:text-[#ccff00] transition">
             Read the full FAQ &rarr;
           </Link>
         </p>

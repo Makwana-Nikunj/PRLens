@@ -46,7 +46,7 @@ const PRInputForm = ({ buttonLabel = 'Analyze PR' }) => {
 
   return (
     <div
-      className="relative mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 rounded-xl p-[6px] transition max-w-[640px]"
+      className="relative mx-auto flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-0 rounded p-[6px] transition max-w-[640px]"
       style={{ background: 'var(--prl-panel)', border: '1px solid var(--prl-border)' }}
     >
       <Input

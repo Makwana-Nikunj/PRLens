@@ -68,7 +68,7 @@ const FeatureCard = ({ title, desc, icon, index }) => {
   return (
     <div
       ref={ref}
-      className="group grid-shine relative rounded-xl p-8 overflow-hidden transition-all duration-300 cursor-default"
+      className="group grid-shine relative rounded p-8 overflow-hidden transition-all duration-300 cursor-default"
       style={{
         background: 'var(--prl-panel-2)',
         border: '1px solid var(--prl-border)',
@@ -101,25 +101,25 @@ const FeatureCard = ({ title, desc, icon, index }) => {
       {/* Decorative orbit ring in the corner */}
       <div className="absolute -bottom-10 -right-10 w-32 h-32 grid-orbit opacity-40 pointer-events-none" aria-hidden="true" />
       <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6"
+        className="w-10 h-10 rounded flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6"
         style={{
           background: 'rgba(124,58,237,0.1)',
-          color: '#9457f5',
+          color: '#ccff00',
         }}
       >
         <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
           {icon}
         </svg>
       </div>
-      <h3 className="text-[18px] font-semibold text-[#f3f3f6] light:text-[#18181f] mb-2">{title}</h3>
-      <p className="text-[15px] text-[#9b9ba8] light:text-[#5d5d6a] leading-relaxed">{desc}</p>
+      <h3 className="text-[18px] font-semibold text-[var(--text-primary)] light:text-[#18181f] mb-2">{title}</h3>
+      <p className="text-[15px] text-[var(--text-muted)] light:text-[#5d5d6a] leading-relaxed">{desc}</p>
     </div>
   );
 };
 
 const Features = () => {
   return (
-    <section id="what-you-get" className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="what-you-get-title">
+    <section id="what-you-get" className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="what-you-get-title">
       {/* Wide drifting grid + twinkling nodes backdrop for the whole section */}
       <div className="absolute inset-0 grid-animated-wide pointer-events-none opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_80%)]" aria-hidden="true" />
       <div className="absolute inset-0 grid-nodes pointer-events-none opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_80%)] [animation-delay:1.5s]" aria-hidden="true" />
