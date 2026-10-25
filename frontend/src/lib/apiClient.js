@@ -39,7 +39,7 @@ apiClient.interceptors.response.use(
             !originalRequest._retry &&
             !originalRequest.url?.includes('/auth/login') &&
             !originalRequest.url?.includes('/auth/register') &&
-            !originalRequest.url?.includes('/auth/refresh-token')
+            !originalRequest.url?.includes('/auth/refresh')
         ) {
             originalRequest._retry = true;
 
@@ -47,7 +47,7 @@ apiClient.interceptors.response.use(
                 isRefreshing = true;
 
                 try {
-                    await apiClient.post('/auth/refresh-token');
+                    await apiClient.post('/auth/refresh');
                     isRefreshing = false;
                     onTokenRefreshed();
                     // Retry the original request
@@ -64,6 +64,8 @@ apiClient.interceptors.response.use(
                     refreshSubscribers = [];
                     try { localStorage.removeItem('auth-storage'); } catch (_clearLocal) {}
                     try {
+                        const STATE_KEY = "github_oauth_state";
+                        const VERIFIER_KEY = "github_code_verifier";
                         sessionStorage.removeItem(STATE_KEY);
                         sessionStorage.removeItem(VERIFIER_KEY);
                         sessionStorage.removeItem('pending_pr_analyze');

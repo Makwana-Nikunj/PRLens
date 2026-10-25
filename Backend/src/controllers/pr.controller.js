@@ -1,4 +1,4 @@
-import { parsePRUrl, GitHubService } from "../services/github.service.js";
+import { parsePRUrl, GitHubService, getGitHubTokenForUser } from "../services/github.service.js";
 import { chunkDiff } from "../services/chunker.service.js";
 import { analyzePRChunks } from "../services/ai.service.js";
 import { ApiError } from "../utils/ApiError.js";
@@ -56,20 +56,20 @@ const analyzePR = async (req, res) => {
 
         // 2. Fetch User Token
         let isUserToken = true;
-        let accessToken = req.session?.githubAccessToken || req.user?.github_token;
-        const userId = req.user?.id || req.session?.userId;
+        // After the auth rebuild, GitHub tokens live encrypted in
+        // `github_connections`, not on `req.user` and not on the legacy
+        // express-session. Fetch + decrypt on demand.
+        let accessToken = req.user?.id
+            ? await getGitHubTokenForUser(req.user.id)
+            : null;
+        const userId = req.user?.id || null;
 
         if (!accessToken) {
-            accessToken = process.env.GITHUB_TOKEN;
+            accessToken = process.env.GITHUB_TOKEN || null;
             isUserToken = false;
         }
 
-        if (!accessToken) {
-            console.warn("[PR ANALYZE] No GitHub token available");
-            return sendError(401, "GitHub access token required. Log in or set GITHUB_TOKEN env var.");
-        }
-
-        console.log("[PR ANALYZE] Token acquired", { isUserToken, hasAccessToken: !!accessToken });
+        console.log("[PR ANALYZE] Token status", { isUserToken, hasAccessToken: !!accessToken });
 
         sendEvent("Fetching PR data from GitHub...", { progress: 10 });
 

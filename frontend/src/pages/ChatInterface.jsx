@@ -14,20 +14,20 @@ const ChatInterface = () => {
 
     if (!prId) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a0a0d] light:bg-[#ffffff] text-[#9b9ba8] light:text-[#5d5d6a]">
+            <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text-dim)]">
                 <p>Invalid chat link.</p>
             </div>
         );
     }
 
     return (
-        <div className="w-full h-[100dvh] bg-[#0a0a0d] light:bg-[#ffffff] text-[#E4E4E7] light:text-[#2a2a33] font-sans flex overflow-hidden">
-            <main className="flex-1 min-w-0 flex flex-col bg-[#0a0a0d] light:bg-[#ffffff]">
-                <div className="flex-1 overflow-y-auto bg-[#0a0a0d] light:bg-[#ffffff] p-4 sm:p-6 lg:p-8 scrollbar-hide">
+        <div className="w-full h-[100dvh] bg-[var(--prl-bg)] text-[var(--prl-text)] font-sans flex overflow-hidden">
+            <main className="flex-1 min-w-0 flex flex-col bg-[var(--prl-bg)]">
+                <div className="flex-1 overflow-y-auto bg-[var(--prl-bg)] p-4 sm:p-6 lg:p-8 scrollbar-hide">
                     <div className="max-w-[760px] mx-auto w-full flex items-center justify-center h-full">
                         <div className="text-center">
-                            <h2 className="text-2xl font-bold text-[#f3f3f6] light:text-[#18181f] mb-2 tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>Chat with PRLens</h2>
-                            <p className="text-[14px] text-[#9b9ba8] light:text-[#5d5d6a]">Ask questions about this pull request</p>
+                            <h2 className="text-2xl font-bold text-[var(--prl-text)] mb-2 tracking-tight font-display" >Chat with PRLens</h2>
+                            <p className="text-[14px] text-[var(--prl-text-dim)]">Ask questions about this pull request</p>
                         </div>
                     </div>
                 </div>
@@ -49,8 +49,8 @@ const ChatInterface = () => {
                 onStopStreaming={chat.stopStreaming}
             />
             <button
-                className={`fixed right-4 md:right-5 bottom-4 md:bottom-5 w-12 h-12 text-white rounded-full flex items-center justify-center z-10 transition-all duration-300 hover:bg-[#8b5cf6] ${resize.isReopenShown ? 'translate-y-0 opacity-100' : 'translate-y-[100px] opacity-0 pointer-events-none'}`}
-                style={{ background: '#7c3aed', boxShadow: '0 8px 32px rgba(124,58,237,0.35)' }}
+                className={`fixed right-4 md:right-5 bottom-4 md:bottom-5 w-12 h-12 text-[var(--prl-on-accent)] rounded-full flex items-center justify-center z-10 transition-all duration-300 hover:opacity-90 ${resize.isReopenShown ? 'translate-y-0 opacity-100' : 'translate-y-[100px] opacity-0 pointer-events-none'}`}
+                style={{ background: 'var(--prl-accent-fill)', boxShadow: '0 8px 32px var(--prl-accent-glow)' }}
                 onClick={() => resize.toggleChat(true)}
                 title="Open chat"
             >

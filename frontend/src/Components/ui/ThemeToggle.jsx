@@ -15,7 +15,7 @@ const ThemeToggle = ({ className = '' }) => {
     <button
       type="button"
       onClick={toggleTheme}
-      className={`flex items-center justify-center w-[40px] h-[40px] min-h-[40px] rounded-lg text-[#A1A1AA] light:text-[#565662] hover:text-white light:hover:text-[#18181f] hover:bg-white/10 light:hover:bg-black/10 transition ${className}`}
+      className={`flex items-center justify-center w-[40px] h-[40px] min-h-[40px] rounded-lg text-[var(--prl-text-dim)] hover:text-[var(--prl-text)] hover:bg-white/10 light:hover:bg-black/10 transition ${className}`}
       aria-label={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
       title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
     >
