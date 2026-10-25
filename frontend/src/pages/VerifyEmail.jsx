@@ -39,9 +39,9 @@ const VerifyEmail = () => {
   }, [token]);
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f13] light:bg-[#fafaff] text-[#E4E4E7] light:text-[#2a2a33] font-sans relative overflow-hidden">
-      <div className="relative z-10 w-[90%] max-w-[400px] bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 prl-shadow-card rounded-lg p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] text-[#ccff00]enter animate-reveal-up">
-        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-[#ccff00]/20 border border-[#ccff00]/30 rounded-md text-[#ccff00] light:text-[#ccff00]">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)] font-sans relative overflow-hidden">
+      <div className="relative z-10 w-[90%] max-w-[400px] bg-[var(--prl-panel)] border border-[var(--prl-border)] prl-shadow-card rounded-lg p-8 md:p-10 text-center animate-reveal-up">
+        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-[#ccff00]/20 border border-[#ccff00]/30 rounded-md text-[var(--prl-accent)]">
           {isLoading || status === "pending" ? (
             <div className="w-5 h-5 border-2 border-[#ccff00]/50 border-t-transparent rounded-full animate-spin" />
           ) : status === "success" ? (
@@ -55,15 +55,15 @@ const VerifyEmail = () => {
             </svg>
           )}
         </div>
-        <h1 className="text-2xl font-semibold tracking-tight mb-3 text-white light:text-[#18181f]">
+        <h1 className="text-2xl font-semibold tracking-tight mb-3 text-[var(--prl-text)] font-display">
           Email verification
         </h1>
-        <p className="text-[14px] text-[#A1A1AA] light:text-[#565662] leading-relaxed mb-6">
+        <p className="text-[14px] text-[var(--prl-text-dim)] leading-relaxed mb-6">
           {message}
         </p>
         <Link
           to={status === "success" ? "/email-login" : "/login"}
-          className="inline-block bg-[#ccff00] text-[#09090b] py-2.5 px-5 rounded-md text-[14px] font-semibold no-underline transition-colors"
+          className="inline-block bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] py-2.5 px-5 rounded-md text-[14px] font-semibold no-underline transition-colors"
         >
           {status === "success" ? "Go to sign in" : "Back to sign in"}
         </Link>

@@ -39,9 +39,9 @@ const VerifyEmailPending = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f13] light:bg-[#fafaff] text-[#E4E4E7] light:text-[#2a2a33] font-sans relative overflow-hidden">
-      <div className="relative z-10 w-[90%] max-w-[440px] bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 prl-shadow-card rounded-lg p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] text-[#ccff00]enter animate-reveal-up">
-        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-[#ccff00]/20 border border-[#ccff00]/30 rounded-md text-[#ccff00] light:text-[#ccff00]">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)] font-sans relative overflow-hidden">
+      <div className="relative z-10 w-[90%] max-w-[440px] bg-[var(--prl-panel)] border border-[var(--prl-border)] prl-shadow-card rounded-lg p-8 md:p-10 text-center animate-reveal-up">
+        <div className="w-12 h-12 mx-auto mb-6 grid place-items-center bg-[#ccff00]/20 border border-[#ccff00]/30 rounded-md text-[var(--prl-accent)]">
           <svg
             className="w-6 h-6"
             viewBox="0 0 24 24"
@@ -56,19 +56,19 @@ const VerifyEmailPending = () => {
           </svg>
         </div>
 
-        <h1 className="text-2xl font-semibold tracking-tight mb-3 text-white light:text-[#18181f]">
+        <h1 className="text-2xl font-semibold tracking-tight mb-3 text-[var(--prl-text)] font-display">
           Check your email
         </h1>
 
-        <p className="text-[14px] text-[#A1A1AA] light:text-[#565662] leading-relaxed mb-2">
+        <p className="text-[14px] text-[var(--prl-text-dim)] leading-relaxed mb-2">
           We've sent a verification link to
         </p>
-        <p className="text-[14px] text-white light:text-[#18181f] font-medium mb-6 break-all">
+        <p className="text-[14px] text-[var(--prl-text)] font-medium mb-6 break-all">
           {email}
         </p>
-        <p className="text-[13px] text-[#A1A1AA] light:text-[#565662] leading-relaxed mb-8">
+        <p className="text-[13px] text-[var(--prl-text-dim)] leading-relaxed mb-8">
           Click the link in the email to verify your address. The link expires
-          in 30 minutes. You can close this tab and come back — we'll remember
+          in 30 minutes. You can close this tab and come back. We'll remember
           where you were.
         </p>
 
@@ -85,7 +85,7 @@ const VerifyEmailPending = () => {
           type="button"
           onClick={handleResend}
           disabled={isLoading || resent}
-          className="w-full bg-[#ccff00] text-[#09090b] py-3 px-4 rounded-md text-[15px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-70 disabled:cursor-not-allowed mb-3"
+          className="w-full bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] py-3 px-4 rounded-md text-[15px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-70 disabled:cursor-not-allowed mb-3"
         >
           {isLoading ? "Sending..." : resent ? "Email sent" : "Resend verification email"}
         </button>
@@ -93,7 +93,7 @@ const VerifyEmailPending = () => {
         <Link
           to="/email-login"
           replace
-          className="block text-[13px] text-[#A1A1AA] light:text-[#565662] hover:text-white light:hover:text-[#18181f]"
+          className="block text-[13px] text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]"
         >
           &larr; Use a different account
         </Link>

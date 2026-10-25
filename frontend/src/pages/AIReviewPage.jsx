@@ -3,33 +3,33 @@ import { Link } from 'react-router-dom';
 import { Helmet } from 'react-helmet-async';
 
 const AIReviewPage = () => (
-  <div className="min-h-screen bg-[#0f0f13] light:bg-[#fafaff] text-white light:text-[#18181f]">
+  <div className="min-h-[100dvh] bg-[var(--prl-bg)] text-[var(--prl-text)]">
     <Helmet>
       <title>AI Code Review - PRLens</title>
       <meta name="description" content="Learn how PRLens uses AI to review code faster, catch security risks, and generate pull request summaries automatically." />
       <link rel="canonical" href="https://prlens-eight.vercel.app/ai-code-review" />
     </Helmet>
     <div className="max-w-3xl mx-auto px-6 py-20">
-      <h1 className="text-4xl font-bold mb-4">AI Code Review</h1>
-      <p className="text-[#A1A1AA] light:text-[#565662] text-lg mb-10">Use AI to review code faster and catch issues earlier in the pull request process.</p>
+      <h1 className="text-4xl font-bold mb-4 font-display">AI Code Review</h1>
+      <p className="text-[var(--prl-text-dim)] text-lg mb-10">Use AI to review code faster and catch issues earlier in the pull request process.</p>
 
       <div className="space-y-6">
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
-          <h2 className="text-xl font-semibold mb-2">Automated Summaries</h2>
-          <p className="text-[#A1A1AA] light:text-[#565662]">Get concise PR summaries so reviewers understand the change set immediately.</p>
+        <div className="bg-[var(--prl-panel)] border border-[var(--prl-border)] rounded-md p-6">
+          <h2 className="text-xl font-semibold mb-2 font-display">Automated Summaries</h2>
+          <p className="text-[var(--prl-text-dim)]">Get concise PR summaries so reviewers understand the change set immediately.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
-          <h2 className="text-xl font-semibold mb-2">Risk Detection</h2>
-          <p className="text-[#A1A1AA] light:text-[#565662]">Highlight breaking changes, security risks, and performance regressions before merge.</p>
+        <div className="bg-[var(--prl-panel)] border border-[var(--prl-border)] rounded-md p-6">
+          <h2 className="text-xl font-semibold mb-2 font-display">Risk Detection</h2>
+          <p className="text-[var(--prl-text-dim)]">Highlight breaking changes, security risks, and performance regressions before merge.</p>
         </div>
-        <div className="bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 rounded-md p-6">
-          <h2 className="text-xl font-semibold mb-2">Faster Reviews</h2>
-          <p className="text-[#A1A1AA] light:text-[#565662]">Reduce review time by focusing on high-signal areas instead of reading every diff.</p>
+        <div className="bg-[var(--prl-panel)] border border-[var(--prl-border)] rounded-md p-6">
+          <h2 className="text-xl font-semibold mb-2 font-display">Faster Reviews</h2>
+          <p className="text-[var(--prl-text-dim)]">Reduce review time by focusing on high-signal areas instead of reading every diff.</p>
         </div>
       </div>
 
       <div className="mt-12">
-        <Link to="/" className="text-[#ccff00] light:text-[#ccff00] hover:text-[#ccff00] hover:light:text-[#ccff00]">&larr; Back to Home</Link>
+        <Link to="/" className="text-[var(--prl-accent)] hover:text-[var(--prl-text-primary)]">&larr; Back to Home</Link>
       </div>
     </div>
   </div>

@@ -1,83 +1,44 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 
-const FooterLink = ({ to, children, ...props }) => (
-  <Link
-    to={to}
-    className="text-[var(--text-muted)] light:text-[#5d5d6a] hover:text-[var(--text-primary)] hover:light:text-[#18181f] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] rounded"
-    {...props}
-  >
-    {children}
-  </Link>
-);
+const Footer = () => {
+  const year = new Date().getFullYear();
 
-const Footer = () => (
-  <footer className="border-t border-[#27272a] light:border-[#27272a] pt-16 pb-10 text-[14px] bg-[var(--bg-primary)] light:bg-[#ffffff]" aria-labelledby="footer-heading">
-    <h2 id="footer-heading" className="sr-only">Footer</h2>
-    <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] max-w-[1100px] mx-auto">
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-[1.6fr_1fr_1fr_1fr] gap-10 mb-12">
-        {/* Brand */}
-        <div>
-          <Link to="/" className="flex items-center gap-3 text-white light:text-[#18181f] font-semibold text-lg no-underline mb-3">
-            <span className="flex items-center justify-center w-8 h-8 rounded-lg bg-[#ccff00]/20 border border-[#ccff00]/30 text-[#ccff00] light:text-[#ccff00]">
-              <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                <circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M6 9v12" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M13 15c-2.5 0-4.5 0-6 0" />
-              </svg>
-            </span>
-            PRLens
-          </Link>
-          <p className="text-[var(--text-muted)] light:text-[#82828e] leading-relaxed max-w-[260px]">
-            AI-powered pull request analysis for GitHub. Understand any PR in seconds.
-          </p>
+  const linkClass = "text-[15px] font-medium text-[var(--prl-text-dim)] hover:text-[var(--prl-text)] transition-colors no-underline";
+
+  return (
+    <footer className="bg-[var(--prl-bg)] text-[var(--prl-text)] px-6 pt-12 pb-16 w-full">
+      <div className="max-w-[1320px] mx-auto">
+        {/* Single quiet line: 1fr auto 1fr grid */}
+        <div className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] items-center gap-6 text-[15px]">
+          {/* Left: what this is in a few words */}
+          <div className="text-[var(--prl-text-dim)] font-medium">
+            <span className="text-[var(--prl-text)] font-semibold">prlens.</span> AI pull request review for GitHub.
+          </div>
+
+          {/* Centred: Navigation links */}
+          <div className="flex flex-wrap items-center gap-6">
+            <a href="#how-it-works" className={linkClass}>How it works</a>
+            <a href="#features" className={linkClass}>Proof</a>
+            <a href="#demo" className={linkClass}>Live Demo</a>
+            <a href="#faq" className={linkClass}>FAQ</a>
+            <Link to="/docs" className={linkClass}>Docs</Link>
+            <Link to="/privacy" className={linkClass}>Privacy</Link>
+          </div>
+
+          {/* Right: Year and rights */}
+          <div className="md:text-right text-[var(--prl-text-dim)] font-medium">
+            &copy; {year} PRLens. All rights reserved.
+          </div>
         </div>
 
-        {/* Product */}
-        <nav aria-label="Product">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--text-primary)] light:text-[#18181f] mb-4">Product</h3>
-          <ul className="space-y-3">
-            <li><FooterLink to="/#what-you-get">Features</FooterLink></li>
-            <li><FooterLink to="/#how-it-works">How it works</FooterLink></li>
-            <li><FooterLink to="/#faq">FAQ</FooterLink></li>
-          </ul>
-        </nav>
-
-        {/* Resources */}
-        <nav aria-label="Resources">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--text-primary)] light:text-[#18181f] mb-4">Resources</h3>
-          <ul className="space-y-3">
-            <li><FooterLink to="/docs">Docs</FooterLink></li>
-            <li><FooterLink to="/blog">Blog</FooterLink></li>
-          </ul>
-        </nav>
-
-        {/* Legal */}
-        <nav aria-label="Legal">
-          <h3 className="text-[12px] font-bold uppercase tracking-[0.14em] text-[var(--text-primary)] light:text-[#18181f] mb-4">Legal</h3>
-          <ul className="space-y-3">
-            <li><FooterLink to="/privacy">Privacy</FooterLink></li>
-          </ul>
-        </nav>
-      </div>
-
-      <div className="border-t border-[#27272a] light:border-[#27272a] pt-8 flex flex-col-reverse sm:flex-row justify-between items-center gap-4">
-        <div className="text-[var(--text-muted)] light:text-[#82828e]">&copy; 2026 PRLens. All rights reserved.</div>
-        <div className="flex items-center gap-2">
-          <a href="https://github.com" className="text-[var(--text-muted)] light:text-[#5d5d6a] hover:text-[var(--text-primary)] hover:light:text-[#18181f] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] rounded p-2" aria-label="GitHub">
-            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M15 22v-4a4.8 4.8 0 0 0-1-3.5c3 0 6-2 6-5.5.08-1.25-.27-2.48-1-3.5.28-1.15.28-2.35 0-3.5 0 0-1 0-3 1.5-2.64-.5-5.36-.5-8 0C6 2 5 2 5 2c-.3 1.15-.3 2.35 0 3.5A5.403 5.403 0 0 0 4 9c0 3.5 3 5.5 6 5.5-.39.49-.68 1.05-.85 1.65-.17.6-.22 1.23-.15 1.85v4" />
-              <path d="M9 18c-4.51 2-5-2-7-2" />
-            </svg>
-          </a>
-          <a href="https://twitter.com" className="text-[var(--text-muted)] light:text-[#5d5d6a] hover:text-[var(--text-primary)] hover:light:text-[#18181f] transition focus:outline-none focus-visible:ring-2 focus-visible:ring-[#ccff00] rounded p-2" aria-label="Twitter">
-            <svg className="w-[18px] h-[18px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M4 4l11.733 16H20L8.267 4H4z" />
-              <path d="M4 20l6.768-6.768M20 4l-6.768 6.768" />
-            </svg>
-          </a>
+        {/* Archival credits as required by open collections assets */}
+        <div className="mt-12 text-[13px] text-[var(--prl-text-faint)] leading-relaxed text-center">
+          Pictures and footage: <a href="https://commons.wikimedia.org/wiki/File:Code_on_computer_monitor_(Unsplash).jpg" className="text-[var(--prl-text-dim)] underline hover:text-[var(--prl-text)]">“Code on computer monitor”</a> by Markus Spiske (CC0); <a href="https://commons.wikimedia.org/w/index.php?curid=48220976" className="text-[var(--prl-text-dim)] underline hover:text-[var(--prl-text)]">“Wikidata code review”</a> by Lydia Pintscher (CC0); <a href="https://images.nasa.gov/details/JPL-20240425-VOYAGEf-0001-Voyager%201%20Team%20Reacts%20to%20Receiving%20Engineering%20Data%20From%20Spacecraft" className="text-[var(--prl-text-dim)] underline hover:text-[var(--prl-text)]">“Telemetry engineering review”</a> by NASA JPL (Public domain).
         </div>
       </div>
-    </div>
-  </footer>
-);
+    </footer>
+  );
+};
 
 export default Footer;

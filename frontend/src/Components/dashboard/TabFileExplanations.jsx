@@ -15,15 +15,15 @@ const TabFileExplanations = ({ activePR }) => {
 
   return (
     <div className="animate-[reveal-up_0.4s_ease-out_forwards] space-y-6">
-      <div className="bg-[#18181b] light:bg-[#f1f1f6] border border-[#27272a] light:border-[#27272a] rounded-lg p-6 relative overflow-hidden transition-all duration-300 hover:border-[#2a2a38] hover:light:border-[#d9d9e3]">
-        <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: 'linear-gradient(90deg, #6366f1, transparent)', opacity: 0.8 }}></div>
+      <div className="bg-[var(--prl-bg-soft)] border border-[var(--prl-border)] rounded-lg p-6 relative overflow-hidden transition-all duration-300 hover:border-[#2a2a38] hover:light:border-[#d9d9e3]">
+        <div className="absolute top-0 left-0 w-full h-[2px]" style={{ background: 'linear-gradient(90deg, var(--prl-accent), transparent)', opacity: 0.8 }}></div>
         <div className="flex items-center gap-4 mb-6">
-          <div className="w-10 h-10 rounded-md flex items-center justify-center text-indigo-400 light:text-indigo-600 shrink-0 bg-indigo-500/10 border border-indigo-500/25">
+          <div className="w-10 h-10 rounded-md flex items-center justify-center text-[var(--prl-accent)] shrink-0 bg-[var(--prl-accent-soft)] border border-[var(--prl-accent-line)]">
             <FileCode2 className="w-5 h-5" />
           </div>
           <div>
-            <h3 className="text-lg font-bold text-[#fafafa] light:text-[#18181f] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>File Explanations</h3>
-            <p className="text-xs text-[#a1a1aa] light:text-[#5d5d6a] mt-1">AI-generated explanations for each changed file.</p>
+            <h3 className="text-lg font-bold text-[var(--prl-text)] tracking-tight" >File Explanations</h3>
+            <p className="text-xs text-[var(--prl-text-dim)] mt-1">AI-generated explanations for each changed file.</p>
           </div>
         </div>
 
@@ -32,22 +32,22 @@ const TabFileExplanations = ({ activePR }) => {
             {entries.map(([filename, explanation]) => {
               const isOpen = openFiles[filename] !== false;
               return (
-                <div key={filename} className="border border-indigo-500/15 bg-indigo-500/5 rounded-md overflow-hidden transition-all duration-200 hover:border-indigo-500/30">
+                <div key={filename} className="border border-[var(--prl-accent-line)] bg-[var(--prl-accent-soft)] rounded-md overflow-hidden transition-all duration-200 hover:border-[var(--prl-accent)]">
                   <button
                     onClick={() => toggleFile(filename)}
-                    className="w-full flex items-center gap-3 p-4 sm:p-5 text-left transition-colors hover:bg-indigo-500/10"
+                    className="w-full flex items-center gap-3 p-4 sm:p-5 text-left transition-colors hover:bg-[var(--prl-accent-soft)]"
                   >
                     {isOpen ? (
-                      <ChevronDown className="w-4 h-4 text-indigo-400 light:text-indigo-600 shrink-0" />
+                      <ChevronDown className="w-4 h-4 text-[var(--prl-accent)] shrink-0" />
                     ) : (
-                      <ChevronRight className="w-4 h-4 text-indigo-400 light:text-indigo-600 shrink-0" />
+                      <ChevronRight className="w-4 h-4 text-[var(--prl-accent)] shrink-0" />
                     )}
-                    <FileCode2 className="w-4 h-4 text-indigo-400/70 light:text-indigo-600/70 shrink-0" />
-                    <span className="text-[14px] sm:text-[15px] text-[#fafafa] light:text-[#18181f] font-medium truncate">{filename}</span>
+                    <FileCode2 className="w-4 h-4 text-[var(--prl-accent)]/70 shrink-0" />
+                    <span className="text-[14px] sm:text-[15px] text-[var(--prl-text)] font-medium truncate">{filename}</span>
                   </button>
                   {isOpen && (
                     <div className="px-4 sm:px-5 pb-4 sm:pb-5 pt-1">
-                      <p className="text-[14px] sm:text-[15px] text-[#E4E4E7] light:text-[#2a2a33] leading-relaxed whitespace-pre-wrap break-words overflow-x-auto min-w-0 bg-[#18181b] light:bg-[#f4f4f9] p-4 rounded-lg border border-[#27272a] light:border-[#27272a]">
+                      <p className="text-[14px] sm:text-[15px] text-[var(--prl-text)] leading-relaxed whitespace-pre-wrap break-words overflow-x-auto min-w-0 bg-[var(--prl-bg-soft)] p-4 rounded-md border border-[var(--prl-border)]">
                         {explanation}
                       </p>
                     </div>
@@ -57,7 +57,7 @@ const TabFileExplanations = ({ activePR }) => {
             })}
           </div>
         ) : (
-          <div className="p-5 bg-[#18181b] light:bg-[#f4f4f9] border border-[#27272a] light:border-[#27272a] rounded-md text-[14px] text-[#a1a1aa] light:text-[#5d5d6a] flex items-center justify-center">
+          <div className="p-5 bg-[var(--prl-bg-soft)] border border-[var(--prl-border)] rounded-md text-[14px] text-[var(--prl-text-dim)] flex items-center justify-center">
             No file explanations available.
           </div>
         )}

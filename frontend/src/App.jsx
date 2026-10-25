@@ -36,14 +36,14 @@ const ChatInterface = lazy(() => import("./pages/ChatInterface"));
 const FileExplanations = lazy(() => import("./pages/FileExplanations"));
 
 const Loader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#09090b] light:bg-[#ffffff] text-white light:text-[#18181f]">
-    <span className="material-symbols-outlined text-4xl animate-spin text-[#a3cc00] light:text-[#ccff00]">progress_activity</span>
+  <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)]">
+    <span className="material-symbols-outlined text-4xl animate-spin text-[var(--prl-accent-2)]">progress_activity</span>
   </div>
 );
 
 function App() {
   return (
-    <div className="min-h-screen bg-background text-on-surface">
+    <div className="min-h-[100dvh] bg-[var(--prl-bg)] text-[var(--prl-text)]">
       <Suspense fallback={<Loader />}>
         <ErrorBoundary>
           <Routes>
@@ -87,11 +87,11 @@ function App() {
             </Route>
 
             <Route path="*" element={
-              <div className="min-h-screen flex flex-col items-center justify-center bg-[#09090b] light:bg-[#ffffff] text-white light:text-[#18181f]">
-                <span className="material-symbols-outlined text-6xl text-[#a1a1aa] light:text-[#82828e] mb-4">route_off</span>
-                <h1 className="text-[#ccff00]xl font-bold mb-2 text-[#fafafa] light:text-[#18181f] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>404 - Page Not Found</h1>
-                <p className="text-[#a1a1aa] light:text-[#5d5d6a] mb-6">The page you're looking for doesn't exist.</p>
-                <a href="/" className="px-6 py-2 rounded-lg text-white font-medium hover:bg-[#ccff00] transition" style={{ background: '#ccff00' }}>
+              <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)]">
+                <span className="material-symbols-outlined text-6xl text-[var(--prl-text-faint)] mb-4">route_off</span>
+                <h1 className="text-4xl font-bold mb-2 text-[var(--prl-text)] tracking-tight font-display" >404 - Page Not Found</h1>
+                <p className="text-[var(--prl-text-dim)] mb-6">The page you're looking for doesn't exist.</p>
+                <a href="/" className="px-6 py-2 rounded text-[var(--prl-on-accent)] font-medium hover:opacity-90 transition" style={{ background: 'var(--prl-accent-fill)' }}>
                   Go Home
                 </a>
               </div>

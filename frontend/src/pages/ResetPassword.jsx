@@ -37,12 +37,12 @@ const ResetPassword = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0f0f13] light:bg-[#fafaff] text-[#E4E4E7] light:text-[#2a2a33] font-sans relative overflow-hidden">
-      <div className="relative z-10 w-[90%] max-w-[400px] bg-[#161618] light:bg-[#ffffff] border border-white/10 light:border-black/10 prl-shadow-card rounded-lg p-8 md:p-10 shadow-[0_24px_80px_rgba(0,0,0,0.5)] animate-reveal-up">
-        <h1 className="text-2xl font-semibold tracking-tight mb-2 text-[#ccff00]enter text-white light:text-[#18181f]">
+    <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)] font-sans relative overflow-hidden">
+      <div className="relative z-10 w-[90%] max-w-[400px] bg-[var(--prl-panel)] border border-[var(--prl-border)] prl-shadow-card rounded-lg p-8 md:p-10 animate-reveal-up">
+        <h1 className="text-2xl font-semibold tracking-tight mb-2 text-center text-[var(--prl-text)] font-display">
           Set a new password
         </h1>
-        <p className="text-[14px] text-[#A1A1AA] light:text-[#565662] leading-relaxed mb-8 text-[#ccff00]enter">
+        <p className="text-[14px] text-[var(--prl-text-dim)] leading-relaxed mb-8 text-center">
           {done
             ? "Password updated. Redirecting you to sign in..."
             : "Enter the 6-digit code we emailed you, then choose a new password."}
@@ -51,7 +51,7 @@ const ResetPassword = () => {
         {!done && (
           <form onSubmit={onSubmit} className="space-y-4">
             <div>
-              <label htmlFor="email" className="block text-[13px] text-[#A1A1AA] light:text-[#565662] mb-1.5">
+              <label htmlFor="email" className="block text-[13px] text-[var(--prl-text-dim)] mb-1.5">
                 Email
               </label>
               <input
@@ -61,12 +61,12 @@ const ResetPassword = () => {
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full bg-[#0f0f13] light:bg-[#fafaff] border border-white/10 light:border-black/10 rounded-lg px-3.5 py-2.5 text-[14px] text-white light:text-[#18181f] outline-none focus:border-[#ccff00]/50 transition-colors"
+                className="w-full bg-[var(--prl-bg)] border border-[var(--prl-border)] rounded-lg px-3.5 py-2.5 text-[14px] text-[var(--prl-text)] outline-none focus:border-[#ccff00]/50 transition-colors"
                 placeholder="you@example.com"
               />
             </div>
             <div>
-              <label htmlFor="otp" className="block text-[13px] text-[#A1A1AA] light:text-[#565662] mb-1.5">
+              <label htmlFor="otp" className="block text-[13px] text-[var(--prl-text-dim)] mb-1.5">
                 6-digit reset code
               </label>
               <input
@@ -79,12 +79,12 @@ const ResetPassword = () => {
                 required
                 value={otp}
                 onChange={(e) => setOtp(e.target.value.replace(/\D/g, "").slice(0, 6))}
-                className="w-full bg-[#0f0f13] light:bg-[#fafaff] border border-white/10 light:border-black/10 rounded-lg px-3.5 py-2.5 text-[14px] text-white light:text-[#18181f] outline-none focus:border-[#ccff00]/50 transition-colors tracking-[0.4em] text-[#ccff00]enter font-mono"
+                className="w-full bg-[var(--prl-bg)] border border-[var(--prl-border)] rounded-lg px-3.5 py-2.5 text-[14px] text-[var(--prl-text)] outline-none focus:border-[#ccff00]/50 transition-colors tracking-[0.4em] text-center font-mono"
                 placeholder="000000"
               />
             </div>
             <div>
-              <label htmlFor="password" className="block text-[13px] text-[#A1A1AA] light:text-[#565662] mb-1.5">
+              <label htmlFor="password" className="block text-[13px] text-[var(--prl-text-dim)] mb-1.5">
                 New password
               </label>
               <input
@@ -95,12 +95,12 @@ const ResetPassword = () => {
                 minLength={8}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                className="w-full bg-[#0f0f13] light:bg-[#fafaff] border border-white/10 light:border-black/10 rounded-lg px-3.5 py-2.5 text-[14px] text-white light:text-[#18181f] outline-none focus:border-[#ccff00]/50 transition-colors"
+                className="w-full bg-[var(--prl-bg)] border border-[var(--prl-border)] rounded-lg px-3.5 py-2.5 text-[14px] text-[var(--prl-text)] outline-none focus:border-[#ccff00]/50 transition-colors"
                 placeholder="At least 8 characters"
               />
             </div>
             <div>
-              <label htmlFor="confirm" className="block text-[13px] text-[#A1A1AA] light:text-[#565662] mb-1.5">
+              <label htmlFor="confirm" className="block text-[13px] text-[var(--prl-text-dim)] mb-1.5">
                 Confirm new password
               </label>
               <input
@@ -111,7 +111,7 @@ const ResetPassword = () => {
                 minLength={8}
                 value={confirm}
                 onChange={(e) => setConfirm(e.target.value)}
-                className="w-full bg-[#0f0f13] light:bg-[#fafaff] border border-white/10 light:border-black/10 rounded-lg px-3.5 py-2.5 text-[14px] text-white light:text-[#18181f] outline-none focus:border-[#ccff00]/50 transition-colors"
+                className="w-full bg-[var(--prl-bg)] border border-[var(--prl-border)] rounded-lg px-3.5 py-2.5 text-[14px] text-[var(--prl-text)] outline-none focus:border-[#ccff00]/50 transition-colors"
                 placeholder="Re-enter password"
               />
             </div>
@@ -127,7 +127,7 @@ const ResetPassword = () => {
                 !/^\d{6}$/.test(otp) ||
                 !email
               }
-              className="w-full bg-[#ccff00] text-[#09090b] py-3 px-4 rounded-md text-[15px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+              className="w-full bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] py-3 px-4 rounded-md text-[15px] font-semibold border-none cursor-pointer transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {isLoading ? "Saving..." : "Save new password"}
             </button>
@@ -135,11 +135,11 @@ const ResetPassword = () => {
         )}
 
         {error && !done && (
-          <p className="mt-4 text-[13px] text-red-400 text-[#ccff00]enter">{error}</p>
+          <p className="mt-4 text-[13px] text-red-400 text-center">{error}</p>
         )}
 
-        <div className="mt-6 text-[#ccff00]enter">
-          <Link to="/email-login" className="text-[13px] text-[#A1A1AA] light:text-[#565662] hover:text-white light:hover:text-[#18181f]">
+        <div className="mt-6 text-center">
+          <Link to="/email-login" className="text-[13px] text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]">
             &larr; Back to sign in
           </Link>
         </div>

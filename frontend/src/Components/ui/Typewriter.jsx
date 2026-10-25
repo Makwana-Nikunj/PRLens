@@ -39,7 +39,7 @@ const Typewriter = ({ text, delay = 50 }) => {
 
     return (
       <>
-        <span className="text-[#fafafa] light:text-[#18181f]">{p1}</span>
+        <span className="text-[var(--prl-text)]">{p1}</span>
         {p2 && (
           <span
             className="font-bold"
@@ -53,7 +53,7 @@ const Typewriter = ({ text, delay = 50 }) => {
             {p2}
           </span>
         )}
-        {p3 && <span className="text-[#fafafa] light:text-[#18181f]">{p3}</span>}
+        {p3 && <span className="text-[var(--prl-text)]">{p3}</span>}
         {currentIndex < text.length && (
           <span className="inline-block w-[3px] h-[0.8em] bg-[#a3cc00] ml-1 align-baseline animate-pulse"></span>
         )}

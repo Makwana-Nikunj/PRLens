@@ -1,142 +1,167 @@
-import React, { useEffect, useRef, useState } from 'react';
-import SectionHeading from './SectionHeading';
-
-const features = [
-  {
-    title: 'PR Summary',
-    desc: 'Clear explanation of what changed and why',
-    icon: (
-      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
-    ),
-  },
-  {
-    title: 'File Breakdown',
-    desc: 'Understand each file without reading diffs',
-    icon: (
-      <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
-    ),
-  },
-  {
-    title: 'Risk Detection',
-    desc: 'Spot breaking changes and security issues',
-    icon: (
-      <>
-        <path d="M12 22C12 22 20 18 20 12V5L12 2L4 5V12C4 18 12 22 12 22Z" />
-        <path d="M12 8v4" />
-        <path d="M12 16h.01" />
-      </>
-    ),
-  },
-  {
-    title: 'Tradeoffs',
-    desc: 'See performance and complexity implications',
-    icon: <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z" />,
-  },
-  {
-    title: 'Review Checklist',
-    desc: 'Actionable items before merging',
-    icon: <path d="m9 11 3 3L22 4" />,
-  },
-  {
-    title: 'Follow-up Chat',
-    desc: 'Ask anything about the PR context',
-    icon: <path d="M7.9 20A9 9 0 1 0 4 16.1L2 22Z" />,
-  },
-];
-
-const FeatureCard = ({ title, desc, icon, index }) => {
-  const ref = useRef(null);
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            setVisible(true);
-            observer.unobserve(entry.target);
-          }
-        });
-      },
-      { threshold: 0.1, rootMargin: '0px 0px -40px 0px' }
-    );
-
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-
-  return (
-    <div
-      ref={ref}
-      className="group grid-shine relative rounded p-8 overflow-hidden transition-all duration-300 cursor-default"
-      style={{
-        background: 'var(--prl-panel-2)',
-        border: '1px solid var(--prl-border)',
-        width: '100%',
-        opacity: visible ? 1 : 0,
-        transform: visible ? 'translateY(0)' : 'translateY(20px)',
-        transition: `opacity 0.6s ease ${index * 0.08}s, transform 0.6s ease ${index * 0.08}s, border-color 0.3s, box-shadow 0.3s, transform 0.3s`,
-      }}
-      onMouseMove={(e) => {
-        const rect = e.currentTarget.getBoundingClientRect();
-        e.currentTarget.style.setProperty('--mx', `${e.clientX - rect.left}px`);
-        e.currentTarget.style.setProperty('--my', `${e.clientY - rect.top}px`);
-      }}
-      onMouseEnter={(e) => {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        e.currentTarget.style.borderColor = 'rgba(204,255,0,0.5)';
-        e.currentTarget.style.boxShadow = '0 8px 32px rgba(204,255,0,0.1)';
-        e.currentTarget.style.transform = 'translateY(-6px)';
-      }}
-      onMouseLeave={(e) => {
-        if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        e.currentTarget.style.borderColor = 'var(--prl-border)';
-        e.currentTarget.style.boxShadow = 'none';
-        e.currentTarget.style.transform = 'translateY(0)';
-      }}
-    >
-      {/* Animated fine grid backdrop + scanning laser */}
-      <div className="absolute inset-0 grid-animated-fine opacity-50 pointer-events-none [mask-image:radial-gradient(ellipse_at_top_right,black_15%,transparent_70%)]" aria-hidden="true" />
-      <div className="grid-scan absolute left-0 right-0 pointer-events-none" aria-hidden="true" />
-      {/* Decorative orbit ring in the corner */}
-      <div className="absolute -bottom-10 -right-10 w-32 h-32 grid-orbit opacity-40 pointer-events-none" aria-hidden="true" />
-      <div
-        className="w-10 h-10 rounded flex items-center justify-center mb-6 transition-all duration-300 group-hover:scale-110 group-hover:-rotate-6"
-        style={{
-          background: 'rgba(204,255,0,0.1)',
-          color: '#ccff00',
-        }}
-      >
-        <svg className="w-[22px] h-[22px]" viewBox="0 0 24 24" strokeWidth="1.5" stroke="currentColor" fill="none" strokeLinecap="round" strokeLinejoin="round">
-          {icon}
-        </svg>
-      </div>
-      <h3 className="text-[18px] font-semibold text-[var(--text-primary)] light:text-[#18181f] mb-2">{title}</h3>
-      <p className="text-[15px] text-[var(--text-muted)] light:text-[#5d5d6a] leading-relaxed">{desc}</p>
-    </div>
-  );
-};
+import React from 'react';
+import { AlertTriangle, FileCode2, MessageSquare, Check } from 'lucide-react';
 
 const Features = () => {
   return (
-    <section id="what-you-get" className="py-[120px] bg-[var(--bg-primary)] light:bg-[#ffffff] scroll-mt-[80px] relative overflow-hidden" aria-labelledby="what-you-get-title">
-      {/* Wide drifting grid + twinkling nodes backdrop for the whole section */}
-      <div className="absolute inset-0 grid-animated-wide pointer-events-none opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_80%)]" aria-hidden="true" />
-      <div className="absolute inset-0 grid-nodes pointer-events-none opacity-40 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_80%)] [animation-delay:1.5s]" aria-hidden="true" />
-      <div className="w-full px-6 md:px-[60px] 2xl:px-[100px] relative z-10">
-        <SectionHeading
-          id="what-you-get-title"
-          eyebrow="Features"
-          title="What you get"
-          subtitle="Everything you need to review a pull request with confidence — in one place."
-        />
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 max-w-[1100px] mx-auto w-full">
-          {features.map((f, i) => (
-            <FeatureCard key={f.title} index={i} {...f} />
-          ))}
+    <section
+      id="features"
+      className="bg-[var(--prl-bg)] text-[var(--prl-text)] py-28 md:py-36 px-6 w-full"
+    >
+      <div className="max-w-[1320px] mx-auto">
+        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-entrance">
+          What PRLens catches.
+        </h2>
+        <p className="text-[18px] text-[var(--prl-text-dim)] mb-20 max-w-[50ch] prl-entrance prl-delay-1">
+          Three capabilities designed to replace manual line-by-line skimming.
+        </p>
+
+        {/* Modules in blueprint sequence: left proof demonstration, right text */}
+        <div className="space-y-24">
+          {/* Module 1: Risk & Breaking Change Detection */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-entrance">
+            <div className="lg:col-span-6 w-full">
+              <div
+                data-ui
+                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)]"
+              >
+                <div className="flex items-center justify-between pb-3 mb-4">
+                  <div className="flex items-center gap-2 text-[14px] font-semibold text-red-400">
+                    <AlertTriangle className="w-4 h-4 shrink-0 text-red-400" />
+                    High Severity Alert
+                  </div>
+                  <code className="text-[13px] text-[var(--prl-text-dim)]">auth/callback.ts</code>
+                </div>
+
+                <div className="p-3.5 rounded bg-[var(--prl-bg)] text-[14px] leading-relaxed mb-4 text-[var(--prl-text)]">
+                  <strong className="text-red-400">Breaking Contract:</strong> Response shape changed in <code className="text-[var(--prl-text)]">api/v2/users</code>. Missing CSRF token verification on POST.
+                </div>
+
+                <pre className="p-3 rounded bg-[#0d0d10] text-[13px] text-[var(--prl-text-dim)] overflow-x-auto">
+                  <code>
+                    <div className="text-red-400">- export const POST = async (req: Request) =&gt; ...</div>
+                    <div className="text-emerald-400">+ export const POST = auth(async (req) =&gt; ...</div>
+                  </code>
+                </pre>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 max-w-[520px]">
+              <h3 className="font-display text-[26px] md:text-[30px] font-bold tracking-tight text-[var(--prl-text)] mb-4">
+                Catch breaking changes before merge.
+              </h3>
+              <p className="text-[16px] leading-[1.65] text-[var(--prl-text-dim)] mb-4">
+                PRLens inspects modified routes, signatures, and auth guards. It flags breaking schema alterations, removed exports, and missed security headers that pass typical unit tests.
+              </p>
+              <ul className="space-y-2 text-[15px] text-[var(--prl-text)]">
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Flags unvalidated webhook handlers and payloads</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <Check className="w-4 h-4 text-emerald-400 shrink-0" />
+                  <span>Catches deleted database columns and table renames</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Module 2: File-by-File Intelligence */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-entrance">
+            <div className="lg:col-span-6 w-full">
+              <div
+                data-ui
+                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)]"
+              >
+                <div className="flex items-center justify-between pb-3 mb-4">
+                  <div className="flex items-center gap-2 text-[14px] font-semibold text-[var(--prl-text)]">
+                    <FileCode2 className="w-4 h-4 text-[var(--prl-accent)]" />
+                    Modified Files Analysis
+                  </div>
+                  <span className="text-[13px] text-emerald-400 font-medium">3 files triaged</span>
+                </div>
+
+                <div className="space-y-3">
+                  <div className="p-3.5 rounded bg-[var(--prl-bg)]">
+                    <div className="flex items-center justify-between text-[13px] text-[var(--prl-text-dim)] mb-1">
+                      <code className="text-[var(--prl-text)]">src/auth/session.ts</code>
+                      <span className="text-emerald-400 font-medium">+42 -8</span>
+                    </div>
+                    <p className="text-[14px] text-[var(--prl-text)]">
+                      Replaces hand-rolled JWT validation with native edge cookie verification.
+                    </p>
+                  </div>
+
+                  <div className="p-3.5 rounded bg-[var(--prl-bg)]">
+                    <div className="flex items-center justify-between text-[13px] text-[var(--prl-text-dim)] mb-1">
+                      <code className="text-[var(--prl-text)]">src/middleware.ts</code>
+                      <span className="text-emerald-400 font-medium">+12 -3</span>
+                    </div>
+                    <p className="text-[14px] text-[var(--prl-text)]">
+                      Ensures public marketing routes bypass auth overhead for fast TTFB.
+                    </p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 max-w-[520px]">
+              <h3 className="font-display text-[26px] md:text-[30px] font-bold tracking-tight text-[var(--prl-text)] mb-4">
+                One-line context for every changed file.
+              </h3>
+              <p className="text-[16px] leading-[1.65] text-[var(--prl-text-dim)] mb-4">
+                Stop jumping across 40 browser tabs to understand what each file actually does. PRLens distills every file diff into its architectural purpose.
+              </p>
+              <p className="text-[15px] text-[var(--prl-text)]">
+                Reviewers quickly scan the files that need scrutiny and skip pure boilerplate updates.
+              </p>
+            </div>
+          </div>
+
+          {/* Module 3: Interactive Diff Chat */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-entrance">
+            <div className="lg:col-span-6 w-full">
+              <div
+                data-ui
+                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)]"
+              >
+                <div className="flex items-center justify-between pb-3 mb-4">
+                  <div className="flex items-center gap-2 text-[14px] font-semibold text-[var(--prl-text)]">
+                    <MessageSquare className="w-4 h-4 text-[var(--prl-accent)]" />
+                    AI Review Assistant
+                  </div>
+                  <span className="text-[13px] text-emerald-400 font-medium">Context: Diff Loaded</span>
+                </div>
+
+                <div className="space-y-3.5">
+                  <div className="p-3 rounded bg-[var(--prl-bg)] text-[14px] text-[var(--prl-text)]">
+                    <span className="text-[13px] font-semibold text-[var(--prl-accent)] block mb-1">Reviewer:</span>
+                    Does this PR break backward compatibility for existing user sessions?
+                  </div>
+
+                  <div className="p-3.5 rounded bg-[var(--prl-bg)] text-[14px] text-[var(--prl-text-dim)] leading-relaxed">
+                    <span className="text-[13px] font-semibold text-emerald-400 block mb-1">PRLens AI:</span>
+                    No. The migration includes a legacy fallback cookie parser in <code className="text-[var(--prl-text)]">src/auth/compat.ts</code>. Sessions created prior to deploy will upgrade on their next request.
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div className="lg:col-span-6 max-w-[520px]">
+              <h3 className="font-display text-[26px] md:text-[30px] font-bold tracking-tight text-[var(--prl-text)] mb-4">
+                Interrogate any commit with AI chat.
+              </h3>
+              <p className="text-[16px] leading-[1.65] text-[var(--prl-text-dim)] mb-4">
+                Ask specific questions directly against the pull request diff. Query performance consequences, backwards compatibility, and test coverage in real-time.
+              </p>
+              <p className="text-[15px] text-[var(--prl-text)]">
+                Pairs with the reviewer like an engineering teammate who has already memorized the entire PR.
+              </p>
+            </div>
+          </div>
         </div>
       </div>
     </section>
   );
 };
+
 export default Features;

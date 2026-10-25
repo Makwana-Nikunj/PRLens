@@ -6,29 +6,58 @@
 @custom-variant dark (&:where(.dark, .dark *));
 @custom-variant light (&:where(.light, .light *));
 
+/* Tailwind v4 theme tokens. Most components colour through the `--prl-*`
+   semantic tokens further down (via `[var(--prl-…)]`); these back the few
+   places that reference `--color-*` directly in CSS and enable `animate-*` utilities. */
 @theme {
   --color-bg-theme: #09090b;
   --color-surface-1: #000000;
-  --color-surface-2: #18191b;
-  --color-text-primary: #FAFAFA;
-  --color-text-secondary: #A1A1AA;
-  --color-text-muted: #71717A;
-  --color-border-subtle: rgba(255, 255, 255, 0.08);
-  --color-border-strong: rgba(255, 255, 255, 0.12);
+  --color-surface-2: #18181b;
+
   --color-accent: #CCFF00;
+  --color-accent-fill: #CCFF00;
   --color-accent-2: #A3CC00;
 
   --font-inter: "Inter", sans-serif;
   --font-mono: "JetBrains Mono", monospace;
   --font-display: "Space Grotesk", "Inter", sans-serif;
+
+  --animate-entrance: prl-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes prl-entrance {
+  0% {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.prl-entrance {
+  animation: prl-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.prl-delay-1 { animation-delay: 80ms; }
+.prl-delay-2 { animation-delay: 160ms; }
+.prl-delay-3 { animation-delay: 240ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .prl-entrance {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
+  }
 }
 
 @layer base {
 
   html,
   body {
-    background-color: var(--color-bg-theme);
-    color: var(--color-text-primary);
+    background-color: var(--prl-bg);
+    color: var(--prl-text);
     font-family: var(--font-inter);
     @apply m-0 p-0 box-border antialiased overflow-x-hidden;
   }
@@ -49,16 +78,103 @@
       box-shadow 300ms ease !important;
     transition-delay: 0ms !important;
   }
+
+  :root {
+    /* Surfaces */
+    --prl-bg: #09090b;
+    --prl-bg-soft: #18181b;
+    --prl-panel: #000000;
+    --prl-panel-2: #16161d;
+    --prl-border: #232330;
+
+    /* Text */
+    --prl-text: #f3f3f6;
+    --prl-text-primary: #f3f3f6;
+    --prl-text-secondary: #9b9ba8;
+    --prl-text-dim: #9b9ba8;
+    --prl-text-faint: #6b6b78;
+
+    /* Accent. Two tokens on purpose:
+       `--prl-accent` is for text, links, icons and borders, so it darkens to an
+       olive in light mode where neon lemon would fail WCAG AA on white.
+       `--prl-accent-fill` is for backgrounds, where it stays the brand lemon in
+       both modes because it is always paired with near-black text. */
+    --prl-accent: #CCFF00;
+    --prl-accent-fill: #CCFF00;
+    --prl-accent-2: #A3CC00;
+    --prl-accent-glow: rgba(204, 255, 0, 0.15);
+    --prl-accent-soft: rgba(204, 255, 0, 0.12);
+    --prl-accent-line: rgba(204, 255, 0, 0.35);
+    --prl-on-accent: #09090b;
+
+    /* Semantic state (real status only, never decorative chrome). Each has a
+       tinted background partner so badges/tiles carry the same hue in both
+       themes without per-component rgba() guessing. */
+    --prl-ok: #34d399;
+    --prl-ok-soft: rgba(52, 211, 153, 0.14);
+    --prl-danger: #f87171;
+    --prl-danger-soft: rgba(248, 113, 113, 0.14);
+    --prl-warn: #facc15;
+    --prl-warn-soft: rgba(250, 204, 21, 0.14);
+
+    color-scheme: dark;
+  }
+
+  /* Light theme token overrides. Mirrors the dark palette 1:1 so every
+     var-driven surface flips automatically when html.light is applied. */
+  html.light {
+    --prl-bg: #fafaff;
+    --prl-bg-soft: #f4f4f9;
+    --prl-panel: #ffffff;
+    --prl-panel-2: #f1f1f6;
+    --prl-border: #e3e3ec;
+
+    --prl-text: #1c1c24;
+    --prl-text-primary: #1c1c24;
+    --prl-text-secondary: #565662;
+    --prl-text-dim: #565662;
+    --prl-text-faint: #6f6f7b;
+
+    /* Lemon (#CCFF00) on white is ~1.5:1. Olive keeps the brand hue and clears
+       4.5:1 for links, icons and small labels. */
+    --prl-accent: #556B00;
+    --prl-accent-fill: #CCFF00;
+    --prl-accent-2: #4C6300;
+    --prl-accent-glow: rgba(85, 107, 0, 0.16);
+    --prl-accent-soft: rgba(85, 107, 0, 0.10);
+    --prl-accent-line: rgba(85, 107, 0, 0.32);
+    /* Lemon fill always takes near-black text, in both themes. */
+    --prl-on-accent: #09090b;
+
+    --prl-ok: #047857;
+    --prl-ok-soft: rgba(4, 120, 87, 0.10);
+    --prl-danger: #b91c1c;
+    --prl-danger-soft: rgba(185, 28, 28, 0.10);
+    --prl-warn: #854d0e;
+    --prl-warn-soft: rgba(133, 77, 14, 0.10);
+
+    color-scheme: light;
+  }
 }
 
 @layer utilities {
+
+  /* ===== Background worlds ===== */
+
   .hero-glow {
-    background: radial-gradient(circle at top, rgba(204, 255, 0, 0.15) 0%, transparent 60%);
-    filter: blur(80px);
+    background: transparent;
+  }
+
+  .mouse-glow {
+    background: transparent;
+  }
+
+  html.light .mouse-glow {
+    mix-blend-mode: normal;
   }
 
   /* Grid drift runs on the compositor: the repeating pattern sits on an
-     oversized ::before that translates exactly one tile per loop (seamless),
+     oversized ::before that translates exactly one tile per loop without jump,
      so the browser composites transforms instead of repainting
      background-position every frame. The host keeps whatever mask/opacity
      utilities are applied in markup. */
@@ -80,8 +196,8 @@
     will-change: transform;
   }
 
-  /* Ambient graph-paper grid for the hero — very subtle, fades at the edges.
-     The soft pulse (opacity) stays on the host so it composites too. */
+  /* Ambient graph-paper grid for the hero, very subtle and fading at the edges.
+     The soft pulse stays on the host so it composites too. */
   .hero-grid-bg {
     position: absolute;
     inset: 0;
@@ -94,58 +210,14 @@
     position: absolute;
     inset: -48px;
     background-image:
-      linear-gradient(rgba(204, 255, 0, 0.10) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(204, 255, 0, 0.10) 1px, transparent 1px);
+      linear-gradient(var(--prl-accent-glow) 1px, transparent 1px),
+      linear-gradient(90deg, var(--prl-accent-glow) 1px, transparent 1px);
     background-size: 48px 48px;
     animation: grid-drift-48 24s linear infinite;
     will-change: transform;
   }
 
-  html.light .hero-grid::before {
-    background-image:
-      linear-gradient(rgba(15, 15, 35, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 15, 35, 0.05) 1px, transparent 1px);
-  }
-
-  html.light .hero-grid-bg::before {
-    background-image:
-      linear-gradient(rgba(204, 255, 0, 0.08) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(204, 255, 0, 0.08) 1px, transparent 1px);
-  }
-
-  /* Single-element stagger reveal — opacity 0->1 + translateY 20px->0.
-     Each element gets animation-delay via inline style or .stagger-N utility. */
-  .stagger-item {
-    opacity: 0;
-    animation: hero-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
-  }
-
-  .stagger-0 { animation-delay: 0s; }
-  .stagger-1 { animation-delay: 0.1s; }
-  .stagger-2 { animation-delay: 0.22s; }
-  .stagger-3 { animation-delay: 0.34s; }
-  .stagger-4 { animation-delay: 0.46s; }
-
-  /* The headline gradient accent (already in design, now wrapped in a soft glow) */
-  .hero-headline-accent {
-    background: linear-gradient(135deg, #ffff66 0%, #ccff00 50%, #a3cc00 100%);
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: transparent;
-  }
-
-  .mouse-glow {
-    background: radial-gradient(circle, rgba(204, 255, 0, 0.15) 0%, transparent 70%);
-    filter: blur(40px);
-    mix-blend-mode: screen;
-    will-change: transform;
-  }
-
-  /* ===== Animated grid design system =====
-     Reuses the hero-grid look: drifting grid lines, a sweeping light beam,
-     and a pulsing accent glow. All respect prefers-reduced-motion. */
-
+  /* Base animated grid, reused across marketing and auth surfaces */
   .grid-animated {
     position: absolute;
     inset: 0;
@@ -164,37 +236,7 @@
     will-change: transform;
   }
 
-  html.light .grid-animated::before {
-    background-image:
-      linear-gradient(rgba(15, 15, 35, 0.055) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 15, 35, 0.055) 1px, transparent 1px);
-  }
-
-  /* Sweeping light beam across a grid/section (place in an overflow-hidden parent) */
-  .grid-beam {
-    background: linear-gradient(105deg, transparent 35%, rgba(204, 255, 0, 0.10) 48%, rgba(204, 255, 0, 0.16) 50%, rgba(204, 255, 0, 0.10) 52%, transparent 65%);
-    animation: beam-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
-    will-change: transform;
-  }
-
-  html.light .grid-beam {
-    background: linear-gradient(105deg, transparent 35%, rgba(204, 255, 0, 0.06) 48%, rgba(204, 255, 0, 0.10) 50%, rgba(204, 255, 0, 0.06) 52%, transparent 65%);
-  }
-
-  /* Pulsing accent halo behind focal content */
-  .grid-pulse {
-    background: radial-gradient(circle, rgba(204, 255, 0, 0.16) 0%, transparent 65%);
-    filter: blur(50px);
-    animation: grid-halo 5s ease-in-out infinite;
-  }
-
-  html.light .grid-pulse {
-    background: radial-gradient(circle, rgba(204, 255, 0, 0.10) 0%, transparent 65%);
-  }
-
-  /* ===== Extended grid design system ===== */
-
-  /* Denser variant of the animated grid for tighter sections */
+  /* Denser variant for tighter sections */
   .grid-animated-fine {
     position: absolute;
     inset: 0;
@@ -211,12 +253,6 @@
     background-size: 28px 28px;
     animation: grid-drift-fine 18s linear infinite;
     will-change: transform;
-  }
-
-  html.light .grid-animated-fine::before {
-    background-image:
-      linear-gradient(rgba(15, 15, 35, 0.06) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 15, 35, 0.06) 1px, transparent 1px);
   }
 
   /* Wider grid for expansive sections */
@@ -238,51 +274,31 @@
     will-change: transform;
   }
 
-  html.light .grid-animated-wide::before {
-    background-image:
-      linear-gradient(rgba(15, 15, 35, 0.05) 1px, transparent 1px),
-      linear-gradient(90deg, rgba(15, 15, 35, 0.05) 1px, transparent 1px);
-  }
-
-  /* Drift modifiers — stack after the grid classes above so they win the cascade */
+  /* Drift modifiers, stacked after the grid classes so they win the cascade */
   .grid-drift-reverse::before { animation-direction: reverse; }
   .grid-drift-paused::before { animation-play-state: paused; }
 
+  /* Sweeping light beam across a grid or section (needs an overflow-hidden parent) */
+  .grid-beam {
+    background: linear-gradient(105deg, transparent 35%, var(--prl-accent-soft) 48%, var(--prl-accent-glow) 50%, var(--prl-accent-soft) 52%, transparent 65%);
+    animation: beam-sweep 7s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+    will-change: transform;
+  }
+
+  /* Pulsing accent halo behind focal content */
+  .grid-pulse {
+    background: radial-gradient(circle, var(--prl-accent-glow) 0%, transparent 65%);
+    filter: blur(50px);
+    animation: grid-halo 5s ease-in-out infinite;
+  }
+
   /* Horizontal laser scan line that sweeps top-to-bottom repeatedly */
   .grid-scan {
-    background: linear-gradient(to bottom, transparent 0%, rgba(204, 255, 0, 0.25) 50%, transparent 100%);
+    background: linear-gradient(to bottom, transparent 0%, var(--prl-accent-glow) 50%, transparent 100%);
     height: 60px;
     filter: blur(12px);
     animation: scan-vertical 6s ease-in-out infinite;
     will-change: transform, opacity;
-  }
-
-  html.light .grid-scan {
-    background: linear-gradient(to bottom, transparent 0%, rgba(204, 255, 0, 0.18) 50%, transparent 100%);
-  }
-
-  /* Glowing intersection dot that pulses at random-feeling intervals */
-  .grid-nodes {
-    background-image:
-      radial-gradient(circle, rgba(204, 255, 0, 0.5) 1.5px, transparent 2px);
-    background-size: 56px 56px;
-    animation: node-twinkle 4s ease-in-out infinite;
-  }
-
-  html.light .grid-nodes {
-    background-image:
-      radial-gradient(circle, rgba(204, 255, 0, 0.45) 1.5px, transparent 2px);
-  }
-
-  /* Floating grid-bounded orbit rings */
-  .grid-orbit {
-    border: 1px solid rgba(204, 255, 0, 0.18);
-    border-radius: 50%;
-    animation: orbit-spin 22s linear infinite;
-  }
-
-  html.light .grid-orbit {
-    border: 1px solid rgba(204, 255, 0, 0.22);
   }
 
   /* Subtle grid-tile-shine that follows the cursor (use inside a relative parent) */
@@ -290,7 +306,7 @@
     content: "";
     position: absolute;
     inset: 0;
-    background: radial-gradient(circle 280px at var(--mx, 50%) var(--my, 50%), rgba(204, 255, 0, 0.10), transparent 70%);
+    background: radial-gradient(circle 280px at var(--mx, 50%) var(--my, 50%), var(--prl-accent-soft), transparent 70%);
     opacity: 0;
     transition: opacity 0.3s ease;
     pointer-events: none;
@@ -300,52 +316,166 @@
     opacity: 1;
   }
 
-  html.light .grid-shine::before {
-    background: radial-gradient(circle 280px at var(--mx, 50%) var(--my, 50%), rgba(204, 255, 0, 0.07), transparent 70%);
+  /* Glowing intersection dot that pulses at random-feeling intervals */
+  .grid-nodes {
+    background-image:
+      radial-gradient(circle, var(--prl-accent-glow) 1.5px, transparent 2px);
+    background-size: 56px 56px;
+    animation: node-twinkle 4s ease-in-out infinite;
   }
 
-  @media (prefers-reduced-motion: reduce) {
-    .grid-animated::before,
-    .grid-animated-fine::before,
-    .grid-animated-wide::before,
-    .hero-grid::before,
-    .hero-grid-bg::before,
-    .hero-grid-bg,
-    .grid-beam,
-    .grid-pulse,
-    .grid-scan,
-    .grid-nodes,
-    .grid-orbit {
-      animation: none;
-    }
-    .grid-shine:hover::before {
-      opacity: 0;
-    }
-    .stagger-item {
-      animation: none;
-      opacity: 1;
-      transform: none;
-    }
+  /* Floating grid-bounded orbit rings */
+  .grid-orbit {
+    border: 1px solid var(--prl-accent-line);
+    border-radius: 50%;
+    animation: orbit-spin 22s linear infinite;
   }
+
+  /* Light overrides for grid effects */
+  html.light .hero-grid::before,
+  html.light .grid-animated::before,
+  html.light .grid-animated-fine::before,
+  html.light .grid-animated-wide::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.05) 1px, transparent 1px);
+  }
+
+  html.light .grid-animated-fine::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.06) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.06) 1px, transparent 1px);
+  }
+
+  html.light .grid-animated-wide::before {
+    background-image:
+      linear-gradient(rgba(15, 15, 35, 0.05) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(15, 15, 35, 0.05) 1px, transparent 1px);
+  }
+
+  html.light .hero-glow {
+    background: radial-gradient(circle at top, var(--prl-accent-glow) 0%, transparent 60%);
+  }
+
+  html.light .hero-grid-bg::before {
+    background-image:
+      linear-gradient(var(--prl-accent-glow) 1px, transparent 1px),
+      linear-gradient(90deg, var(--prl-accent-glow) 1px, transparent 1px);
+  }
+
+  html.light .grid-beam {
+    background: linear-gradient(105deg, transparent 35%, var(--prl-accent-soft) 48%, var(--prl-accent-glow) 50%, var(--prl-accent-soft) 52%, transparent 65%);
+  }
+
+  html.light .grid-pulse {
+    background: radial-gradient(circle, var(--prl-accent-glow) 0%, transparent 65%);
+  }
+
+  html.light .grid-scan {
+    background: linear-gradient(to bottom, transparent 0%, var(--prl-accent-glow) 50%, transparent 100%);
+  }
+
+  html.light .grid-nodes {
+    background-image:
+      radial-gradient(circle, var(--prl-accent-glow) 1.5px, transparent 2px);
+  }
+
+  html.light .grid-orbit {
+    border: 1px solid var(--prl-accent-line);
+  }
+
+  html.light .grid-shine::before {
+    background: radial-gradient(circle 280px at var(--mx, 50%) var(--my, 50%), var(--prl-accent-soft), transparent 70%);
+  }
+
+  /* ===== Motion primitives ===== */
+
+  /* Single-element stagger reveal: opacity 0->1 + translateY 20px->0.
+     Each element gets its delay from a .stagger-N utility. */
+  .stagger-item {
+    opacity: 0;
+    animation: hero-fade-in-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) both;
+  }
+
+  .stagger-0 { animation-delay: 0s; }
+  .stagger-1 { animation-delay: 0.1s; }
+  .stagger-2 { animation-delay: 0.22s; }
+  .stagger-3 { animation-delay: 0.34s; }
+  .stagger-4 { animation-delay: 0.46s; }
 
   .reveal {
     animation: reveal-up 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
   }
 
-  @keyframes reveal-up {
-    from {
-      opacity: 0;
-      transform: translateY(30px);
-    }
+  /* Text-slicer mask reveal, the signature headline animation.
+     `.mask-line` clips; `.mask-text` slides up from below the baseline. */
+  .mask-line {
+    display: inline-block;
+    overflow: hidden;
+    padding-bottom: 0.12em;
+    vertical-align: bottom;
+  }
 
-    to {
-      opacity: 1;
-      transform: translateY(0);
-    }
+  .mask-text {
+    display: inline-block;
+    transform: translateY(110%);
+    transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .mask-reveal.visible .mask-text,
+  .reveal.mask-text {
+    transform: translateY(0);
+  }
+
+  .mask-reveal.visible .mask-line:nth-child(1) .mask-text { transition-delay: 0.05s; }
+  .mask-reveal.visible .mask-line:nth-child(2) .mask-text { transition-delay: 0.15s; }
+  .mask-reveal.visible .mask-line:nth-child(3) .mask-text { transition-delay: 0.25s; }
+
+  .fade-in {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+                transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  }
+
+  .fade-in.visible {
+    opacity: 1;
+    transform: translateY(0);
+    transition-delay: 0.15s;
+  }
+
+  /* The one marquee on the page. Structural band, not a hero decoration. */
+  .marquee-container {
+    overflow: hidden;
+    background-color: var(--prl-accent-fill);
+    color: var(--prl-on-accent);
+    padding: 16px 0;
+    font-family: var(--font-mono);
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: 2px;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+  }
+
+  .marquee-content {
+    display: inline-block;
+    animation: marquee-right-to-left 18s linear infinite;
+    will-change: transform;
+  }
+
+  .marquee-content span {
+    margin-right: 48px;
   }
 
   .animate-spin-slow {
     animation: spin 1s linear infinite;
+  }
+
+  /* Card grid reveal helper: pair with style={{animationDelay: ...}} per child */
+  .prl-card-rise {
+    animation: card-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
   }
 
   .scrollbar-hide::-webkit-scrollbar {
@@ -356,88 +486,114 @@
     -ms-overflow-style: none;
     scrollbar-width: none;
   }
+
+  /* ===== GridBackdrop (landing-page background world) ===== */
+
+  .grid-world {
+    color: var(--prl-accent); /* SVG stroke/fill via currentColor */
+  }
+
+  html.light .grid-world {
+    color: var(--prl-accent-2); /* olive in light */
+  }
+
+  .grid-world .gw-links line {
+    vector-effect: non-scaling-stroke;
+  }
+
+  /* Soft cursor light, follows --mx / --my */
+  .grid-world .gw-cursor {
+    background: radial-gradient(
+      circle 420px at var(--mx) var(--my),
+      var(--prl-accent-soft),
+      transparent 70%
+    );
+    animation: gw-cursor-drift 14s ease-in-out infinite;
+  }
+
+  /* Vignette so the grid blends into the page bg at the edges */
+  .grid-world .gw-vignette {
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 0%, transparent 60%, var(--color-bg-theme) 100%);
+  }
+
+  html.light .grid-world .gw-vignette {
+    background:
+      radial-gradient(ellipse 90% 60% at 50% 0%, transparent 60%, var(--color-bg-theme) 100%);
+  }
+
+  /* Heavy dark drop-shadows (inline styles) look harsh on light backgrounds */
+  html.light .prl-shadow-card {
+    box-shadow: 0 24px 80px rgba(100, 100, 150, 0.16), 0 0 120px rgba(204, 255, 0, 0.05) !important;
+  }
+
+  /* Reduced motion: every ambient and decorative animation collapses to a static
+     end state. Reveals resolve to visible so content is never hidden. */
+  @media (prefers-reduced-motion: reduce) {
+    .hero-grid::before,
+    .hero-grid-bg,
+    .hero-grid-bg::before,
+    .grid-animated::before,
+    .grid-animated-fine::before,
+    .grid-animated-wide::before,
+    .grid-beam,
+    .grid-pulse,
+    .grid-scan,
+    .grid-orbit,
+    .grid-nodes,
+    .marquee-content,
+    .stagger-item,
+    .reveal,
+    .prl-card-rise,
+    .grid-world .gw-cursor,
+    .grid-world svg line,
+    .grid-world svg circle {
+      animation: none !important;
+    }
+
+    .stagger-item,
+    .reveal {
+      opacity: 1;
+      transform: none;
+    }
+
+    .mask-text {
+      transform: none;
+      transition: none;
+    }
+
+    .fade-in {
+      opacity: 1;
+      transform: none;
+      transition: none;
+    }
+
+    .grid-shine:hover::before {
+      opacity: 0;
+    }
+  }
 }
 
 @layer components {
   .landing-section {
     @apply w-full px-6 md:px-[60px] 2xl:px-[100px];
   }
-}
 
-@layer base {
-  :root {
-    --prl-bg: #09090b;
-    --prl-bg-soft: #18181b;
-    --prl-panel: #000000;
-    --prl-panel-2: #16161d;
-    --prl-border: #232330;
-    --prl-text: #f3f3f6;
-    --prl-text-dim: #9b9ba8;
-    --prl-text-faint: #6b6b78;
-    --prl-accent: #CCFF00;
-    --prl-accent-2: #A3CC00;
-    --prl-accent-glow: rgba(204,255,0,0.15);
-    --prl-ok: #34d399;
-    color-scheme: dark;
-  }
-
-  /* Light theme token overrides. Mirrors the dark palette 1:1 so every
-     var-driven surface flips automatically when html.light is applied. */
-  html.light {
-    --prl-bg: #ffffff;
-    --prl-bg-soft: #f4f4f9;
-    --prl-panel: #ffffff;
-    --prl-panel-2: #f1f1f6;
-    --prl-border: #e3e3ec;
-    --prl-text: #18181f;
-    --prl-text-dim: #5d5d6a;
-    --prl-text-faint: #82828e;
-    --prl-accent: #CCFF00;
-    --prl-accent-2: #7c3aed;
-    --prl-accent-glow: rgba(124,58,237,0.18);
-    --prl-ok: #059669;
-    color-scheme: light;
-
-    /* Tailwind @theme tokens (bg-theme / surface-* / text-* / border-* utilities) */
-    --color-bg-theme: #fafaff;
-    --color-surface-1: #ffffff;
-    --color-surface-2: #f1f1f6;
-    --color-text-primary: #1c1c24;
-    --color-text-secondary: #565662;
-    --color-text-muted: #82828e;
-    --color-border-subtle: rgba(15, 15, 25, 0.08);
-    --color-border-strong: rgba(15, 15, 25, 0.14);
-  }
-}
-
-/* Light-mode variants of the decorative background effects */
-@layer utilities {
-  html.light .hero-glow {
-    background: radial-gradient(circle at top, rgba(204, 255, 0, 0.10) 0%, transparent 60%);
-  }
-
-  html.light .mouse-glow {
-    background: radial-gradient(circle, rgba(204, 255, 0, 0.10) 0%, transparent 70%);
-    mix-blend-mode: multiply;
-  }
-}
-
-/* Blog articles & AI chat bubbles use `prose prose-invert`; in light mode the
-   typography plugin's default (light) palette is restored centrally here. */
-@layer components {
+  /* Blog articles and AI chat bubbles use `prose prose-invert`; in light mode the
+     typography plugin's default (light) palette is restored centrally here. */
   html.light .prose-invert {
     --tw-prose-body: #3f3f4a;
     --tw-prose-headings: #18181f;
     --tw-prose-lead: #3f3f4a;
-    --tw-prose-links: #7c3aed;
+    --tw-prose-links: #556B00;
     --tw-prose-bold: #18181f;
-    --tw-prose-counters: #7c3aed;
-    --tw-prose-bullets: #a78bfa;
+    --tw-prose-counters: #556B00;
+    --tw-prose-bullets: #7d9500;
     --tw-prose-hr: #e3e3ec;
     --tw-prose-quotes: #3f3f4a;
     --tw-prose-quote-borders: #e3e3ec;
     --tw-prose-captions: #82828e;
-    --tw-prose-code: #6d28d9;
+    --tw-prose-code: #4C6300;
     --tw-prose-pre-code: #e4e4e7;
     --tw-prose-pre-bg: #f4f4f9;
     --tw-prose-th-borders: #d9d9e3;
@@ -445,75 +601,90 @@
   }
 }
 
-@layer animations {
-  @keyframes prl-fade-up {
-    from { opacity: 0; transform: translateY(18px); }
-    to   { opacity: 1; transform: translateY(0); }
-  }
+@keyframes prl-fade-up {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
 
-  @keyframes prl-float {
-    0%, 100% { transform: translateY(0); }
-    50% { transform: translateY(-8px); }
-  }
+@keyframes prl-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+}
 
-  @keyframes prl-pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.5; }
-  }
+@keyframes prl-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
 
-  /* Each drift keyframe translates exactly one tile (seamless loop) and runs
-     as a composited transform — no per-frame background-position repaints.
-     The ::before layers are oversized by one tile (inset: -Npx) so the host
-     stays covered for the whole translation range. */
-  @keyframes grid-drift {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(56px, 56px, 0); }
-  }
+/* Each drift keyframe translates exactly one tile (seamless loop) and runs as a
+   composited transform, so there are no per-frame background-position repaints.
+   The ::before layers are oversized by one tile (inset: -Npx) so the host stays
+   covered for the whole translation range. */
+@keyframes grid-drift {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(56px, 56px, 0); }
+}
 
-  @keyframes grid-drift-fine {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(28px, 28px, 0); }
-  }
+@keyframes grid-drift-fine {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(28px, 28px, 0); }
+}
 
-  @keyframes grid-drift-wide {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(88px, 88px, 0); }
-  }
+@keyframes grid-drift-wide {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(88px, 88px, 0); }
+}
 
-  @keyframes grid-drift-48 {
-    from { transform: translate3d(0, 0, 0); }
-    to { transform: translate3d(48px, 48px, 0); }
-  }
+@keyframes grid-drift-48 {
+  from { transform: translate3d(0, 0, 0); }
+  to { transform: translate3d(48px, 48px, 0); }
+}
 
-  @keyframes beam-sweep {
-    0% { transform: translateX(-120%) skewX(-8deg); }
-    55%, 100% { transform: translateX(220%) skewX(-8deg); }
-  }
+@keyframes beam-sweep {
+  0% { transform: translateX(-120%) skewX(-8deg); }
+  55%, 100% { transform: translateX(220%) skewX(-8deg); }
+}
 
-  @keyframes grid-halo {
-    0%, 100% { opacity: 0.55; transform: scale(1); }
-    50% { opacity: 1; transform: scale(1.12); }
-  }
+@keyframes grid-halo {
+  0%, 100% { opacity: 0.55; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.12); }
+}
 
-  /* Top-down laser scan that pauses between sweeps */
-  @keyframes scan-vertical {
-    0% { transform: translateY(-10%); opacity: 0; }
-    15% { opacity: 1; }
-    85% { opacity: 1; }
-    100% { transform: translateY(110vh); opacity: 0; }
-  }
+/* Top-down laser scan that pauses between sweeps */
+@keyframes scan-vertical {
+  0% { transform: translateY(-10%); opacity: 0; }
+  15% { opacity: 1; }
+  85% { opacity: 1; }
+  100% { transform: translateY(110vh); opacity: 0; }
+}
 
-  /* Subtle dot-twinkle staggered across the grid */
-  @keyframes node-twinkle {
-    0%, 100% { opacity: 0.3; }
-    50% { opacity: 1; }
-  }
+/* Subtle dot-twinkle staggered across the grid */
+@keyframes node-twinkle {
+  0%, 100% { opacity: 0.3; }
+  50% { opacity: 1; }
+}
 
-  /* Slow rotation for orbit rings */
-  @keyframes orbit-spin {
-    from { transform: rotate(0deg); }
-    to { transform: rotate(360deg); }
-  }
+/* Slow rotation for orbit rings */
+@keyframes orbit-spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+
+/* Flowing dashes along the GridBackdrop connection lines */
+@keyframes gw-flow {
+  from { stroke-dashoffset: 0; }
+  to   { stroke-dashoffset: -90; }
+}
+
+@keyframes gw-twinkle {
+  0%, 100% { opacity: 0.35; transform: scale(0.9); }
+  50% { opacity: 1; transform: scale(1.4); }
+}
+
+@keyframes gw-cursor-drift {
+  0%, 100% { opacity: 0.7; }
+  50% { opacity: 1; }
+}
 
 /* Staggered reveal-up for grid cards */
 @keyframes card-rise {
@@ -533,115 +704,12 @@
   50% { opacity: 1; }
 }
 
-/* ===== GridBackdrop (landing-page background world) ===== */
-
-.grid-world {
-  color: #ccff00; /* SVG stroke/fill via currentColor (dark) */
+@keyframes reveal-up {
+  from { opacity: 0; transform: translateY(30px); }
+  to   { opacity: 1; transform: translateY(0); }
 }
 
-html.light .grid-world {
-  color: #a3cc00;
-}
-
-.grid-world .gw-links line {
-  vector-effect: non-scaling-stroke;
-}
-
-/* Flowing dashes along the connection lines */
-@keyframes gw-flow {
-  from { stroke-dashoffset: 0; }
-  to   { stroke-dashoffset: -90; }
-}
-
-@keyframes gw-twinkle {
-  0%, 100% { opacity: 0.35; transform: scale(0.9); }
-  50% { opacity: 1; transform: scale(1.4); }
-}
-
-/* Soft cursor light (follows --mx / --my) */
-.grid-world .gw-cursor {
-  background: radial-gradient(
-    circle 420px at var(--mx) var(--my),
-    rgba(204, 255, 0, 0.18),
-    transparent 70%
-  );
-  animation: gw-cursor-drift 14s ease-in-out infinite;
-}
-
-html.light .grid-world .gw-cursor {
-  background: radial-gradient(
-    circle 420px at var(--mx) var(--my),
-    rgba(204, 255, 0, 0.10),
-    transparent 70%
-  );
-}
-
-@keyframes gw-cursor-drift {
-  0%, 100% { opacity: 0.7; }
-  50% { opacity: 1; }
-}
-
-/* Vignette so the grid blends into the page bg at the edges */
-.grid-world .gw-vignette {
-  background:
-    radial-gradient(ellipse 90% 60% at 50% 0%, transparent 60%, var(--color-bg-theme) 100%);
-}
-
-html.light .grid-world .gw-vignette {
-  background:
-    radial-gradient(ellipse 90% 60% at 50% 0%, transparent 60%, #fafaff 100%);
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .grid-world svg line,
-  .grid-world svg circle,
-  .grid-world .gw-cursor {
-    animation: none;
-  }
-}
-}
-
-/* Card grid reveal helper: pair with style={{animationDelay: ...}} per child */
-.prl-card-rise {
-  animation: card-rise 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
-}
-
-/* Heavy dark drop-shadows (inline styles) look harsh on light backgrounds;
-   soften them centrally when the light theme is active. */
-@layer utilities {
-  html.light .prl-shadow-card {
-    box-shadow: 0 24px 80px rgba(100, 100, 150, 0.16), 0 0 120px rgba(204, 255, 0, 0.05) !important;
-  }
-}
-
-
-@layer utilities {
-  .mask-line { display: inline-block; overflow: hidden; padding-bottom: 8px; vertical-align: bottom; }
-  .mask-text { display: inline-block; transform: translateY(110%); transition: transform 1s cubic-bezier(0.16, 1, 0.3, 1); }
-  .reveal.mask-text, .mask-reveal.visible .mask-text { transform: translateY(0); }
-  
-  .marquee-container {
-    overflow: hidden;
-    background-color: var(--color-accent);
-    color: #09090b;
-    padding: 16px 0;
-    font-family: var(--font-mono);
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: 2px;
-    white-space: nowrap;
-    display: flex;
-    align-items: center;
-  }
-  .marquee-content {
-    display: inline-block;
-    animation: marqueeRightToLeft 10s linear infinite;
-  }
-  .marquee-content span {
-    margin-right: 48px;
-  }
-  @keyframes marqueeRightToLeft {
-    0% { transform: translateX(0); }
-    100% { transform: translateX(-50%); }
-  }
+@keyframes marquee-right-to-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
 }

@@ -194,6 +194,10 @@ dist-ssr
 
 
 .agent
+.agents/
+.taste-skill/
+.verify-out.json
+fix_mangled.py
 # Claude Code local config
 .claude/
 CLAUDE.md
