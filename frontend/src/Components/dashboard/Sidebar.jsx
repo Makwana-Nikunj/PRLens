@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, memo, useMemo } from 'react';
 import { createPortal } from 'react-dom';
 import { useNavigate } from 'react-router-dom';
+import { ChevronRight, ChevronLeft, ChevronDown, X, Plus, Search, MoreVertical, SearchX, User, Settings, LogOut } from 'lucide-react';
 import useAuthStore from '../../store/authStore';
 import useDashboardStore from '../../store/dashboardStore';
 import useThemeStore from '../../store/themeStore';
@@ -20,10 +21,10 @@ const Sidebar = memo(() => {
   } = useDashboardStore();
   const theme = useThemeStore((state) => state.theme);
   const isLight = theme === 'light';
-  const hoverSurface = isLight ? '#f1f1f6' : '#16161d';
-  const textDim = isLight ? '#5d5d6a' : '#9b9ba8';
+  const hoverSurface = isLight ? '#f1f1f6' : '#18181b';
+  const textDim = isLight ? '#5d5d6a' : '#a1a1aa';
   const textHover = isLight ? '#2a2a33' : '#d4d4d8';
-  const textFaint = isLight ? '#82828e' : '#6b6b78';
+  const textFaint = isLight ? '#82828e' : '#a1a1aa';
   const [searchTerm, setSearchTerm] = useState('');
   const [profileDropdownOpen, setProfileDropdownOpen] = useState(false);
   const [openMenuId, setOpenMenuId] = useState(null);
@@ -123,29 +124,29 @@ const Sidebar = memo(() => {
     <>
       <div className={`fixed inset-0 bg-black/60 z-30 transition-opacity lg:hidden ${sidebarOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'}`} onClick={() => setSidebarOpen(false)} />
       <aside
-        className={`fixed lg:static inset-y-0 left-0 w-[260px] bg-[#0d0d12] light:bg-[#f4f4f9] border-r border-[#232330] light:border-[#e3e3ec] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${sidebarCollapsed ? 'lg:w-[60px]' : 'lg:w-[260px]'}`}
+        className={`fixed lg:static inset-y-0 left-0 w-[260px] bg-[var(--prl-bg-soft)] border-r border-[var(--prl-border)] flex flex-col z-40 transition-all duration-300 ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'} lg:translate-x-0 ${sidebarCollapsed ? 'lg:w-[60px]' : 'lg:w-[260px]'}`}
       >
-        <div className="h-[60px] flex items-center px-4 border-b border-[#232330] light:border-[#e3e3ec] gap-3 shrink-0">
+        <div className="h-[60px] flex items-center px-4 border-b border-[var(--prl-border)] gap-3 shrink-0">
           <div className="relative w-8 h-8 shrink-0">
-            <div className="w-8 h-8 flex items-center justify-center rounded-lg bg-violet-600/30 text-purple-400 light:text-purple-600 border border-violet-600/30">
+            <div className="w-8 h-8 flex items-center justify-center rounded-md bg-[var(--prl-accent-soft)] text-[var(--prl-accent)] border border-[var(--prl-accent-line)]">
               <svg className="w-4 h-4" viewBox="0 0 24 24" strokeWidth="2" stroke="currentColor" fill="none"><circle cx="18" cy="18" r="3" /><circle cx="6" cy="6" r="3" /><path d="M13 6h3a2 2 0 0 1 2 2v7" /><path d="M6 9v9" /></svg>
             </div>
             {sidebarCollapsed && (
-              <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden lg:flex absolute inset-0 w-full h-full items-center justify-center bg-[#0d0d12]/80 light:bg-[#f4f4f9]/80 rounded-lg text-[#E4E4E7] light:text-[#2a2a33] opacity-0 hover:opacity-100 transition-opacity z-10" title="Expand">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m9 18 6-6-6-6" /></svg>
+              <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden lg:flex absolute inset-0 w-full h-full items-center justify-center bg-[#18181b]/80 light:bg-[#f4f4f9]/80 rounded-md text-[var(--prl-text)] opacity-0 hover:opacity-100 transition-opacity z-10" title="Expand">
+                <ChevronRight className="w-4 h-4" />
               </button>
             )}
           </div>
-          <div className={`text-[15px] font-semibold tracking-tight text-[#f3f3f6] light:text-[#18181f] truncate ${sidebarCollapsed ? 'lg:hidden' : ''}`} style={{ fontFamily: 'var(--font-display)' }}>PRLens</div>
+          <div className={`text-[15px] font-semibold tracking-tight text-[var(--prl-text)] truncate ${sidebarCollapsed ? 'lg:hidden' : ''}`} >PRLens</div>
           <div className="flex ml-auto items-center gap-1">
             <div className={`${sidebarCollapsed ? 'lg:hidden' : ''}`}>
               <ThemeToggle />
             </div>
-            <button type="button" onClick={() => setSidebarOpen(false)} className="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg hover:bg-white/10 light:hover:bg-black/10 text-[#9b9ba8] light:text-[#5d5d6a]">
-              <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18" /><line x1="6" y1="6" x2="18" y2="18" /></svg>
+            <button type="button" onClick={() => setSidebarOpen(false)} className="lg:hidden min-h-[44px] min-w-[44px] flex items-center justify-center rounded-md hover:bg-white/10 light:hover:bg-black/10 text-[var(--prl-text-dim)]">
+              <X className="w-5 h-5" />
             </button>
-            <button type="button" onClick={() => setSidebarCollapsed(true)} className={`hidden lg:flex min-h-[44px] min-w-[44px] items-center justify-center rounded-lg text-[#9b9ba8] light:text-[#5d5d6a] hover:bg-[#16161d] hover:light:bg-[#f1f1f6] hover:text-[#f3f3f6] hover:light:text-[#18181f] transition ${sidebarCollapsed ? 'lg:hidden' : ''}`} title="Collapse sidebar">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="m15 18-6-6 6-6" /></svg>
+            <button type="button" onClick={() => setSidebarCollapsed(true)} className={`hidden lg:flex min-h-[44px] min-w-[44px] items-center justify-center rounded-md text-[var(--prl-text-dim)] hover:bg-[var(--prl-bg-soft)] hover:text-[var(--prl-text)] transition ${sidebarCollapsed ? 'lg:hidden' : ''}`} title="Collapse sidebar">
+              <ChevronLeft className="w-4 h-4" />
             </button>
           </div>
         </div>
@@ -154,38 +155,38 @@ const Sidebar = memo(() => {
           <button type="button" onClick={() => {
             navigate('/pr/new');
             if (window.innerWidth < 768) setSidebarOpen(false);
-          }} className="w-full flex justify-center items-center gap-2 px-3 py-2 min-h-[44px] text-white font-semibold text-[13px] rounded-lg transition hover:bg-[#8b5cf6] active:scale-[0.98]"
-            style={{ background: '#7c3aed' }}>
-            <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"><path d="M12 5v14M5 12h14" /></svg>
+          }} className="w-full flex justify-center items-center gap-2 px-3 py-2 min-h-[44px] text-[var(--prl-on-accent)] font-semibold text-[13px] rounded-md transition hover:bg-[var(--prl-accent-fill)] active:scale-[0.98]"
+            style={{ background: 'var(--prl-accent-fill)' }}>
+            <Plus className="w-4 h-4" />
             <span className={sidebarCollapsed ? 'lg:hidden' : ''}>Analyze PR</span>
           </button>
           {sidebarCollapsed ? (
-            <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden lg:flex w-full min-h-[44px] justify-center items-center p-2 rounded-lg text-[#9b9ba8] light:text-[#5d5d6a] hover:bg-[#16161d] hover:light:bg-[#f1f1f6] hover:text-[#f3f3f6] hover:light:text-[#18181f] transition" title="Search">
-              <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+            <button type="button" onClick={() => setSidebarCollapsed(false)} className="hidden lg:flex w-full min-h-[44px] justify-center items-center p-2 rounded-md text-[var(--prl-text-dim)] hover:bg-[var(--prl-bg-soft)] hover:text-[var(--prl-text)] transition" title="Search">
+              <Search className="w-4 h-4" />
             </button>
           ) : (
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[#6b6b78] light:text-[#82828e]">
-                <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"><circle cx="11" cy="11" r="8" /><path d="m21 21-4.3-4.3" /></svg>
+              <div className="absolute inset-y-0 left-0 pl-2.5 flex items-center pointer-events-none text-[var(--prl-text-faint)]">
+                <Search className="w-4 h-4" />
               </div>
-              <input type="text" placeholder="Search history..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-2 min-h-[44px] bg-[#131318] light:bg-[#ffffff] text-[#f3f3f6] light:text-[#18181f] text-[13px] rounded-lg border border-[#232330] light:border-[#e3e3ec] focus:outline-none focus:border-[#9457f5] transition" />
+              <input type="text" placeholder="Search history..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full pl-9 pr-3 py-2 min-h-[44px] bg-[var(--prl-panel)] text-[var(--prl-text)] text-[13px] rounded-md border border-[var(--prl-border)] focus:outline-none focus:border-[var(--prl-accent-2)] transition" />
             </div>
           )}
         </nav>
 
         <div className={`shrink-0 ${sidebarCollapsed ? 'lg:mx-2 lg:my-2' : 'mx-4'}`}>
-          <div className="h-px bg-[#232330] light:bg-[#e5e5ee]" />
+          <div className="h-px bg-[#27272a] light:bg-[#e5e5ee]" />
         </div>
 
         <div className="flex-1 overflow-y-auto px-2 pb-4">
           {!sidebarCollapsed && (
-            <div className="px-2 py-1.5 text-[11px] font-bold text-[#6b6b78] light:text-[#82828e] uppercase tracking-wider sticky top-0 bg-[#0d0d12] light:bg-[#f4f4f9] z-10 mt-1">Recent Analyses</div>
+            <div className="px-2 py-1.5 text-[11px] font-bold text-[var(--prl-text-faint)] uppercase tracking-wider sticky top-0 bg-[var(--prl-bg-soft)] z-10 mt-1">Recent Analyses</div>
           )}
           <div className={`flex flex-col gap-1 ${sidebarCollapsed ? 'lg:mt-2' : 'mt-1'}`}>
             {isHistoryLoading ? (
-              <div className="flex flex-col gap-2 mt-2">{[0,1].map((i) => <div key={i} className="h-14 rounded-lg bg-[#16161d] light:bg-[#f1f1f6] animate-pulse" />)}</div>
+              <div className="flex flex-col gap-2 mt-2">{[0,1].map((i) => <div key={i} className="h-14 rounded-md bg-[var(--prl-bg-soft)] animate-pulse" />)}</div>
             ) : historyError ? (
-              <div className="mt-3 p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-center">
+              <div className="mt-3 p-3 rounded-md bg-red-500/10 border border-red-500/20 text-center">
                 <p className="text-[12px] text-red-400 mb-2">Failed to load history</p>
                 <button onClick={fetchPRs} className="text-[12px] px-3 py-1.5 rounded-md bg-red-500/20 text-red-300 hover:bg-red-500/30 transition">Retry</button>
               </div>
@@ -203,9 +204,9 @@ const Sidebar = memo(() => {
                 const isOpen = openMenuId === item.pr_id;
 
                 return (
-                  <div key={item.pr_id} className="p-2.5 rounded-lg transition select-none flex flex-col gap-1 group cursor-pointer"
+                  <div key={item.pr_id} className="p-2.5 rounded-md transition select-none flex flex-col gap-1 group cursor-pointer"
                     style={activePRId === item.pr_id
-                      ? { background: 'rgba(124,58,237,0.12)', border: '1px solid rgba(124,58,237,0.35)', color: isLight ? '#7c3aed' : '#9457f5' }
+                      ? { background: 'var(--prl-accent-soft)', border: '1px solid var(--prl-accent-line)', color: 'var(--prl-accent)' }
                       : { border: '1px solid transparent', color: textDim }}
                     onMouseEnter={(e) => { if (activePRId !== item.pr_id) { e.currentTarget.style.background = hoverSurface; e.currentTarget.style.color = textHover; } }}
                     onMouseLeave={(e) => { if (activePRId !== item.pr_id) { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = ''; } }}
@@ -216,76 +217,76 @@ const Sidebar = memo(() => {
                     {!sidebarCollapsed ? (
                       <div className="text-[13px] truncate font-medium flex items-center justify-between">
                         <span className="truncate min-h-[24px] flex items-center">{repoName}</span>
-                        <button type="button" data-menu-id={item.pr_id} onMouseDown={handleMenuMouseDown} onClick={(e) => handleMenuClick(e, item.pr_id)} className="w-8 h-8 flex items-center justify-center rounded opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:bg-white/10 hover:light:bg-black/10 text-[#6b6b78] light:text-[#82828e] hover:text-[#9b9ba8] hover:light:text-[#5d5d6a] transition-opacity">
-                          <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><circle cx="5" cy="12" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="19" cy="12" r="2"/></svg>
+                        <button type="button" data-menu-id={item.pr_id} onMouseDown={handleMenuMouseDown} onClick={(e) => handleMenuClick(e, item.pr_id)} className="w-8 h-8 flex items-center justify-center rounded opacity-100 lg:opacity-0 lg:group-hover:opacity-100 hover:bg-white/10 hover:light:bg-black/10 text-[var(--prl-text-faint)] hover:text-[var(--prl-text-primary)] transition-opacity">
+                          <MoreVertical className="w-4 h-4" />
                         </button>
                       </div>
                     ) : null}
                     {!sidebarCollapsed && (
-                      <div className="text-[11.5px] truncate" style={{ color: activePRId === item.pr_id ? 'rgba(148,87,245,0.8)' : textFaint }}>{prTitle}</div>
+                      <div className="text-[11.5px] truncate" style={{ color: activePRId === item.pr_id ? 'var(--prl-accent-2)' : textFaint }}>{prTitle}</div>
                     )}
                   </div>
                 );
               })
             ) : (
               <div className="p-3 text-center mt-4">
-                <div className="w-10 h-10 mx-auto rounded-full bg-[#16161d] light:bg-[#f1f1f6] text-[#6b6b78] light:text-[#82828e] flex items-center justify-center mb-3">
-                  <svg className="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" /></svg>
+                <div className="w-10 h-10 mx-auto rounded-full bg-[var(--prl-bg-soft)] text-[var(--prl-text-faint)] flex items-center justify-center mb-3">
+                  <SearchX className="w-5 h-5" />
                 </div>
-                <p className="text-[12px] text-[#9b9ba8] light:text-[#5d5d6a]">No PRs analyzed yet.</p>
+                <p className="text-[12px] text-[var(--prl-text-dim)]">No PRs analyzed yet.</p>
               </div>
             )}
           </div>
         </div>
 
-        <div className="border-t border-[#232330] light:border-[#e3e3ec] shrink-0 relative flex justify-center" ref={dropdownRef}>
+        <div className="border-t border-[var(--prl-border)] shrink-0 relative flex justify-center" ref={dropdownRef}>
           <div className={`w-full ${sidebarCollapsed ? 'max-w-[60px]' : 'max-w-[260px]'}`}>
-            <button onClick={(e) => { if (sidebarCollapsed) { setSidebarCollapsed(false); setSidebarOpen(true); } else { setProfileDropdownOpen(prev => !prev); } }} className={`w-full min-h-[56px] transition rounded-lg ${sidebarCollapsed ? 'flex flex-col items-center gap-2 p-3 text-center' : 'flex items-center gap-3 p-2 hover:bg-[#16161d] hover:light:bg-[#f1f1f6] text-left'}`}>
+            <button onClick={(e) => { if (sidebarCollapsed) { setSidebarCollapsed(false); setSidebarOpen(true); } else { setProfileDropdownOpen(prev => !prev); } }} className={`w-full min-h-[56px] transition rounded-md ${sidebarCollapsed ? 'flex flex-col items-center gap-2 p-3 text-center' : 'flex items-center gap-3 p-2 hover:bg-[var(--prl-bg-soft)] text-left'}`}>
               {user?.avatar ? (
-                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400 light:text-purple-600">
+                <div className="w-8 h-8 rounded-md bg-[var(--prl-accent-soft)] border border-[var(--prl-accent-line)] flex items-center justify-center shrink-0 text-[var(--prl-accent)]">
                   <img src={user.avatar} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                 </div>
               ) : user?.avatarUrl ? (
-                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400 light:text-purple-600">
+                <div className="w-8 h-8 rounded-md bg-[var(--prl-accent-soft)] border border-[var(--prl-accent-line)] flex items-center justify-center shrink-0 text-[var(--prl-accent)]">
                   <img src={user.avatarUrl} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                 </div>
               ) : user?.avatar_url ? (
-                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400 light:text-purple-600">
+                <div className="w-8 h-8 rounded-md bg-[var(--prl-accent-soft)] border border-[var(--prl-accent-line)] flex items-center justify-center shrink-0 text-[var(--prl-accent)]">
                   <img src={user.avatar_url} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                 </div>
               ) : user?.username ? (
-                <div className="w-8 h-8 rounded-lg bg-violet-600/30 border border-violet-600/30 flex items-center justify-center shrink-0 text-purple-400 light:text-purple-600">
+                <div className="w-8 h-8 rounded-md bg-[var(--prl-accent-soft)] border border-[var(--prl-accent-line)] flex items-center justify-center shrink-0 text-[var(--prl-accent)]">
                   <img src={`https://github.com/${user.username}.png`} alt="Avatar" className="w-7 h-7 rounded object-cover" onError={(e) => { e.target.style.display = 'none'; }} />
                 </div>
               ) : (
-                <div className="w-8 h-8 rounded-lg bg-violet-600 flex items-center justify-center text-[12px] font-bold text-white shadow-inner shrink-0">
+                <div className="w-8 h-8 rounded-md bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] shadow-inner shrink-0">
                   {user?.name ? user.name.charAt(0).toUpperCase() : 'U'}
                 </div>
               )}
               {!sidebarCollapsed && (
                 <div className="flex-1 overflow-hidden flex flex-col justify-center">
-                  <div className="text-[13px] font-semibold text-[#E4E4E7] light:text-[#2a2a33] truncate">{user?.name || user?.username || 'User'}</div>
-                  <div className="text-[11px] text-[#6b6b78] light:text-[#82828e] truncate">@{user?.username || 'github'}</div>
+                  <div className="text-[13px] font-semibold text-[var(--prl-text)] truncate">{user?.name || user?.username || 'User'}</div>
+                  <div className="text-[11px] text-[var(--prl-text-faint)] truncate">@{user?.username || 'github'}</div>
                 </div>
               )}
               {!sidebarCollapsed && (
-                <svg className={`w-4 h-4 text-[#9b9ba8] light:text-[#5d5d6a] transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="18 15 12 9 6 15" /></svg>
+                <ChevronDown className={`w-4 h-4 text-[var(--prl-text-dim)] transition-transform ${profileDropdownOpen ? 'rotate-180' : ''}`} />
               )}
             </button>
 
             {!sidebarCollapsed && profileDropdownOpen && (
-              <div className="absolute bottom-[calc(100%-8px)] left-3 right-3 bg-[#16161d] light:bg-[#f1f1f6] border border-[#232330] light:border-[#e3e3ec] rounded-lg shadow-xl overflow-hidden py-1 z-50 mb-1 animate-[reveal-up_0.2s_ease-out]">
-                <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] light:text-[#2a2a33] hover:bg-[#131318] hover:light:bg-[#ffffff] transition flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#9b9ba8] light:text-[#5d5d6a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+              <div className="absolute bottom-[calc(100%-8px)] left-3 right-3 bg-[var(--prl-bg-soft)] border border-[var(--prl-border)] rounded-md shadow-xl overflow-hidden py-1 z-50 mb-1 animate-[reveal-up_0.2s_ease-out]">
+                <button className="w-full px-4 py-2.5 text-left text-[13px] text-[var(--prl-text)] hover:bg-[var(--prl-panel)] transition flex items-center gap-2">
+                  <User className="w-4 h-4 text-[var(--prl-text-dim)]" />
                   Profile
                 </button>
-                <button className="w-full px-4 py-2.5 text-left text-[13px] text-[#E4E4E7] light:text-[#2a2a33] hover:bg-[#131318] hover:light:bg-[#ffffff] transition flex items-center gap-2">
-                  <svg className="w-4 h-4 text-[#9b9ba8] light:text-[#5d5d6a]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="3" /><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z" /></svg>
+                <button className="w-full px-4 py-2.5 text-left text-[13px] text-[var(--prl-text)] hover:bg-[var(--prl-panel)] transition flex items-center gap-2">
+                  <Settings className="w-4 h-4 text-[var(--prl-text-dim)]" />
                   Settings
                 </button>
-                <div className="h-px bg-[#232330] light:bg-[#e5e5ee] my-1" />
+                <div className="h-px bg-[#27272a] light:bg-[#e5e5ee] my-1" />
                 <button onClick={handleLogout} className="w-full px-4 py-2.5 text-left text-[13px] text-red-500 hover:bg-red-500/10 transition flex items-center gap-2 font-medium">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><polyline points="16 17 21 12 16 7" /><line x1="21" y1="12" x2="9" y2="12" /></svg>
+                  <LogOut className="w-4 h-4" />
                   Sign out
                 </button>
               </div>
@@ -295,10 +296,10 @@ const Sidebar = memo(() => {
       </aside>
 
       {menuPortal && createPortal(
-        <div ref={el => { if (el) menuContainerRef.current = el; }} className="fixed w-36 rounded-lg bg-[#16161d] light:bg-[#f1f1f6] border border-[#232330] light:border-[#e3e3ec] shadow-xl py-1 z-[60]" style={{ top: menuPos.top, left: menuPos.left }} onMouseDown={handleMenuMouseDown} onClick={stop}>
+        <div ref={el => { if (el) menuContainerRef.current = el; }} className="fixed w-36 rounded-md bg-[var(--prl-bg-soft)] border border-[var(--prl-border)] shadow-xl py-1 z-[60]" style={{ top: menuPos.top, left: menuPos.left }} onMouseDown={handleMenuMouseDown} onClick={stop}>
           {menuItem && (
             <>
-              <button type="button" onMouseDown={handleMenuMouseDown} onClick={() => startRename(menuItem)} className="w-full px-3 py-2 text-left text-[13px] text-[#E4E4E7] light:text-[#2a2a33] hover:bg-[#131318] hover:light:bg-[#ffffff]">Rename</button>
+              <button type="button" onMouseDown={handleMenuMouseDown} onClick={() => startRename(menuItem)} className="w-full px-3 py-2 text-left text-[13px] text-[var(--prl-text)] hover:bg-[var(--prl-panel)]">Rename</button>
               <button type="button" onMouseDown={handleMenuMouseDown} onClick={() => startDelete(openMenuId)} className="w-full px-3 py-2 text-left text-[13px] text-red-400 hover:bg-red-500/10">Delete</button>
             </>
           )}
@@ -309,12 +310,12 @@ const Sidebar = memo(() => {
       {renameTarget && createPortal(
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) cancelRename(); }} onClick={stop}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div className="relative w-full max-w-sm bg-[#16161d] light:bg-[#f1f1f6] border border-[#232330] light:border-[#e3e3ec] rounded-xl shadow-2xl p-5">
-            <h3 className="text-[15px] font-semibold text-[#f3f3f6] light:text-[#18181f] mb-3">Rename PR</h3>
-            <input type="text" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={handleRenameKeyDown} className="w-full px-3 py-2.5 bg-[#0d0d12] light:bg-[#f4f4f9] text-[#f3f3f6] light:text-[#18181f] text-[13px] rounded-lg border border-[#232330] light:border-[#e3e3ec] focus:outline-none focus:border-[#9457f5] mb-4" autoFocus />
+          <div className="relative w-full max-w-sm bg-[var(--prl-bg-soft)] border border-[var(--prl-border)] rounded-md shadow-2xl p-5">
+            <h3 className="text-[15px] font-semibold text-[var(--prl-text)] mb-3">Rename PR</h3>
+            <input type="text" value={renameValue} onChange={(e) => setRenameValue(e.target.value)} onKeyDown={handleRenameKeyDown} className="w-full px-3 py-2.5 bg-[var(--prl-bg-soft)] text-[var(--prl-text)] text-[13px] rounded-md border border-[var(--prl-border)] focus:outline-none focus:border-[var(--prl-accent-2)] mb-4" autoFocus />
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={cancelRename} className="px-3 py-2 text-[13px] text-[#9b9ba8] light:text-[#5d5d6a] hover:text-[#f3f3f6] hover:light:text-[#18181f] transition">Cancel</button>
-              <button type="button" onClick={confirmRename} disabled={isRenaming === renameTarget?.pr_id} className={`px-3 py-2 text-[13px] text-white font-semibold rounded-lg transition disabled:opacity-50 hover:bg-[#8b5cf6] ${isRenaming === renameTarget?.pr_id ? 'opacity-75 cursor-wait' : ''}`} style={{ background: '#7c3aed' }}>{isRenaming === renameTarget?.pr_id ? 'Saving...' : 'Save'}</button>
+              <button type="button" onClick={cancelRename} className="px-3 py-2 text-[13px] text-[var(--prl-text-dim)] hover:text-[var(--prl-text)] transition">Cancel</button>
+              <button type="button" onClick={confirmRename} disabled={isRenaming === renameTarget?.pr_id} className={`px-3 py-2 text-[13px] text-[var(--prl-on-accent)] font-semibold rounded-md transition disabled:opacity-50 hover:bg-[var(--prl-accent-fill)] ${isRenaming === renameTarget?.pr_id ? 'opacity-75 cursor-wait' : ''}`} style={{ background: 'var(--prl-accent-fill)' }}>{isRenaming === renameTarget?.pr_id ? 'Saving...' : 'Save'}</button>
             </div>
           </div>
         </div>,
@@ -324,12 +325,12 @@ const Sidebar = memo(() => {
       {deleteTarget && createPortal(
         <div className="fixed inset-0 z-[70] flex items-center justify-center p-4" onMouseDown={(e) => { if (e.target === e.currentTarget) cancelDelete(); }} onClick={stop}>
           <div className="absolute inset-0 bg-black/70 backdrop-blur-sm" />
-          <div className="relative w-full max-w-sm bg-[#16161d] light:bg-[#f1f1f6] border border-red-500/20 rounded-xl shadow-2xl p-5">
-            <h3 className="text-[15px] font-semibold text-[#f3f3f6] light:text-[#18181f] mb-2">Delete PR Analysis?</h3>
-            <p className="text-[13px] text-[#9b9ba8] light:text-[#5d5d6a] mb-4">This action cannot be undone. All analysis data, chat history, and embeddings for this PR will be permanently removed.</p>
+          <div className="relative w-full max-w-sm bg-[var(--prl-bg-soft)] border border-red-500/20 rounded-md shadow-2xl p-5">
+            <h3 className="text-[15px] font-semibold text-[var(--prl-text)] mb-2">Delete PR Analysis?</h3>
+            <p className="text-[13px] text-[var(--prl-text-dim)] mb-4">This action cannot be undone. All analysis data, chat history, and embeddings for this PR will be permanently removed.</p>
             <div className="flex justify-end gap-2">
-              <button type="button" onClick={cancelDelete} className="px-3 py-2 text-[13px] text-[#9b9ba8] light:text-[#5d5d6a] hover:text-[#f3f3f6] hover:light:text-[#18181f] transition">Cancel</button>
-              <button type="button" onClick={confirmDelete} disabled={isDeleting === deleteTarget} className={`px-3 py-2 text-[13px] bg-red-500 text-white font-semibold rounded-lg hover:bg-red-600 transition disabled:opacity-50 ${isDeleting === deleteTarget ? 'opacity-75 cursor-wait' : ''}`}>{isDeleting === deleteTarget ? 'Deleting...' : 'Delete'}</button>
+              <button type="button" onClick={cancelDelete} className="px-3 py-2 text-[13px] text-[var(--prl-text-dim)] hover:text-[var(--prl-text)] transition">Cancel</button>
+              <button type="button" onClick={confirmDelete} disabled={isDeleting === deleteTarget} className={`px-3 py-2 text-[13px] bg-red-500 text-white font-semibold rounded-md hover:bg-red-600 transition disabled:opacity-50 ${isDeleting === deleteTarget ? 'opacity-75 cursor-wait' : ''}`}>{isDeleting === deleteTarget ? 'Deleting...' : 'Delete'}</button>
             </div>
           </div>
         </div>,

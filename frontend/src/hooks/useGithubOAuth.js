@@ -72,7 +72,7 @@ function useGithubOAuth({ onSuccess, redirectPath = "/dashboard" } = {}) {
                     });
 
                     if (response.data?.data) {
-                        const userData = response.data.data;
+                        const userData = response.data.data.user;
                         login({
                             userData,
                             accessToken: response.data.data.accessToken || null,

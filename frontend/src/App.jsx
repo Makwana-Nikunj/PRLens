@@ -2,6 +2,12 @@ import { lazy, Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import LandingPage from "./pages/LandingPage";
 import GithubSignIn from "./pages/GithubSignIn";
+import EmailSignIn from "./pages/EmailSignIn";
+import EmailSignUp from "./pages/EmailSignUp";
+import VerifyEmail from "./pages/VerifyEmail";
+import VerifyEmailPending from "./pages/VerifyEmailPending";
+import ForgotPassword from "./pages/ForgotPassword";
+import ResetPassword from "./pages/ResetPassword";
 import DocsPage from "./pages/DocsPage";
 import GettingStartedPage from "./pages/GettingStartedPage";
 import PrivacyPolicyPage from "./pages/PrivacyPolicyPage";
@@ -30,19 +36,25 @@ const ChatInterface = lazy(() => import("./pages/ChatInterface"));
 const FileExplanations = lazy(() => import("./pages/FileExplanations"));
 
 const Loader = () => (
-  <div className="min-h-screen flex items-center justify-center bg-[#0a0a0d] light:bg-[#ffffff] text-white light:text-[#18181f]">
-    <span className="material-symbols-outlined text-4xl animate-spin text-[#9457f5] light:text-[#7c3aed]">progress_activity</span>
+  <div className="min-h-[100dvh] flex items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)]">
+    <span className="material-symbols-outlined text-4xl animate-spin text-[var(--prl-accent-2)]">progress_activity</span>
   </div>
 );
 
 function App() {
   return (
-    <div className="min-h-screen bg-background text-on-surface">
+    <div className="min-h-[100dvh] bg-[var(--prl-bg)] text-[var(--prl-text)]">
       <Suspense fallback={<Loader />}>
         <ErrorBoundary>
           <Routes>
             <Route path="/" element={<LandingPage />} />
             <Route path="/login" element={<GithubSignIn />} />
+            <Route path="/email-login" element={<EmailSignIn />} />
+            <Route path="/signup" element={<EmailSignUp />} />
+            <Route path="/verify-email" element={<VerifyEmail />} />
+            <Route path="/verify-email-pending" element={<VerifyEmailPending />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
 
             <Route path="/docs" element={<DocsPage />} />
             <Route path="/docs/getting-started" element={<GettingStartedPage />} />
@@ -75,11 +87,11 @@ function App() {
             </Route>
 
             <Route path="*" element={
-              <div className="min-h-screen flex flex-col items-center justify-center bg-[#0a0a0d] light:bg-[#ffffff] text-white light:text-[#18181f]">
-                <span className="material-symbols-outlined text-6xl text-[#6b6b78] light:text-[#82828e] mb-4">route_off</span>
-                <h1 className="text-3xl font-bold mb-2 text-[#f3f3f6] light:text-[#18181f] tracking-tight" style={{ fontFamily: 'var(--font-display)' }}>404 - Page Not Found</h1>
-                <p className="text-[#9b9ba8] light:text-[#5d5d6a] mb-6">The page you're looking for doesn't exist.</p>
-                <a href="/" className="px-6 py-2 rounded-lg text-white font-medium hover:bg-[#8b5cf6] transition" style={{ background: '#7c3aed' }}>
+              <div className="min-h-[100dvh] flex flex-col items-center justify-center bg-[var(--prl-bg)] text-[var(--prl-text)]">
+                <span className="material-symbols-outlined text-6xl text-[var(--prl-text-faint)] mb-4">route_off</span>
+                <h1 className="text-4xl font-bold mb-2 text-[var(--prl-text)] tracking-tight font-display" >404 - Page Not Found</h1>
+                <p className="text-[var(--prl-text-dim)] mb-6">The page you're looking for doesn't exist.</p>
+                <a href="/" className="px-6 py-2 rounded text-[var(--prl-on-accent)] font-medium hover:opacity-90 transition" style={{ background: 'var(--prl-accent-fill)' }}>
                   Go Home
                 </a>
               </div>

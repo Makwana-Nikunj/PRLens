@@ -1,63 +1,47 @@
 import React from 'react';
-import { Link } from 'react-router-dom';
-import PRInputForm from './PRInputForm';
+import { Link, useNavigate } from 'react-router-dom';
+import { ArrowRight } from 'lucide-react';
 
-const CTA = () => (
-  <section className="py-[120px] bg-[#0a0a0d] light:bg-[#ffffff] text-center" aria-labelledby="cta-title">
-    <div className="w-full max-w-[1100px] mx-auto px-6 md:px-[60px] 2xl:px-[100px]">
-      <div
-        className="relative max-w-[880px] mx-auto rounded-3xl px-6 py-16 md:px-16 md:py-20 overflow-hidden"
-        style={{ background: 'var(--prl-panel)', border: '1px solid var(--prl-border)' }}
-      >
-        {/* Animated grid + sweeping beam backdrop */}
-        <div
-          className="absolute inset-0 grid-animated pointer-events-none opacity-70 [mask-image:radial-gradient(ellipse_at_center,black_25%,transparent_75%)]"
-          aria-hidden="true"
-        />
-        <div className="absolute inset-0 overflow-hidden pointer-events-none" aria-hidden="true">
-          <div className="grid-beam absolute top-0 left-0 w-[40%] h-full" />
-        </div>
+const CTA = () => {
+  const navigate = useNavigate();
 
-        {/* Gradient border glow */}
-        <div
-          className="absolute inset-0 pointer-events-none rounded-3xl"
-          style={{
-            background:
-              'radial-gradient(ellipse 60% 80% at 50% 0%, rgba(124,58,237,0.18) 0%, transparent 70%)',
-          }}
-          aria-hidden="true"
-        />
-        <div
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[60%] h-[1px]"
-          style={{ background: 'linear-gradient(90deg, transparent, rgba(148,87,245,0.6), transparent)' }}
-          aria-hidden="true"
-        />
+  return (
+    <section
+      id="cta"
+      className="bg-[var(--prl-bg)] text-[var(--prl-text)] pt-32 pb-24 px-6 w-full"
+    >
+      <div className="max-w-[760px] mx-auto text-center prl-entrance">
+        <h2 className="font-display font-bold text-[clamp(32px,5.2vw,56px)] leading-[0.96] tracking-[-0.04em] text-[var(--prl-text)] mb-6">
+          Review pull requests<br />with PRLens.
+        </h2>
 
-        <div className="relative">
-          <h2
-            id="cta-title"
-            className="text-[clamp(28px,4vw,42px)] font-bold text-[#f3f3f6] light:text-[#18181f] tracking-tight mb-4"
-            style={{ fontFamily: 'var(--font-display)' }}
+        <p className="text-[18px] md:text-[20px] leading-[1.6] text-[var(--prl-text-dim)] max-w-[38ch] mx-auto mb-10 prl-delay-1">
+          Paste any public or private GitHub link to receive an immediate architectural summary and risk breakdown.
+        </p>
+
+        <div className="flex flex-wrap items-center justify-center gap-6 prl-delay-2">
+          <button
+            type="button"
+            onClick={() => navigate('/dashboard')}
+            className="inline-flex items-center gap-2 py-3.5 px-8 rounded bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold text-[16px] hover:brightness-105 active:scale-[0.98] transition-transform duration-150 cursor-pointer"
           >
-            Still reading diffs manually?
-          </h2>
-          <p className="text-[clamp(15px,2vw,17px)] text-[#9b9ba8] light:text-[#5d5d6a] mb-10 max-w-[480px] mx-auto">
-            Analyze your next pull request with PRLens — free, no setup required.
-          </p>
-
-          <PRInputForm buttonLabel="Analyze" />
-
-          <p className="mt-5 text-[13px] font-medium text-[#6b6b78] light:text-[#82828e]">
-            Or read the{' '}
-            <Link to="/docs" className="text-[#9b9ba8] light:text-[#5d5d6a] font-semibold hover:text-[#f3f3f6] hover:light:text-[#18181f] transition">
-              docs
-            </Link>{' '}
-            first.
-          </p>
+            Analyze PR
+            <ArrowRight className="w-4 h-4" strokeWidth={2.2} />
+          </button>
+          <Link
+            to="/docs"
+            className="text-[16px] font-medium text-[var(--prl-text-dim)] hover:text-[var(--prl-text)] transition-colors no-underline"
+          >
+            Read documentation
+          </Link>
         </div>
+
+        <p className="mt-8 text-[14px] text-[var(--prl-text-dim)] prl-delay-3">
+          Free to use. No repository installation required.
+        </p>
       </div>
-    </div>
-  </section>
-);
+    </section>
+  );
+};
 
 export default CTA;
