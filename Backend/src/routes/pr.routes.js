@@ -10,6 +10,7 @@ router.use(verifyJwt);
 
 router.route("/analyze").post(analyzeLimiter, analyzePR);
 router.route("/").get(getAllPRs);
+router.route("/history").get(getAllPRs);
 
 router.route("/:id").get(getPR).put(updatePRTitle).delete(deletePR);
 

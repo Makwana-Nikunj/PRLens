@@ -63,14 +63,11 @@ export const parsePRUrl = (url) => {
 };
 
 export class GitHubService {
-    constructor(token) {
-        if (!token) {
-            throw new ApiError(401, "GitHub access token is required");
-        }
+    constructor(token = null) {
         this.token = token;
 
         this.client = new Octokit({
-            auth: token,
+            ...(token ? { auth: token } : {}),
             request: {
                 timeout: 15000, // Increased to 15 seconds for heavy PRs
                 retries: 3

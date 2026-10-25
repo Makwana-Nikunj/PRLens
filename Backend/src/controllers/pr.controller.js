@@ -65,16 +65,11 @@ const analyzePR = async (req, res) => {
         const userId = req.user?.id || null;
 
         if (!accessToken) {
-            accessToken = process.env.GITHUB_TOKEN;
+            accessToken = process.env.GITHUB_TOKEN || null;
             isUserToken = false;
         }
 
-        if (!accessToken) {
-            console.warn("[PR ANALYZE] No GitHub token available");
-            return sendError(401, "GitHub access token required. Log in or set GITHUB_TOKEN env var.");
-        }
-
-        console.log("[PR ANALYZE] Token acquired", { isUserToken, hasAccessToken: !!accessToken });
+        console.log("[PR ANALYZE] Token status", { isUserToken, hasAccessToken: !!accessToken });
 
         sendEvent("Fetching PR data from GitHub...", { progress: 10 });
 
