@@ -194,6 +194,8 @@ dist-ssr
 
 
 .agent
+.agents/
+.taste-skill/
 # Claude Code local config
 .claude/
 CLAUDE.md
