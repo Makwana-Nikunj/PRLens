@@ -1,5 +1,5 @@
 import crypto from "crypto";
-import { openRouterLLM, mistralLLM, groqLLM } from "./index.js";
+import { manifoldLLM, openRouterLLM, mistralLLM, groqLLM } from "./index.js";
 
 /**
  * Env-aware cache for the resilient LangChain chains used by the orchestrator.
@@ -22,6 +22,12 @@ import { openRouterLLM, mistralLLM, groqLLM } from "./index.js";
  */
 
 const ENV_KEYS = [
+  "PROVIDER_1_API_KEY",
+  "PROVIDER_1_BASE_URL",
+  "PROVIDER_1_MODEL",
+  "MANIFOLD_API_KEY",
+  "MANIFOLD_BASE_URL",
+  "MANIFOLD_MODEL",
   "OPENROUTER_API_KEY",
   "AI_MODEL",
   "MISTRAL_API_KEY",
@@ -40,7 +46,9 @@ function envHash() {
 }
 
 const LLM_BY_KEY = {
-  openRouter: openRouterLLM,
+  manifold: manifoldLLM,
+  primary: manifoldLLM,
+  openRouter: manifoldLLM,
   mistral: mistralLLM,
   groq: groqLLM,
 };

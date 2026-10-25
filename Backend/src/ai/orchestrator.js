@@ -1,5 +1,5 @@
 import { ApiError } from "../utils/ApiError.js";
-import { openRouterLLM, mistralLLM, groqLLM } from "./llm/index.js";
+import { manifoldLLM, mistralLLM, groqLLM } from "./llm/index.js";
 import { createAnalyzePRChain, createChatChain } from "./chains/index.js";
 import { githubFilesToDocuments, formatDocumentsForPRAnalysis } from "./documents/github.js";
 import { indexPRForRAG, retrieveRAGContext } from "./rag/index.js";
@@ -43,8 +43,8 @@ export async function analyzePRChunksWithLangChain(chunks, prMetadata) {
 
   console.log(`[AI Orchestrator] Starting LangChain execution with ${documents.length} LangChain Documents`);
 
-  // 3. Instantiate chains for each provider
-  const primaryChain = createAnalyzePRChain(openRouterLLM);
+  // 3. Instantiate chains for each provider (manifoldLLM combo/nikunj is primary)
+  const primaryChain = createAnalyzePRChain(manifoldLLM);
   const fallbackChain1 = createAnalyzePRChain(mistralLLM);
   const fallbackChain2 = createAnalyzePRChain(groqLLM);
 
@@ -143,8 +143,8 @@ export async function streamChatWithLangChain(options = {}) {
     }
   }
 
-  // 2. Instantiate the chat chains for each provider
-  const primaryChain = createChatChain(openRouterLLM);
+  // 2. Instantiate the chat chains for each provider (manifoldLLM combo/nikunj is primary)
+  const primaryChain = createChatChain(manifoldLLM);
   const fallbackChain1 = createChatChain(mistralLLM);
   const fallbackChain2 = createChatChain(groqLLM);
 
