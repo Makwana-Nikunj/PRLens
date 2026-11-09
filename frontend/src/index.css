@@ -36,17 +36,92 @@
   }
 }
 
+@keyframes prl-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes prl-pulse-slow {
+  0%, 100% {
+    opacity: 0.35;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.75;
+    transform: scale(1.06);
+  }
+}
+
 .prl-entrance {
   animation: prl-entrance 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
-.prl-delay-1 { animation-delay: 80ms; }
-.prl-delay-2 { animation-delay: 160ms; }
-.prl-delay-3 { animation-delay: 240ms; }
+/* Scroll-triggered reveal system */
+.prl-reveal {
+  opacity: 0;
+  transform: translateY(28px);
+  transition: opacity 0.75s cubic-bezier(0.16, 1, 0.3, 1), transform 0.75s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.prl-reveal.is-visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.prl-reveal-scale {
+  opacity: 0;
+  transform: scale(0.96) translateY(24px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  will-change: opacity, transform;
+}
+
+.prl-reveal-scale.is-visible {
+  opacity: 1;
+  transform: scale(1) translateY(0);
+}
+
+/* Delay modifiers for stagger effects */
+.prl-delay-1 { transition-delay: 90ms; animation-delay: 90ms; }
+.prl-delay-2 { transition-delay: 180ms; animation-delay: 180ms; }
+.prl-delay-3 { transition-delay: 270ms; animation-delay: 270ms; }
+.prl-delay-4 { transition-delay: 360ms; animation-delay: 360ms; }
+
+/* Micro-interaction utility: hover-lift with subtle border glow */
+.prl-card-hover {
+  transition: transform 0.28s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.28s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.28s ease;
+}
+
+.prl-card-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 16px 36px -12px rgba(0, 0, 0, 0.5), 0 0 20px -8px rgba(204, 255, 0, 0.15);
+}
+
+/* Tab & scenario smooth switch */
+.prl-tab-fade {
+  animation: prl-fade-in 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+/* Ambient glow pulsation */
+.prl-ambient-glow {
+  animation: prl-pulse-slow 7s ease-in-out infinite;
+}
 
 @media (prefers-reduced-motion: reduce) {
-  .prl-entrance {
+  .prl-entrance,
+  .prl-reveal,
+  .prl-reveal-scale,
+  .prl-tab-fade,
+  .prl-ambient-glow,
+  .prl-card-hover {
     animation: none !important;
+    transition: none !important;
     opacity: 1 !important;
     transform: none !important;
   }

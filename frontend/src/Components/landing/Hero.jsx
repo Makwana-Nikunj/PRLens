@@ -48,15 +48,24 @@ const Hero = () => {
         </div>
 
         {/* Right: The real product interface fragment (data-ui) */}
-        <div ref={formRef} className="lg:col-span-6 w-full prl-entrance prl-delay-1">
+        <div ref={formRef} className="lg:col-span-6 w-full prl-entrance prl-delay-1 relative">
+          {/* Subtle ambient radiant glow behind preview card */}
+          <div
+            className="absolute -top-12 -right-12 w-[380px] h-[380px] bg-[radial-gradient(circle,rgba(204,255,0,0.08)_0%,transparent_70%)] pointer-events-none blur-3xl prl-ambient-glow -z-10"
+            aria-hidden="true"
+          />
+
           <div
             data-ui
-            className="w-full rounded-lg p-6 md:p-7 bg-[var(--prl-panel-2)]"
+            className="w-full rounded-lg p-6 md:p-7 bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/60 prl-card-hover"
           >
             {/* Real PR Metadata bar */}
             <div className="flex flex-wrap items-center justify-between gap-3 pb-3 mb-4">
               <div className="flex items-center gap-2.5">
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400" aria-hidden="true" />
+                <span className="relative flex h-2.5 w-2.5" aria-hidden="true">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75" />
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                </span>
                 <span className="text-[14px] font-semibold text-[var(--prl-text)]">
                   authjs/next-auth #9412
                 </span>

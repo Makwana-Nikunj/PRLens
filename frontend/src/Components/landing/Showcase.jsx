@@ -88,18 +88,18 @@ const Showcase = () => {
   return (
     <section id="demo" className="bg-[var(--prl-bg-soft)] text-[var(--prl-text)] py-28 md:py-36 px-6 w-full">
       <div className="max-w-[1320px] mx-auto">
-        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-entrance">
+        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-reveal">
           Inspect a pull request live.
         </h2>
-        <p className="text-[18px] text-[var(--prl-text-dim)] mb-14 max-w-[50ch] prl-entrance prl-delay-1">
+        <p className="text-[18px] text-[var(--prl-text-dim)] mb-14 max-w-[50ch] prl-reveal prl-delay-1">
           Test the analysis engine directly on real pull request scenarios, or test your own repo.
         </p>
 
         {/* Live Demo with controls */}
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start prl-entrance prl-delay-2">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start prl-reveal prl-delay-2">
           {/* Left: Controls Column */}
           <div className="lg:col-span-4 space-y-4">
-            <div className="p-5 rounded-lg bg-[var(--prl-panel-2)]">
+            <div className="p-5 rounded-lg bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/50 prl-card-hover">
               <span className="block text-[14px] font-semibold text-[var(--prl-text)] mb-3">
                 Select Scenario
               </span>
@@ -111,9 +111,9 @@ const Showcase = () => {
                       key={sc.id}
                       type="button"
                       onClick={() => setActiveScenarioId(sc.id)}
-                      className={`w-full text-left p-3.5 rounded transition-colors duration-150 cursor-pointer ${
+                      className={`w-full text-left p-3.5 rounded transition-all duration-200 cursor-pointer active:scale-[0.98] ${
                         isSelected
-                          ? 'bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold'
+                          ? 'bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold shadow-md'
                           : 'bg-[var(--prl-bg)] text-[var(--prl-text)] hover:bg-[var(--prl-surface-2)]'
                       }`}
                     >
@@ -128,7 +128,7 @@ const Showcase = () => {
             </div>
 
             {/* Custom URL Tester */}
-            <form onSubmit={handleCustomAnalyze} className="p-5 rounded-lg bg-[var(--prl-panel-2)] space-y-3">
+            <form onSubmit={handleCustomAnalyze} className="p-5 rounded-lg bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/50 prl-card-hover space-y-3">
               <label htmlFor="showcase-url" className="block text-[14px] font-semibold text-[var(--prl-text)]">
                 Or Analyze Any PR
               </label>
@@ -138,11 +138,11 @@ const Showcase = () => {
                 value={inputUrl}
                 onChange={(e) => setInputUrl(e.target.value)}
                 placeholder="https://github.com/owner/repo/pull/123"
-                className="w-full p-3 rounded bg-[var(--prl-bg)] text-[14px] text-[var(--prl-text)] outline-none focus:ring-1 focus:ring-[var(--prl-accent)]"
+                className="w-full p-3 rounded bg-[var(--prl-bg)] text-[14px] text-[var(--prl-text)] outline-none focus:ring-1 focus:ring-[var(--prl-accent)] transition-all duration-200"
               />
               <button
                 type="submit"
-                className="w-full py-3 px-4 rounded bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold text-[14px] hover:brightness-105 cursor-pointer"
+                className="w-full py-3 px-4 rounded bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold text-[14px] hover:brightness-105 active:scale-[0.98] transition-all duration-150 cursor-pointer"
               >
                 Analyze in Dashboard &rarr;
               </button>
@@ -151,7 +151,7 @@ const Showcase = () => {
 
           {/* Right: Live Interactive Demo Area (data-ui) */}
           <div className="lg:col-span-8 w-full">
-            <div data-ui className="w-full rounded-lg p-6 md:p-8 bg-[var(--prl-panel-2)]">
+            <div data-ui className="w-full rounded-lg p-6 md:p-8 bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/50 prl-card-hover">
               {/* Header */}
               <div className="flex flex-wrap items-center justify-between gap-4 pb-3 mb-5">
                 <div>
@@ -168,9 +168,9 @@ const Showcase = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('summary')}
-                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-colors cursor-pointer ${
+                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-all duration-150 cursor-pointer ${
                       activeTab === 'summary'
-                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)]'
+                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)] shadow-sm'
                         : 'text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]'
                     }`}
                   >
@@ -179,9 +179,9 @@ const Showcase = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('risks')}
-                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-colors cursor-pointer ${
+                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-all duration-150 cursor-pointer ${
                       activeTab === 'risks'
-                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)]'
+                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)] shadow-sm'
                         : 'text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]'
                     }`}
                   >
@@ -190,9 +190,9 @@ const Showcase = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('files')}
-                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-colors cursor-pointer ${
+                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-all duration-150 cursor-pointer ${
                       activeTab === 'files'
-                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)]'
+                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)] shadow-sm'
                         : 'text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]'
                     }`}
                   >
@@ -201,9 +201,9 @@ const Showcase = () => {
                   <button
                     type="button"
                     onClick={() => setActiveTab('chat')}
-                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-colors cursor-pointer ${
+                    className={`py-1.5 px-3 rounded text-[13px] font-semibold transition-all duration-150 cursor-pointer ${
                       activeTab === 'chat'
-                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)]'
+                        ? 'bg-[var(--prl-panel-2)] text-[var(--prl-accent)] shadow-sm'
                         : 'text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]'
                     }`}
                   >
@@ -212,8 +212,8 @@ const Showcase = () => {
                 </div>
               </div>
 
-              {/* Tab Content */}
-              <div className="min-h-[220px]">
+              {/* Tab Content with smooth animated transition */}
+              <div key={`${activeScenarioId}-${activeTab}`} className="min-h-[220px] prl-tab-fade">
                 {activeTab === 'summary' && (
                   <div className="space-y-4">
                     <div className="p-4 rounded bg-[var(--prl-bg)]">

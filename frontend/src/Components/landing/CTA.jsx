@@ -8,22 +8,28 @@ const CTA = () => {
   return (
     <section
       id="cta"
-      className="bg-[var(--prl-bg)] text-[var(--prl-text)] pt-32 pb-24 px-6 w-full"
+      className="bg-[var(--prl-bg)] text-[var(--prl-text)] pt-32 pb-24 px-6 w-full relative overflow-hidden"
     >
-      <div className="max-w-[760px] mx-auto text-center prl-entrance">
+      {/* Radiant ambient glow in background */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[550px] h-[350px] bg-[radial-gradient(ellipse_at_center,rgba(204,255,0,0.06)_0%,transparent_70%)] pointer-events-none blur-3xl prl-ambient-glow -z-10"
+        aria-hidden="true"
+      />
+
+      <div className="max-w-[760px] mx-auto text-center prl-reveal">
         <h2 className="font-display font-bold text-[clamp(32px,5.2vw,56px)] leading-[0.96] tracking-[-0.04em] text-[var(--prl-text)] mb-6">
           Review pull requests<br />with PRLens.
         </h2>
 
-        <p className="text-[18px] md:text-[20px] leading-[1.6] text-[var(--prl-text-dim)] max-w-[38ch] mx-auto mb-10 prl-delay-1">
+        <p className="text-[18px] md:text-[20px] leading-[1.6] text-[var(--prl-text-dim)] max-w-[38ch] mx-auto mb-10 prl-reveal prl-delay-1">
           Paste any public or private GitHub link to receive an immediate architectural summary and risk breakdown.
         </p>
 
-        <div className="flex flex-wrap items-center justify-center gap-6 prl-delay-2">
+        <div className="flex flex-wrap items-center justify-center gap-6 prl-reveal prl-delay-2">
           <button
             type="button"
             onClick={() => navigate('/dashboard')}
-            className="inline-flex items-center gap-2 py-3.5 px-8 rounded bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold text-[16px] hover:brightness-105 active:scale-[0.98] transition-transform duration-150 cursor-pointer"
+            className="inline-flex items-center gap-2 py-3.5 px-8 rounded bg-[var(--prl-accent-fill)] text-[var(--prl-on-accent)] font-semibold text-[16px] hover:brightness-105 hover:shadow-[0_0_24px_rgba(204,255,0,0.3)] active:scale-[0.98] transition-all duration-200 cursor-pointer"
           >
             Analyze PR
             <ArrowRight className="w-4 h-4" strokeWidth={2.2} />
@@ -36,7 +42,7 @@ const CTA = () => {
           </Link>
         </div>
 
-        <p className="mt-8 text-[14px] text-[var(--prl-text-dim)] prl-delay-3">
+        <p className="mt-8 text-[14px] text-[var(--prl-text-dim)] prl-reveal prl-delay-3">
           Free to use. No repository installation required.
         </p>
       </div>

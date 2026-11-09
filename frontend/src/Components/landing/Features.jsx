@@ -8,21 +8,21 @@ const Features = () => {
       className="bg-[var(--prl-bg)] text-[var(--prl-text)] py-28 md:py-36 px-6 w-full"
     >
       <div className="max-w-[1320px] mx-auto">
-        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-entrance">
+        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-reveal">
           What PRLens catches.
         </h2>
-        <p className="text-[18px] text-[var(--prl-text-dim)] mb-20 max-w-[50ch] prl-entrance prl-delay-1">
+        <p className="text-[18px] text-[var(--prl-text-dim)] mb-20 max-w-[50ch] prl-reveal prl-delay-1">
           Three capabilities designed to replace manual line-by-line skimming.
         </p>
 
         {/* Modules in blueprint sequence: left proof demonstration, right text */}
         <div className="space-y-24">
           {/* Module 1: Risk & Breaking Change Detection */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-entrance">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-reveal">
             <div className="lg:col-span-6 w-full">
               <div
                 data-ui
-                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)]"
+                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/50 prl-card-hover"
               >
                 <div className="flex items-center justify-between pb-3 mb-4">
                   <div className="flex items-center gap-2 text-[14px] font-semibold text-red-400">
@@ -66,11 +66,11 @@ const Features = () => {
           </div>
 
           {/* Module 2: File-by-File Intelligence */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-entrance">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-reveal">
             <div className="lg:col-span-6 w-full">
               <div
                 data-ui
-                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)]"
+                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/50 prl-card-hover"
               >
                 <div className="flex items-center justify-between pb-3 mb-4">
                   <div className="flex items-center gap-2 text-[14px] font-semibold text-[var(--prl-text)]">
@@ -118,11 +118,11 @@ const Features = () => {
           </div>
 
           {/* Module 3: Interactive Diff Chat */}
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-entrance">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-14 items-center prl-reveal">
             <div className="lg:col-span-6 w-full">
               <div
                 data-ui
-                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)]"
+                className="w-full rounded-lg p-6 bg-[var(--prl-panel-2)] border border-[var(--prl-border)]/50 prl-card-hover"
               >
                 <div className="flex items-center justify-between pb-3 mb-4">
                   <div className="flex items-center gap-2 text-[14px] font-semibold text-[var(--prl-text)]">

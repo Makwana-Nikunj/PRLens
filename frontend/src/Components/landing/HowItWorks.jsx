@@ -25,26 +25,26 @@ const HowItWorks = () => {
       className="bg-[var(--prl-bg-soft)] text-[var(--prl-text)] py-28 md:py-36 px-6 w-full"
     >
       <div className="max-w-[1320px] mx-auto">
-        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-entrance">
+        <h2 className="font-display font-bold text-[clamp(36px,5vw,60px)] leading-[0.96] tracking-[-0.04em] mb-4 prl-reveal">
           How it works.
         </h2>
-        <p className="text-[18px] text-[var(--prl-text-dim)] mb-16 max-w-[50ch] prl-entrance prl-delay-1">
+        <p className="text-[18px] text-[var(--prl-text-dim)] mb-16 max-w-[50ch] prl-reveal prl-delay-1">
           Three steps from a pull request link to an actionable architectural breakdown.
         </p>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-start">
           {/* Left: 3 statements with order words */}
-          <div className="lg:col-span-5 space-y-8 prl-entrance prl-delay-1">
+          <div className="lg:col-span-5 space-y-8 prl-reveal prl-delay-1">
             {steps.map((step, idx) => {
               const isActive = activeStep === idx;
               return (
                 <div
                   key={step.action}
                   onClick={() => setActiveStep(idx)}
-                  className={`cursor-pointer p-6 rounded transition-colors duration-200 ${
+                  className={`cursor-pointer p-6 rounded transition-all duration-200 prl-card-hover ${
                     isActive
-                      ? 'bg-[var(--prl-panel-2)] text-[var(--prl-text)]'
-                      : 'bg-transparent text-[var(--prl-text-dim)] hover:text-[var(--prl-text)]'
+                      ? 'bg-[var(--prl-panel-2)] text-[var(--prl-text)] border-l-2 border-[var(--prl-accent)] shadow-md'
+                      : 'bg-transparent text-[var(--prl-text-dim)] hover:text-[var(--prl-text)] border-l-2 border-transparent'
                   }`}
                 >
                   <h3 className="font-display text-[22px] md:text-[24px] font-bold tracking-tight mb-3">
@@ -59,10 +59,11 @@ const HowItWorks = () => {
           </div>
 
           {/* Right: Sticky real interface stage (data-ui) changing state */}
-          <div className="lg:col-span-7 lg:sticky lg:top-[120px] prl-entrance prl-delay-2">
+          <div className="lg:col-span-7 lg:sticky lg:top-[120px] prl-reveal prl-delay-2">
             <div
+              key={activeStep}
               data-ui
-              className="w-full rounded-lg p-6 md:p-8 bg-[var(--prl-panel-2)] min-h-[380px] flex flex-col justify-between"
+              className="w-full rounded-lg p-6 md:p-8 bg-[var(--prl-panel-2)] min-h-[380px] flex flex-col justify-between border border-[var(--prl-border)]/50 prl-card-hover prl-tab-fade"
             >
               {activeStep === 0 && (
                 <div className="space-y-6">

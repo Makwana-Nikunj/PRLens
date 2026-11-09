@@ -19,6 +19,31 @@ const LandingPage = () => {
     if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
   }, [hash]);
 
+  // Scroll reveal observer for landing page elements
+  useEffect(() => {
+    const reveals = document.querySelectorAll('.prl-reveal, .prl-reveal-scale');
+    if (!reveals.length) return;
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add('is-visible');
+            observer.unobserve(entry.target);
+          }
+        });
+      },
+      {
+        threshold: 0.08,
+        rootMargin: '0px 0px -40px 0px',
+      }
+    );
+
+    reveals.forEach((el) => observer.observe(el));
+
+    return () => observer.disconnect();
+  }, []);
+
   return (
     <div className="w-full bg-[var(--prl-bg)] text-[var(--prl-text)] min-h-[100dvh] flex flex-col font-sans selection:bg-[var(--prl-accent)] selection:text-black">
       <Navbar />

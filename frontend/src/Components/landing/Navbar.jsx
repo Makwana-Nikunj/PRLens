@@ -23,17 +23,14 @@ const Navbar = () => {
       </Link>
 
       <div className="hidden md:flex items-center gap-7">
-        <a href="#how-it-works" className={linkClass}>How it works</a>
-        <a href="#features" className={linkClass}>Proof</a>
-        <a href="#demo" className={linkClass}>Live Demo</a>
         <a href="#faq" className={linkClass}>FAQ</a>
         <Link to="/docs" className={linkClass}>Docs</Link>
         <ThemeToggle />
         <button
           onClick={handleDashboard}
-          className="py-2 px-4 rounded font-sans text-[14px] font-semibold text-[var(--prl-text)] bg-[var(--prl-bg-soft)] hover:bg-[var(--prl-accent)] hover:text-black transition-colors cursor-pointer"
+          className="py-2 px-4 rounded font-sans text-[14px] font-semibold text-[var(--prl-text)] bg-[var(--prl-bg-soft)] hover:bg-[var(--prl-accent)] hover:text-black hover:shadow-[0_0_16px_rgba(204,255,0,0.2)] active:scale-[0.98] transition-all duration-150 cursor-pointer"
         >
-          Demo dashboard
+          Dashboard
         </button>
       </div>
 
@@ -55,17 +52,14 @@ const Navbar = () => {
       </div>
 
       {menuOpen && (
-        <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--prl-panel-2)] p-6 flex flex-col gap-5 z-50">
-          <a href="#how-it-works" className={linkClass} onClick={() => setMenuOpen(false)}>How it works</a>
-          <a href="#features" className={linkClass} onClick={() => setMenuOpen(false)}>Proof</a>
-          <a href="#demo" className={linkClass} onClick={() => setMenuOpen(false)}>Live Demo</a>
+        <div className="md:hidden absolute top-full left-0 right-0 bg-[var(--prl-panel-2)] p-6 flex flex-col gap-5 z-50 border-b border-[var(--prl-border)]/60 shadow-2xl prl-tab-fade">
           <a href="#faq" className={linkClass} onClick={() => setMenuOpen(false)}>FAQ</a>
           <Link to="/docs" className={linkClass} onClick={() => setMenuOpen(false)}>Docs</Link>
           <button
             onClick={handleDashboard}
             className="py-3 px-6 rounded font-sans text-[14px] font-semibold text-[var(--prl-text)] bg-[var(--prl-bg-soft)] cursor-pointer"
           >
-            Demo dashboard
+            Dashboard
           </button>
         </div>
       )}
