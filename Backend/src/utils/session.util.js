@@ -89,17 +89,40 @@ export const hashRefreshToken = (raw) => sha256(raw);
 // ============================================
 
 /**
+ * Returns standard cookie options based on the request environment.
+ * If running on Render, in production, or over HTTPS, SameSite=None and Secure=true
+ * are used to support cross-site requests (e.g. Vercel frontend -> Render backend).
+ * On local HTTP development, SameSite=Lax and Secure=false are used.
+ *
+ * @param {import('express').Response} [res]
+ * @returns {import('express').CookieOptions}
+ */
+export function getBaseCookieOptions(res) {
+  const req = res?.req;
+  const isHttps = Boolean(req?.secure || req?.headers?.["x-forwarded-proto"] === "https");
+  const isProduction = process.env.NODE_ENV === "production" || process.env.RENDER === "true" || isHttps;
+
+  const secure = process.env.COOKIE_SECURE !== undefined
+    ? process.env.COOKIE_SECURE === "true"
+    : Boolean(isProduction);
+
+  const sameSite = process.env.COOKIE_SAMESITE || (secure ? "none" : "lax");
+
+  return {
+    httpOnly: true,
+    secure,
+    sameSite,
+    path: "/",
+  };
+}
+
+/**
  * Set the access + refresh cookies on the response.
  * @param {import('express').Response} res
  * @param {{ accessToken: string, refreshToken: string }} tokens
  */
 export function setAuthCookies(res, { accessToken, refreshToken }) {
-  const baseOpts = {
-    httpOnly: true,
-    secure:   isProd,
-    sameSite: "lax",
-    path:     "/",
-  };
+  const baseOpts = getBaseCookieOptions(res);
   res.cookie("accessToken",  accessToken,  {
     ...baseOpts,
     maxAge: parseExpiryMs(ACCESS_EXPIRY),
@@ -116,12 +139,7 @@ export function setAuthCookies(res, { accessToken, refreshToken }) {
  * @param {import('express').Response} res
  */
 export function clearAuthCookies(res) {
-  const baseOpts = {
-    httpOnly: true,
-    secure:   isProd,
-    sameSite: "lax",
-    path:     "/",
-  };
+  const baseOpts = getBaseCookieOptions(res);
   res.clearCookie("accessToken",  baseOpts);
   res.clearCookie("refreshToken", baseOpts);
 }
@@ -147,12 +165,10 @@ export function clearAuthCookies(res) {
  * @param {string} state
  */
 export function setOAuthStateCookie(res, state) {
+  const baseOpts = getBaseCookieOptions(res);
   const sig = signOAuthState(state);
   res.cookie("oauth_state", `${state}.${sig}`, {
-    httpOnly: true,
-    secure:   isProd,
-    sameSite: "lax",
-    path:     "/",
+    ...baseOpts,
     maxAge:   10 * 60 * 1000, // 10 minutes
   });
 }
@@ -194,12 +210,8 @@ export function verifyOAuthState(req, presented) {
  * @param {import('express').Response} res
  */
 export function clearOAuthStateCookie(res) {
-  res.clearCookie("oauth_state", {
-    httpOnly: true,
-    secure:   isProd,
-    sameSite: "lax",
-    path:     "/",
-  });
+  const baseOpts = getBaseCookieOptions(res);
+  res.clearCookie("oauth_state", baseOpts);
 }
 
 // ============================================

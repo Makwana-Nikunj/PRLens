@@ -241,7 +241,7 @@ export const emailLogin = asyncHandler(async (req, res) => {
 
   return res
     .status(200)
-    .json(new ApiResponse(200, { user: toPublicUser(row) }, "Logged in"));
+    .json(new ApiResponse(200, { user: toPublicUser(row), accessToken }, "Logged in"));
 });
 
 /**
@@ -579,7 +579,7 @@ export const refreshAccessToken = asyncHandler(async (req, res) => {
   const accessToken = signAccessToken({ id: users[0].id, email: users[0].email });
   setAuthCookies(res, { accessToken, refreshToken: rawRefresh });
 
-  return res.json(new ApiResponse(200, {}, "Refreshed"));
+  return res.json(new ApiResponse(200, { accessToken }, "Refreshed"));
 });
 
 /**

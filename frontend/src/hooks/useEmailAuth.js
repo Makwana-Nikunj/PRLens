@@ -51,10 +51,9 @@ function useEmailAuth({ redirectPath = "/dashboard" } = {}) {
     try {
       const { data } = await apiClient.post("/auth/login", { email, password });
       // The backend sets the access + refresh tokens as httpOnly cookies on
-      // the response — they do NOT appear in the body. The body only
-      // carries the user shape, which lives at data.data.user.
+      // the response, and also returns accessToken in the body for cross-site fallbacks.
       if (data?.data?.user) {
-        handleAuthSuccess(data.data.user, null);
+        handleAuthSuccess(data.data.user, data.data.accessToken || null);
       }
       return data;
     } catch (err) {

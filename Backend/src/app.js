@@ -19,6 +19,10 @@ import { keepAlive } from "./utils/keepAlive.js";
 
 const app = express();
 
+// Trust reverse proxy (Render, Cloudflare, etc.) to correctly identify client IP
+// and protocol (HTTPS) for rate-limiting, security headers, and cross-site cookies.
+app.set("trust proxy", 1);
+
 
 const defaultOrigins = ["http://localhost:5173", "http://localhost:5174", "http://localhost:4173", "http://127.0.0.1:5173", "http://127.0.0.1:4173", "https://prlens-eight.vercel.app"];
 

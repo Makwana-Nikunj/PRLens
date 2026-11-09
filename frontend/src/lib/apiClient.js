@@ -8,6 +8,22 @@ export const apiClient = axios.create({
     timeout: 300000,
 });
 
+// Request interceptor — attach Bearer token if present in auth-storage (for cross-site cookie fallback)
+apiClient.interceptors.request.use((config) => {
+    try {
+        const raw = localStorage.getItem('auth-storage');
+        if (raw) {
+            const parsed = JSON.parse(raw);
+            const token = parsed?.state?.accessToken;
+            if (token && !config.headers?.Authorization) {
+                config.headers = config.headers || {};
+                config.headers.Authorization = `Bearer ${token}`;
+            }
+        }
+    } catch (_err) {}
+    return config;
+});
+
 // Track if a token refresh is already in progress
 let isRefreshing = false;
 let refreshSubscribers = [];
@@ -47,7 +63,20 @@ apiClient.interceptors.response.use(
                 isRefreshing = true;
 
                 try {
-                    await apiClient.post('/auth/refresh');
+                    const refreshRes = await apiClient.post('/auth/refresh');
+                    const newAccessToken = refreshRes.data?.data?.accessToken;
+                    if (newAccessToken) {
+                        try {
+                            const raw = localStorage.getItem('auth-storage');
+                            if (raw) {
+                                const parsed = JSON.parse(raw);
+                                if (parsed.state) {
+                                    parsed.state.accessToken = newAccessToken;
+                                    localStorage.setItem('auth-storage', JSON.stringify(parsed));
+                                }
+                            }
+                        } catch (_e) {}
+                    }
                     isRefreshing = false;
                     onTokenRefreshed();
                     // Retry the original request
